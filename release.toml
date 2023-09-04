@@ -1,0 +1,5 @@
+allow-branch = ["main", "dev", "!HEAD"]
+publish = false
+pre-release-commit-message = "chore: Release simplemoji version "
+tag-message = "chore: Release simplemoji version "
+tag-name = "v"
