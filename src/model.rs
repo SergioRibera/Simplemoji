@@ -1,6 +1,8 @@
 use std::fmt::Display;
 
-#[derive(Clone, Default, Debug, PartialEq, Eq)]
+use clap::ValueEnum;
+
+#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum SkinTone {
     #[default]
     Default,
