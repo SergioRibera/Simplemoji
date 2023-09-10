@@ -16,7 +16,7 @@ impl pick_list::StyleSheet for SelectStyle {
             text_color: palette.background.weak.text,
             background: Color::new(bg.r, bg.g, bg.b, 0.6).into(),
             placeholder_color: palette.background.strong.color,
-            handle_color: Color::TRANSPARENT,
+            handle_color: Color::new(bg.r, bg.g, bg.b, 0.),
             border_radius: 2.0.into(),
             border_width: 0.0,
             border_color: palette.background.strong.color,
