@@ -56,3 +56,7 @@ dependencies = [
     "clippy",
     "test",
 ]
+
+[tasks.dev]
+description = "Run ui in dev mode"
+script = "cargo watch -c -d 0.1 -s 'mold -run cargo run'"
