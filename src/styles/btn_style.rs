@@ -22,7 +22,7 @@ impl button::StyleSheet for TransparentButton {
 
         button::Appearance {
             shadow_offset: active.shadow_offset + iced::Vector::new(0.0, 1.0),
-            background: Some(Background::Color(Color::new(1., 1., 1., 0.05))),
+            background: Some(Background::Color(Color::new(1., 1., 1., 0.25))),
             ..active
         }
     }
