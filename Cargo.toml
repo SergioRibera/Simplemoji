@@ -22,11 +22,13 @@ opt-level = 3
 log = "0.4.20"
 env_logger = "0.10.0"
 emojis = "0.6.0"
-serde = { version = "1.0.188", features = ["derive"] }
-serde_json = "1.0.105"
-app_dirs2 = "2.5.5"
-arboard = { version = "3.2.1", features = ["wayland-data-control"] }
 dark-light = "1.0.0"
-iced = "0.10.0"
-iced_winit = { version = "0.10.0", features = ["application"] }
+iced = { version = "0.10.0", default-features = false, features = ["advanced"] }
 iced_aw = { version = "0.7.0", default-features = false, features = ["grid"] }
+clap = { version = "4.4.2", features = [
+    "derive",
+    "color",
+    "env",
+    "suggestions",
+    "wrap_help",
+] }

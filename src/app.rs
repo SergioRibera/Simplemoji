@@ -1,10 +1,10 @@
-use arboard::Clipboard;
 use iced::subscription::events_with;
 use iced::widget::{container, scrollable, text_input, Column};
-use iced::{mouse, window, Application, Command, Element, Event, Length, Subscription, Theme};
+use iced::{mouse, window, Application, Command, Event, Length, Subscription, Theme};
 
 use crate::model::SkinTone;
-use crate::view::show_tab;
+use crate::settings::ArgOpts;
+use crate::view::show_content;
 
 #[derive(Clone, Debug)]
 pub enum MainAppMessage {
@@ -16,8 +16,8 @@ pub enum MainAppMessage {
 }
 
 pub struct MainApp {
-    clipboard_ctx: Clipboard,
     tabs: Vec<(emojis::Group, String)>,
+    settings: ArgOpts,
     search: String,
     tone: SkinTone,
     tab: emojis::Group,
@@ -28,15 +28,16 @@ impl Application for MainApp {
     type Executor = iced::executor::Default;
     type Message = MainAppMessage;
     type Theme = Theme;
-    type Flags = ();
+    type Flags = ArgOpts;
 
-    fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+    fn new(settings: Self::Flags) -> (Self, Command<Self::Message>) {
+        let tone = settings.tone.unwrap_or_default();
         (
             MainApp {
+                settings,
                 search: String::new(),
-                tone: SkinTone::Default,
+                tone,
                 tab: emojis::Group::SmileysAndEmotion,
-                clipboard_ctx: Clipboard::new().unwrap(),
                 theme: match dark_light::detect() {
                     dark_light::Mode::Light => Theme::Light,
                     _ => Theme::Dark,
@@ -114,7 +115,9 @@ impl Application for MainApp {
                     scrollable::AbsoluteOffset { x: 0., y: 0. },
                 );
             }
-            MainAppMessage::CopyEmoji(emoji) => self.clipboard_ctx.set_text(emoji).unwrap(),
+            MainAppMessage::CopyEmoji(emoji) => {
+                return iced::clipboard::write(emoji);
+            }
             MainAppMessage::HiddeApplication => {
                 #[cfg(not(debug_assertions))]
                 return window::change_mode(window::Mode::Hidden);
@@ -131,8 +134,9 @@ impl Application for MainApp {
             .width(Length::Fill)
             .height(Length::Fill)
             .spacing(10)
-            .push(show_tab(
+            .push(show_content(
                 self.tabs.as_ref(),
+                &self.settings,
                 self.search.as_str(),
                 &self.tone,
                 &self.tab,
