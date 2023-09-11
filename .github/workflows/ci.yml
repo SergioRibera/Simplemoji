@@ -11,6 +11,8 @@ on:
       - "release.toml"
       - "LICENSE*"
       - "README.md"
+    tags-ignore:
+      - "**"
   pull_request:
     branches:
       - main

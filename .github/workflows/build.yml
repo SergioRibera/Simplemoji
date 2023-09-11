@@ -14,9 +14,6 @@ on:
       - "release.toml"
       - "LICENS**"
       - "README.md"
-    branches:
-      - "main"
-      - "master"
     tags:
       - "**"
 
@@ -50,9 +47,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: dsherret/rust-toolchain-file@v1
       - uses: Swatinem/rust-cache@v2
-      - name: Load .env file
-        uses: xom9ikk/dotenv@v2
-
       - name: Build Release
         uses: actions-rs/cargo@v1.0.1
         with:
