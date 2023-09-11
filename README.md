@@ -1,6 +1,10 @@
 # Simplemoji 😁
 An application where you can have all the emojis with easy and quick access
 
+<p align="center">
+  <img src="https://github.com/SergioRibera/Simplemoji/assets/56278796/06d1bc25-d19e-423e-a986-11b80d0e8351" />
+</p>
+
 > [!NOTE]
 > The shortcut with which you launch the application must be configured on your own according to the WindowManager you have
 
