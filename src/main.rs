@@ -31,7 +31,6 @@ fn main() -> iced::Result {
         },
         flags: args,
         default_text_size: 20.,
-        default_font: ICON_FONT,
         ..Default::default()
     })
 }

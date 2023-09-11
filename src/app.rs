@@ -1,5 +1,6 @@
 use iced::subscription::events_with;
 use iced::widget::{container, scrollable, text_input, Column};
+#[allow(unused_imports)]
 use iced::{mouse, window, Application, Command, Event, Length, Subscription, Theme};
 
 use crate::model::SkinTone;
@@ -13,12 +14,14 @@ pub enum MainAppMessage {
     CopyEmoji(String),
     SelectSkinTone(SkinTone),
     OnSearchEmoji(String),
+    HoverEmoji(String, String, Vec<String>),
 }
 
 pub struct MainApp {
     tabs: Vec<(emojis::Group, String)>,
     settings: ArgOpts,
     search: String,
+    emoji_hovered: (String, String, Vec<String>),
     tone: SkinTone,
     tab: emojis::Group,
     theme: Theme,
@@ -38,6 +41,15 @@ impl Application for MainApp {
                 search: String::new(),
                 tone,
                 tab: emojis::Group::SmileysAndEmotion,
+                emoji_hovered: emojis::Group::SmileysAndEmotion
+                    .emojis()
+                    .next()
+                    .map(|e| (
+                        e.name().to_string(),
+                        e.to_string(),
+                        e.shortcodes().map(|s| s.to_string()).collect::<Vec<String>>()
+                    ))
+                    .unwrap(),
                 theme: match dark_light::detect() {
                     dark_light::Mode::Light => Theme::Light,
                     _ => Theme::Dark,
@@ -99,7 +111,6 @@ impl Application for MainApp {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        // crate::subscription::manage_emojis(self.tab.clone())
         events_with(|e, _status| match e {
             Event::Mouse(mouse::Event::CursorLeft) => Some(MainAppMessage::HiddeApplication),
             _ => None,
@@ -124,24 +135,26 @@ impl Application for MainApp {
             }
             MainAppMessage::SelectSkinTone(t) => self.tone = t,
             MainAppMessage::OnSearchEmoji(s) => self.search = s,
+            MainAppMessage::HoverEmoji(n, e, s) => self.emoji_hovered = (n, e, s),
         }
 
         Command::none()
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
-        let col = Column::new()
+        let col: iced::Element<_> = Column::new()
             .width(Length::Fill)
             .height(Length::Fill)
             .spacing(10)
             .push(show_content(
                 self.tabs.as_ref(),
                 &self.settings,
-                self.search.as_str(),
+                &self.search,
                 &self.tone,
+                &self.emoji_hovered,
                 &self.tab,
                 MainAppMessage::ChangeTab,
-            ));
+            )).into();
 
         container(col)
             .width(Length::Fill)
