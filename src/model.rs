@@ -19,7 +19,7 @@ impl SkinTone {
             .emojis()
             .next()
             .unwrap()
-            .with_skin_tone((*self).clone().into())
+            .with_skin_tone((*self).into())
             .unwrap()
             .to_string()
     }
@@ -36,9 +36,9 @@ impl SkinTone {
     }
 }
 
-impl Into<emojis::SkinTone> for SkinTone {
-    fn into(self) -> emojis::SkinTone {
-        match self {
+impl From<SkinTone> for emojis::SkinTone {
+    fn from(value: SkinTone) -> Self {
+        match value {
             SkinTone::Default => emojis::SkinTone::Default,
             SkinTone::Light => emojis::SkinTone::Light,
             SkinTone::MediumLight => emojis::SkinTone::MediumLight,

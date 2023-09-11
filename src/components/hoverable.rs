@@ -83,7 +83,7 @@ where
             renderer,
             clipboard,
             shell,
-            viewport
+            viewport,
         ) {
             return event::Status::Captured;
         }
@@ -99,14 +99,14 @@ where
                 // exited hover
                 state.is_hovered = now_hovered;
                 if let Some(on_unhover) = self.unhover.clone() {
-                    shell.publish(on_unhover.clone());
+                    shell.publish(on_unhover);
                 }
             }
             (false, true) => {
                 // entered hover
                 state.is_hovered = now_hovered;
                 if let Some(on_hover) = self.hover.clone() {
-                    shell.publish(on_hover.clone());
+                    shell.publish(on_hover);
                 }
             }
         }
