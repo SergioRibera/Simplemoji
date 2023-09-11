@@ -16,6 +16,7 @@ An application where you can have all the emojis with easy and quick access
 # Installation
 Requirements:
  - Install [Noto Color Emoji](https://fonts.google.com/noto/specimen/Noto+Color+Emoji) font on your system
+
 Options:
 - Download from [releases](https://github.com/SergioRibera/Simplemoji/releases)
 - If you use ArchLinux, just install from [Aur](https://aur.archlinux.org/packages/simplemoji)
