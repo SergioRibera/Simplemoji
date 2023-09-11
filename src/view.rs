@@ -13,14 +13,14 @@ use crate::settings::ArgOpts;
 use crate::styles::{get_btn_transparent_style, get_search_style, get_select_style};
 use crate::ICON_FONT;
 
-fn render_emoji<'a>(e: &'a str) -> Element<'a, MainAppMessage> {
+fn render_emoji(e: &str) -> Element<'_, MainAppMessage> {
     Text::new(e)
         .shaping(Shaping::Advanced)
         .font(ICON_FONT)
         .into()
 }
 
-fn render_emoji_btn<'a>(e: &'a Emoji) -> Element<'a, MainAppMessage> {
+fn render_emoji_btn(e: &Emoji) -> Element<'_, MainAppMessage> {
     Hoverable::new(
         button(render_emoji(e.as_str()))
             .style(get_btn_transparent_style(false))
@@ -44,7 +44,7 @@ pub fn render_emoji_grids<'a>(
 
     if search.is_empty() {
         for e in g.emojis() {
-            let e = e.with_skin_tone((*tone).clone().into()).unwrap_or(e);
+            let e = e.with_skin_tone((*tone).into()).unwrap_or(e);
             grid.insert(render_emoji_btn(e));
         }
     } else {
@@ -53,7 +53,7 @@ pub fn render_emoji_grids<'a>(
                 || e.shortcodes()
                     .any(|s| s.to_lowercase().contains(&search.to_lowercase()))
         }) {
-            let e = e.with_skin_tone((*tone).clone().into()).unwrap_or(e);
+            let e = e.with_skin_tone((*tone).into()).unwrap_or(e);
             grid.insert(render_emoji_btn(e));
         }
     }
@@ -93,7 +93,7 @@ pub fn show_search_row<'a>(s: &'a str, tone: &'a SkinTone) -> Element<'a, MainAp
 pub fn show_tone_selector(tone: &SkinTone) -> Element<'_, MainAppMessage> {
     pick_list(
         SkinTone::get_all(),
-        Some(tone.clone()),
+        Some(*tone),
         MainAppMessage::SelectSkinTone,
     )
     .style(get_select_style())
@@ -102,9 +102,7 @@ pub fn show_tone_selector(tone: &SkinTone) -> Element<'_, MainAppMessage> {
     .into()
 }
 
-pub fn show_preview<'a>(
-    selected: &'a (String, String, Vec<String>),
-) -> Element<'a, MainAppMessage> {
+pub fn show_preview(selected: &(String, String, Vec<String>)) -> Element<'_, MainAppMessage> {
     let mut info = Column::new()
         .push(Text::new(selected.0.as_str()).size(18))
         .width(Length::Fill)
