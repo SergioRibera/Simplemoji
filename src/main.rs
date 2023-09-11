@@ -10,19 +10,29 @@ mod model;
 mod settings;
 mod styles;
 mod update;
+mod utils;
 mod view;
 
 pub const ICON_FONT: Font = Font::with_name("Noto Color Emoji");
+pub const APP_MOUSE_MARGIN: i32 = 25;
+
+pub static APP_WIDTH: i32 = 325;
+pub static mut APP_HEIGHT: i32 = 320;
 
 fn main() -> iced::Result {
     env_logger::Builder::from_env("SIMPLEMOJI").init();
 
     let args = ArgOpts::parse();
-    let height = if args.show_preview { 380u32 } else { 320u32 };
+
+    if args.show_preview {
+        unsafe {
+            APP_HEIGHT = 380;
+        }
+    }
 
     MainApp::run(Settings {
         window: iced::window::Settings {
-            size: (325u32, height),
+            size: (APP_WIDTH as u32, unsafe { APP_HEIGHT } as u32),
             visible: true,
             resizable: false,
             decorations: true,

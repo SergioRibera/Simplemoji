@@ -1,3 +1,4 @@
+use device_query::DeviceState;
 use iced::subscription::events_with;
 use iced::widget::{container, text_input};
 use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
@@ -5,6 +6,7 @@ use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
 use crate::model::SkinTone;
 use crate::settings::ArgOpts;
 use crate::update;
+use crate::utils::{get_default_tabs, mouse_to_window_pos};
 use crate::view::show_content;
 
 #[derive(Clone, Debug)]
@@ -37,72 +39,38 @@ impl Application for MainApp {
         let tone = settings.tone.unwrap_or_default();
         (
             MainApp {
+                tone,
                 settings,
                 search: String::new(),
-                tone,
+                tabs: get_default_tabs(),
                 tab: emojis::Group::SmileysAndEmotion,
                 emoji_hovered: emojis::Group::SmileysAndEmotion
                     .emojis()
                     .next()
-                    .map(|e| (
-                        e.name().to_string(),
-                        e.to_string(),
-                        e.shortcodes().map(|s| s.to_string()).collect::<Vec<String>>()
-                    ))
+                    .map(|e| {
+                        (
+                            e.name().to_string(),
+                            e.to_string(),
+                            e.shortcodes()
+                                .map(|s| s.to_string())
+                                .collect::<Vec<String>>(),
+                        )
+                    })
                     .unwrap(),
                 theme: match dark_light::detect() {
                     dark_light::Mode::Light => Theme::Light,
                     _ => Theme::Dark,
                 },
-                tabs: vec![
-                    emojis::Group::SmileysAndEmotion
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::SmileysAndEmotion, e.to_string()))
-                        .unwrap(),
-                    emojis::Group::PeopleAndBody
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::PeopleAndBody, e.to_string()))
-                        .unwrap(),
-                    emojis::Group::AnimalsAndNature
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::AnimalsAndNature, e.to_string()))
-                        .unwrap(),
-                    emojis::Group::FoodAndDrink
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::FoodAndDrink, e.to_string()))
-                        .unwrap(),
-                    emojis::Group::TravelAndPlaces
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::TravelAndPlaces, e.to_string()))
-                        .unwrap(),
-                    emojis::Group::Objects
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::Objects, e.to_string()))
-                        .unwrap(),
-                    emojis::Group::Activities
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::Activities, e.to_string()))
-                        .unwrap(),
-                    emojis::Group::Symbols
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::Symbols, e.to_string()))
-                        .unwrap(),
-                    emojis::Group::Flags
-                        .emojis()
-                        .next()
-                        .map(|e| (emojis::Group::Flags, e.to_string()))
-                        .unwrap(),
-                ],
             },
-            text_input::focus(text_input::Id::new("search_input")),
+            Command::batch([
+                {
+                    let device_state = DeviceState::new();
+                    let pos = device_state.query_pointer().coords;
+                    let (x, y) = mouse_to_window_pos(pos);
+                    iced::window::move_to(x, y)
+                },
+                text_input::focus(text_input::Id::new("search_input")),
+            ]),
         )
     }
 
@@ -123,19 +91,19 @@ impl Application for MainApp {
 
     fn view(&self) -> iced::Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
         container(show_content(
-                self.tabs.as_ref(),
-                &self.settings,
-                &self.search,
-                &self.tone,
-                &self.emoji_hovered,
-                &self.tab,
-                MainAppMessage::ChangeTab,
-            ))
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .center_x()
-            .center_y()
-            .into()
+            self.tabs.as_ref(),
+            &self.settings,
+            &self.search,
+            &self.tone,
+            &self.emoji_hovered,
+            &self.tab,
+            MainAppMessage::ChangeTab,
+        ))
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .center_x()
+        .center_y()
+        .into()
     }
 
     fn theme(&self) -> Self::Theme {

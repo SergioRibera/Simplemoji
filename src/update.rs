@@ -1,6 +1,6 @@
-#[allow(unused_imports)]
-use iced::{Command, window};
 use iced::widget::scrollable;
+#[allow(unused_imports)]
+use iced::{window, Command};
 
 use crate::app::{MainApp, MainAppMessage};
 
@@ -18,7 +18,7 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
         }
         MainAppMessage::HiddeApplication => {
             #[cfg(not(debug_assertions))]
-            return window::change_mode(window::Mode::Hidden);
+            return window::close();
         }
         MainAppMessage::SelectSkinTone(t) => app.tone = t,
         MainAppMessage::OnSearchEmoji(s) => app.search = s,
