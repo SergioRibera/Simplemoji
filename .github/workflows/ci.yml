@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - ".github/workflow/**.yml"
+      - ".github/workflows/**.yml"
       - "**/Makefile.toml"
       - "release.toml"
       - "LICENSE*"
