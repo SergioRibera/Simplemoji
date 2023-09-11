@@ -164,5 +164,6 @@ pub fn show_content<'a>(
     }
     col.push(render_emoji_grids(search, selected, tone))
         .width(Length::Fill)
+        .height(Length::Fill)
         .into()
 }
