@@ -51,6 +51,8 @@ dependencies = ["fix-fmt", "fix-clippy"]
 
 [tasks.build]
 description = "Generate release binary/lib"
+command = "cargo"
+args = ["build", "--release"]
 dependencies = [
     "fmt",
     "clippy",
