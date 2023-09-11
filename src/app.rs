@@ -1,10 +1,10 @@
 use iced::subscription::events_with;
-use iced::widget::{container, scrollable, text_input, Column};
-#[allow(unused_imports)]
-use iced::{mouse, window, Application, Command, Event, Length, Subscription, Theme};
+use iced::widget::{container, text_input};
+use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
 
 use crate::model::SkinTone;
 use crate::settings::ArgOpts;
+use crate::update;
 use crate::view::show_content;
 
 #[derive(Clone, Debug)]
@@ -18,13 +18,13 @@ pub enum MainAppMessage {
 }
 
 pub struct MainApp {
-    tabs: Vec<(emojis::Group, String)>,
-    settings: ArgOpts,
-    search: String,
-    emoji_hovered: (String, String, Vec<String>),
-    tone: SkinTone,
-    tab: emojis::Group,
-    theme: Theme,
+    pub tabs: Vec<(emojis::Group, String)>,
+    pub settings: ArgOpts,
+    pub search: String,
+    pub emoji_hovered: (String, String, Vec<String>),
+    pub tone: SkinTone,
+    pub tab: emojis::Group,
+    pub theme: Theme,
 }
 
 impl Application for MainApp {
@@ -118,35 +118,11 @@ impl Application for MainApp {
     }
 
     fn update(&mut self, message: Self::Message) -> iced::Command<Self::Message> {
-        match message {
-            MainAppMessage::ChangeTab(group) => {
-                self.tab = group;
-                return scrollable::scroll_to(
-                    scrollable::Id::new("scrollable_grid"),
-                    scrollable::AbsoluteOffset { x: 0., y: 0. },
-                );
-            }
-            MainAppMessage::CopyEmoji(emoji) => {
-                return iced::clipboard::write(emoji);
-            }
-            MainAppMessage::HiddeApplication => {
-                #[cfg(not(debug_assertions))]
-                return window::change_mode(window::Mode::Hidden);
-            }
-            MainAppMessage::SelectSkinTone(t) => self.tone = t,
-            MainAppMessage::OnSearchEmoji(s) => self.search = s,
-            MainAppMessage::HoverEmoji(n, e, s) => self.emoji_hovered = (n, e, s),
-        }
-
-        Command::none()
+        update::update(self, message)
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
-        let col: iced::Element<_> = Column::new()
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .spacing(10)
-            .push(show_content(
+        container(show_content(
                 self.tabs.as_ref(),
                 &self.settings,
                 &self.search,
@@ -154,9 +130,7 @@ impl Application for MainApp {
                 &self.emoji_hovered,
                 &self.tab,
                 MainAppMessage::ChangeTab,
-            )).into();
-
-        container(col)
+            ))
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()
