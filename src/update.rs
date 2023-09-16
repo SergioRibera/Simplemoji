@@ -13,13 +13,11 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
                 scrollable::AbsoluteOffset { x: 0., y: 0. },
             );
         }
-        MainAppMessage::CopyEmoji(emoji) => {
-            return iced::clipboard::write(emoji);
-        }
         MainAppMessage::HiddeApplication => {
             #[cfg(not(debug_assertions))]
             return window::close();
         }
+        MainAppMessage::CopyEmoji(emoji) => app.clipboard.set_text(emoji).unwrap(),
         MainAppMessage::SelectSkinTone(t) => app.tone = t,
         MainAppMessage::OnSearchEmoji(s) => app.search = s,
         MainAppMessage::HoverEmoji(n, e, s) => app.emoji_hovered = (n, e, s),

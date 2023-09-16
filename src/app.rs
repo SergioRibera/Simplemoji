@@ -1,3 +1,4 @@
+use arboard::Clipboard;
 use device_query::DeviceState;
 use iced::subscription::events_with;
 use iced::widget::{container, text_input};
@@ -27,6 +28,7 @@ pub struct MainApp {
     pub tone: SkinTone,
     pub tab: emojis::Group,
     pub theme: Theme,
+    pub clipboard: Clipboard,
 }
 
 impl Application for MainApp {
@@ -43,6 +45,7 @@ impl Application for MainApp {
                 settings,
                 search: String::new(),
                 tabs: get_default_tabs(),
+                clipboard: Clipboard::new().unwrap(),
                 tab: emojis::Group::SmileysAndEmotion,
                 emoji_hovered: emojis::Group::SmileysAndEmotion
                     .emojis()
