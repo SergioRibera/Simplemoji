@@ -35,3 +35,4 @@ clap = { version = "4.4.2", features = [
     "suggestions",
     "wrap_help",
 ] }
+arboard = { version = "3.2.1", features = ["wayland-data-control"], default-features = false }
