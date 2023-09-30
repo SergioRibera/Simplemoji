@@ -4,11 +4,12 @@ use iced::subscription::events_with;
 use iced::widget::{container, text_input};
 use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
 
-use crate::model::SkinTone;
+use crate::ids::SEARCH_ID;
+use crate::layouts::show_content;
 use crate::settings::ArgOpts;
+use crate::skin_tone::SkinTone;
 use crate::update;
 use crate::utils::{get_default_tabs, mouse_to_window_pos};
-use crate::view::show_content;
 
 #[derive(Clone, Debug)]
 pub enum MainAppMessage {
@@ -31,6 +32,47 @@ pub struct MainApp {
     pub clipboard: Clipboard,
 }
 
+impl MainApp {
+    pub fn new(settings: ArgOpts) -> Self {
+        let tone = settings.tone.unwrap_or_default();
+        Self {
+            tone,
+            settings,
+            ..Default::default()
+        }
+    }
+}
+
+impl Default for MainApp {
+    fn default() -> Self {
+        Self {
+            tabs: get_default_tabs(),
+            settings: Default::default(),
+            search: Default::default(),
+            tone: Default::default(),
+            tab: emojis::Group::SmileysAndEmotion,
+            clipboard: Clipboard::new().unwrap(),
+            emoji_hovered: emojis::Group::SmileysAndEmotion
+                .emojis()
+                .next()
+                .map(|e| {
+                    (
+                        e.name().to_string(),
+                        e.to_string(),
+                        e.shortcodes()
+                            .map(|s| s.to_string())
+                            .collect::<Vec<String>>(),
+                    )
+                })
+                .unwrap(),
+            theme: match dark_light::detect() {
+                dark_light::Mode::Light => Theme::Light,
+                _ => Theme::Dark,
+            },
+        }
+    }
+}
+
 impl Application for MainApp {
     type Executor = iced::executor::Default;
     type Message = MainAppMessage;
@@ -38,33 +80,14 @@ impl Application for MainApp {
     type Flags = ArgOpts;
 
     fn new(settings: Self::Flags) -> (Self, Command<Self::Message>) {
-        let tone = settings.tone.unwrap_or_default();
+        let focus_search = if settings.show_search {
+            text_input::focus(SEARCH_ID.clone())
+        } else {
+            Command::none()
+        };
+
         (
-            MainApp {
-                tone,
-                settings,
-                search: String::new(),
-                tabs: get_default_tabs(),
-                clipboard: Clipboard::new().unwrap(),
-                tab: emojis::Group::SmileysAndEmotion,
-                emoji_hovered: emojis::Group::SmileysAndEmotion
-                    .emojis()
-                    .next()
-                    .map(|e| {
-                        (
-                            e.name().to_string(),
-                            e.to_string(),
-                            e.shortcodes()
-                                .map(|s| s.to_string())
-                                .collect::<Vec<String>>(),
-                        )
-                    })
-                    .unwrap(),
-                theme: match dark_light::detect() {
-                    dark_light::Mode::Light => Theme::Light,
-                    _ => Theme::Dark,
-                },
-            },
+            MainApp::new(settings),
             Command::batch([
                 {
                     let device_state = DeviceState::new();
@@ -72,7 +95,7 @@ impl Application for MainApp {
                     let (x, y) = mouse_to_window_pos(pos);
                     iced::window::move_to(x, y)
                 },
-                text_input::focus(text_input::Id::new("search_input")),
+                focus_search,
             ]),
         )
     }
