@@ -6,12 +6,13 @@ use settings::ArgOpts;
 
 mod app;
 mod components;
-mod model;
+mod ids;
+mod layouts;
 mod settings;
+mod skin_tone;
 mod styles;
 mod update;
 mod utils;
-mod view;
 
 pub const ICON_FONT: Font = Font::with_name("Noto Color Emoji");
 pub const APP_MOUSE_MARGIN: i32 = 25;

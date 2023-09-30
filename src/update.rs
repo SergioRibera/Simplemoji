@@ -3,13 +3,14 @@ use iced::widget::scrollable;
 use iced::{window, Command};
 
 use crate::app::{MainApp, MainAppMessage};
+use crate::ids::EMOJI_SCROLL_ID;
 
 pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage> {
     match msg {
         MainAppMessage::ChangeTab(group) => {
             app.tab = group;
             return scrollable::scroll_to(
-                scrollable::Id::new("scrollable_grid"),
+                EMOJI_SCROLL_ID.clone(),
                 scrollable::AbsoluteOffset { x: 0., y: 0. },
             );
         }
