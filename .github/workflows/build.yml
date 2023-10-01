@@ -84,7 +84,7 @@ jobs:
       - uses: dsherret/rust-toolchain-file@v1
       - uses: Swatinem/rust-cache@v2
       - name: Install cargo-aur
-        run: cargo install --git https://github.com:SergioRibera/cargo-aur --branch dev
+        run: cargo install --git https://github.com/SergioRibera/cargo-aur --branch dev
 
       - name: Generate PKGBUILD
         run: cargo aur -s ""
