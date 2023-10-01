@@ -33,11 +33,11 @@ jobs:
         include:
           - target: x86_64-apple-darwin
             os: macos-latest
-            name: x86_64-apple-darwin.tar.gz
+            name: ${{ github.ref_name }}-x86_64-apple-darwin.tar.gz
             channel: mac
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            name: x86_64-pc-windows-msvc.zip
+            name: ${{ github.ref_name }}-x86_64-pc-windows-msvc.zip
             channel: win
 
     steps:
@@ -53,14 +53,14 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           mv target/${{ matrix.target }}/release/${{ env.APP_NAME }}.exe ${{ env.APP_NAME }}.exe
-          7z a ${{ matrix.name }} ${{ env.APP_NAME }}.exe
+          7z a ${{ matrix.name }} LICENSE-* ${{ env.APP_NAME }}.exe
           mv ${{ matrix.name }} ${{ env.APP_NAME }}-${{ matrix.name }}
 
       - name: Post Build | Prepare artifacts [-nix]
         if: matrix.os != 'windows-latest'
         run: |
           mv target/${{ matrix.target }}/release/${{ env.APP_NAME }} ${{ env.APP_NAME }}
-          tar cvzf ${{ matrix.name }} ${{ env.APP_NAME }}
+          tar cvzf ${{ matrix.name }} LICENSE-* ${{ env.APP_NAME }}
           mv ${{ matrix.name }} ${{ env.APP_NAME }}-${{ matrix.name }}
       - name: Post Build | Upload Artifact
         uses: actions/upload-artifact@v3
@@ -87,7 +87,7 @@ jobs:
         run: cargo install --git https://github.com/SergioRibera/cargo-aur --branch dev
 
       - name: Generate PKGBUILD
-        run: cargo aur -s ""
+        run: cargo aur -s ""; ls -l
 
       - name: Post Build | Upload Artifact
         uses: actions/upload-artifact@v3
@@ -110,4 +110,4 @@ jobs:
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          commit_message: New version - ${{ github.ref_name }}
+          commit_message: ${{ github.ref_name }}
