@@ -1,5 +1,5 @@
 [package]
-version = "0.1.5"
+version = "0.1.6"
 name = "simplemoji"
 description = "Fast Application for look your amazing emojis write in Rust"
 homepage = "https://github.com/SergioRibera/Simplemoji"
