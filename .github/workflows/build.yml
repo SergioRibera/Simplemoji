@@ -9,7 +9,7 @@ env:
 on:
   push:
     paths-ignore:
-      - ".github/workflows/**.yml"
+      - ".github/"
       - "**/Makefile.toml"
       - "release.toml"
       - "LICENS**"
@@ -30,10 +30,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            name: x86_64-unknown-linux-gnu.tar.gz
-            channel: linux
           - target: x86_64-apple-darwin
             os: macos-latest
             name: x86_64-apple-darwin.tar.gz
@@ -51,7 +47,7 @@ jobs:
         uses: actions-rs/cargo@v1.0.1
         with:
           command: build
-          args: --release --workspace --package ${{ env.APP_NAME }} --target ${{ matrix.target }}
+          args: --release --target ${{ matrix.target }}
       - name: Post Build | Prepare artifacts [Windows]
         if: matrix.os == 'windows-latest'
         run: |
@@ -78,4 +74,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  publish_aur_package:
+    name: Publish AUR package
+    needs: [ci]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dsherret/rust-toolchain-file@v1
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-aur
+        run: cargo install --git https://github.com:SergioRibera/cargo-aur --branch dev
 
+      - name: Generate PKGBUILD
+        run: cargo aur -s ""
+
+      - name: Post Build | Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.APP_NAME }}-${{ github.ref_name }}-x86_64.tar.gz
+          path: ${{ env.APP_NAME }}-${{ github.ref_name }}-x86_64.tar.gz
+      - name: Release | Upload
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.APP_NAME }}-${{ github.ref_name }}-x86_64.tar.gz
+          prerelease: ${{ contains(github.ref_name, 'a') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to the AUR
+        uses: KSXGitHub/github-actions-deploy-aur@v2.3.0
+        with:
+          pkgname: ${{ env.APP_NAME }}
+          pkgbuild: ./PKGBUILD
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: New version - ${{ github.ref_name }}
