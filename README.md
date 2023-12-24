@@ -22,6 +22,7 @@ An application where you can have all the emojis with easy and quick access
 
 # Installation
 Requirements:
+ - X11 (Not support wayland, at moment. Contributions are welcome)
  - Install [Noto Color Emoji](https://fonts.google.com/noto/specimen/Noto+Color+Emoji) font on your system
 
 Options:

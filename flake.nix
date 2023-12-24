@@ -44,6 +44,17 @@
         src = craneLib.cleanCargoSource (craneLib.path ./.);
         commonArgs = {
           inherit src;
+          buildInputs = with pkgs; [
+              openssl.dev
+              pkg-config
+
+              libinput
+              libxkbcommon
+              xorg.libXcursor
+              xorg.libXrandr
+              xorg.libXi
+              xorg.libX11
+          ];
         };
         # Compile all artifacts for x86_64-unknown-linux-gnu
         linuxArtifacts = craneLib.buildDepsOnly (commonArgs
@@ -77,18 +88,8 @@
         devShells.default = craneLib.devShell {
           packages = with pkgs; [
             toolchain
-            openssl.dev
-            pkg-config
-            wayland
             fontconfig
             noto-fonts-color-emoji
-
-            libinput
-            libxkbcommon
-            xorg.libXcursor
-            xorg.libXrandr
-            xorg.libXi
-            xorg.libX11
           ];
         };
       };
