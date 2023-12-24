@@ -90,7 +90,7 @@
             toolchain
             fontconfig
             noto-fonts-color-emoji
-          ];
+          ] ++ commonArgs.buildInputs;
         };
       };
     };
