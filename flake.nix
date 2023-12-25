@@ -28,17 +28,13 @@
         system,
         ...
       }: let
-        # inherit (pkgs) lib;
+        inherit (pkgs) lib;
         # Toolchain
         toolchain = with fenix.packages.${system};
-          combine [
-            stable.cargo
-            stable.clippy
-            stable.rust-src
-            stable.rustc
-            stable.rustfmt
-            targets.x86_64-unknown-linux-gnu.stable.rust-std
-          ];
+          fromToolchainFile {
+            file = ./rust-toolchain.toml;
+            sha256 = "sha256-U2yfueFohJHjif7anmJB5vZbpP7G6bICH4ZsjtufRoU=";
+          };
         craneLib = crane.lib.${system}.overrideToolchain toolchain;
 
         src = craneLib.cleanCargoSource (craneLib.path ./.);
