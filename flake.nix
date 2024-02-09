@@ -1,92 +1,51 @@
 {
   description = "Standar cross compile flake for Rust Lang Projects";
   inputs = {
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    flake-utils.url = "github:numtide/flake-utils";
-    fenix.url = "github:nix-community/fenix/monthly";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    cranix.url = "github:Lemin-n/cranix/2af6b2e71577bb8836b10e28f3267f2c5342a8fd";
     crane.url = "github:ipetkov/crane";
+    fenix.url = "github:nix-community/fenix";
+    flake-utils.url = "github:numtide/flake-utils";
   };
-  outputs = inputs @ {
-    flake-parts,
-    fenix,
+
+  outputs = {
+    self,
     nixpkgs,
     flake-utils,
-    crane,
-    self,
     ...
-  }:
-    inputs.flake-parts.lib.mkFlake
-    {
-      inherit inputs;
-    }
-    {
-      systems = ["x86_64-linux"];
-      perSystem = {
-        config,
-        pkgs,
-        system,
-        ...
-      }: let
-        inherit (pkgs) lib;
-        # Toolchain
-        toolchain = with fenix.packages.${system};
-          fromToolchainFile {
-            file = ./rust-toolchain.toml;
-            sha256 = "sha256-U2yfueFohJHjif7anmJB5vZbpP7G6bICH4ZsjtufRoU=";
-          };
-        craneLib = crane.lib.${system}.overrideToolchain toolchain;
-
-        src = craneLib.cleanCargoSource (craneLib.path ./.);
-        commonArgs = {
-          inherit src;
-          buildInputs = with pkgs; [
-              openssl.dev
-              pkg-config
-
-              libinput
-              libxkbcommon
-              xorg.libXcursor
-              xorg.libXrandr
-              xorg.libXi
-              xorg.libX11
-          ];
+  } @ inputs:
+  # Iterate over Arm, x86 for MacOs 🍎 and Linux 🐧
+    flake-utils.lib.eachSystem (flake-utils.lib.defaultSystems) (
+      system: let
+        simplemojiBundle = import ./nix {
+          inherit system;
+          pkgs = nixpkgs.legacyPackages.${system};
+          crane = inputs.crane.lib;
+          cranix = inputs.cranix.lib;
+          fenix = inputs.fenix.packages;
         };
-        # Compile all artifacts for x86_64-unknown-linux-gnu
-        linuxArtifacts = craneLib.buildDepsOnly (commonArgs
-          // {
-            CARGO_BUILD_TARGET = "x86_64-unknown-linux-gnu";
-            doCheck = false;
-          });
-
-        # Compile app for x86_64-unknown-linux-gnu
-        linuxApp = craneLib.buildPackage (
-          commonArgs
-          // {
-            doCheck = false;
-            cargoArtifacts = linuxArtifacts;
-          }
-        );
       in {
-        # nix build
-        packages = {
-          default = linuxApp;
+        inherit (simplemojiBundle) apps packages devShells;
+      }
+    )
+    // {
+      # Overlays
+      overlays.default = import ./nix/overlay.nix {
+        crane = inputs.crane.lib;
+        cranix = inputs.cranix.lib;
+        fenix = inputs.fenix.packages;
+      };
+      # nixosModules
+      nixosModules = {
+        default = import ./nix/nixos-module.nix {
+          crane = inputs.crane.lib;
+          cranix = inputs.cranix.lib;
+          fenix = inputs.fenix.packages;
         };
-
-        # nix run
-        apps = {
-          default = flake-utils.lib.mkApp {
-            drv = linuxApp;
-          };
-        };
-
-        # nix develop
-        devShells.default = craneLib.devShell {
-          packages = with pkgs; [
-            toolchain
-            fontconfig
-            noto-fonts-color-emoji
-          ] ++ commonArgs.buildInputs;
+        home-manager = import ./nix/hm-module.nix {
+          crane = inputs.crane.lib;
+          cranix = inputs.cranix.lib;
+          fenix = inputs.fenix.packages;
         };
       };
     };
