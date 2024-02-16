@@ -3,7 +3,16 @@ use display_info::DisplayInfo;
 use crate::{APP_HEIGHT, APP_MOUSE_MARGIN, APP_WIDTH};
 
 pub fn mouse_to_window_pos((x, y): (i32, i32)) -> (i32, i32) {
-    let Ok(DisplayInfo {width, height, x: display_x, y: display_y, .. }) = DisplayInfo::from_point(x, y) else { return (x, y); };
+    let Ok(DisplayInfo {
+        width,
+        height,
+        x: display_x,
+        y: display_y,
+        ..
+    }) = DisplayInfo::from_point(x, y)
+    else {
+        return (x, y);
+    };
     let app_height = *APP_HEIGHT;
 
     let left_x = ((x - display_x) as u32) < (width / 2);
