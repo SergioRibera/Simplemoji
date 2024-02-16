@@ -1,5 +1,3 @@
-use std::io::Write;
-
 use iced::widget::scrollable;
 #[allow(unused_imports)]
 use iced::{window, Command};
