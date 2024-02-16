@@ -20,7 +20,7 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
         }
         MainAppMessage::CopyEmoji(emoji) => {
             if let Some(cmd) = app.settings.copy_command.as_deref() {
-                let mut cmd = cmd.split(" ");
+                let mut cmd = cmd.split(' ');
                 let bin = cmd.next().unwrap();
                 let mut args = cmd.collect::<Vec<&str>>();
                 args.push(&emoji);
