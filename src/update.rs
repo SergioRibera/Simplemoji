@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use iced::widget::scrollable;
 #[allow(unused_imports)]
 use iced::{window, Command};
@@ -18,7 +20,17 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
             #[cfg(not(debug_assertions))]
             return window::close();
         }
-        MainAppMessage::CopyEmoji(emoji) => app.clipboard.set_text(emoji).unwrap(),
+        MainAppMessage::CopyEmoji(emoji) => {
+            if let Some(cmd) = app.settings.copy_command.as_deref() {
+                let mut cmd = cmd.split(" ");
+                let bin = cmd.next().unwrap();
+                let mut args = cmd.collect::<Vec<&str>>();
+                args.push(&emoji);
+                std::process::Command::new(bin).args(args).spawn().unwrap();
+            } else {
+                app.clipboard.set_text(emoji).unwrap()
+            }
+        }
         MainAppMessage::SelectSkinTone(t) => app.tone = t,
         MainAppMessage::OnSearchEmoji(s) => app.search = s,
         MainAppMessage::HoverEmoji(n, e, s) => app.emoji_hovered = (n, e, s),
