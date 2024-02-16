@@ -4,6 +4,7 @@ use iced::window::Level;
 use iced::{Application, Font, Settings};
 use lazy_static::lazy_static;
 use settings::ArgOpts;
+use utils::mouse_to_window_pos;
 
 mod app;
 mod components;
@@ -34,12 +35,17 @@ fn main() -> iced::Result {
 
     let args = ArgOpts::parse();
 
+    let device_state = device_query::DeviceState::new();
+    let pos = device_state.query_pointer().coords;
+    let (x, y) = mouse_to_window_pos(pos);
+
     MainApp::run(Settings {
         window: iced::window::Settings {
+            position: iced::window::Position::Specific(x, y),
             size: (APP_WIDTH as u32, *APP_HEIGHT as u32),
             visible: true,
             resizable: false,
-            decorations: true,
+            decorations: false,
             level: Level::AlwaysOnTop,
             ..Default::default()
         },

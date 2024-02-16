@@ -1,5 +1,4 @@
 use arboard::Clipboard;
-use device_query::DeviceState;
 use iced::subscription::events_with;
 use iced::widget::{container, text_input};
 use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
@@ -9,7 +8,7 @@ use crate::layouts::show_content;
 use crate::settings::ArgOpts;
 use crate::skin_tone::SkinTone;
 use crate::update;
-use crate::utils::{get_default_tabs, mouse_to_window_pos};
+use crate::utils::get_default_tabs;
 
 #[derive(Clone, Debug)]
 pub enum MainAppMessage {
@@ -86,18 +85,7 @@ impl Application for MainApp {
             Command::none()
         };
 
-        (
-            MainApp::new(settings),
-            Command::batch([
-                {
-                    let device_state = DeviceState::new();
-                    let pos = device_state.query_pointer().coords;
-                    let (x, y) = mouse_to_window_pos(pos);
-                    iced::window::move_to(x, y)
-                },
-                focus_search,
-            ]),
-        )
+        (MainApp::new(settings), focus_search)
     }
 
     fn title(&self) -> String {
