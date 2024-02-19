@@ -92,6 +92,13 @@ impl Application for MainApp {
         "Simplemoji".to_string()
     }
 
+    fn subscription(&self) -> Subscription<Self::Message> {
+        events_with(|e, _status| match e {
+            Event::Mouse(mouse::Event::CursorLeft) => Some(MainAppMessage::HiddeApplication),
+            _ => None,
+        })
+    }
+
     fn update(&mut self, message: Self::Message) -> iced::Command<Self::Message> {
         update::update(self, message)
     }
