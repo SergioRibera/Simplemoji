@@ -35,13 +35,20 @@ fn main() -> iced::Result {
 
     let args = ArgOpts::parse();
 
-    let device_state = device_query::DeviceState::new();
-    let pos = device_state.query_pointer().coords;
-    let (x, y) = mouse_to_window_pos(pos);
+    use mouse_position::MouseExt;
+    let position = mouse_position::Mouse::default()
+        .get_pos()
+        .map(|pos| {
+            println!("Pos: {pos:?}");
+            let (x, y) = mouse_to_window_pos(pos);
+            println!("Pos: {x}x{y}");
+            iced::window::Position::Specific(x, y)
+        })
+        .unwrap_or(iced::window::Position::Centered);
 
     MainApp::run(Settings {
         window: iced::window::Settings {
-            position: iced::window::Position::Specific(x, y),
+            position,
             size: (APP_WIDTH as u32, *APP_HEIGHT as u32),
             visible: true,
             resizable: false,

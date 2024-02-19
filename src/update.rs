@@ -28,6 +28,8 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
             } else {
                 app.clipboard.set_text(emoji).unwrap()
             }
+            #[cfg(not(debug_assertions))]
+            return window::close();
         }
         MainAppMessage::SelectSkinTone(t) => app.tone = t,
         MainAppMessage::OnSearchEmoji(s) => app.search = s,

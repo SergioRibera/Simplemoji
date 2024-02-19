@@ -28,7 +28,7 @@ in
     # toolchain = fenix.${system}.fromToolchainFile { dir = ./..; };
     toolchain = fenix.${system}.fromToolchainFile {
       file = ./../rust-toolchain.toml;
-      sha256 = "sha256-U2yfueFohJHjif7anmJB5vZbpP7G6bICH4ZsjtufRoU=";
+      sha256 = "sha256-e4mlaJehWBymYxJGgnbuCObVlqMlQSilZ8FljG9zPHY=";
     };
     # crane: cargo and artifacts manager
     craneLib = crane.${system}.overrideToolchain toolchain;
@@ -37,9 +37,12 @@ in
 
     # buildInputs for Simplemoji
     buildInputs = with pkgs; [
+      stdenv.cc.cc.lib
       fontconfig.dev
       libxkbcommon.dev
       xorg.libxcb
+      wayland
+      wayland-protocols
       xorg.libX11
       xorg.libXcursor
       xorg.libXrandr
@@ -47,33 +50,43 @@ in
     ];
 
     # Base args, need for build all crate artifacts and caching this for late builds
-    commonArgs = {
-      src = ./..;
-      doCheck = false;
-      nativeBuildInputs =
-        [pkgs.pkg-config]
+    deps = {
+      nativeBuildInputs = with pkgs;
+        [
+          pkg-config
+          autoPatchelfHook
+        ]
         ++ lib.optionals stdenv.buildPlatform.isDarwin [
           pkgs.libiconv
+        ]
+        ++ lib.optionals stdenv.buildPlatform.isLinux [
+          pkgs.libxkbcommon.dev
+        ];
+      runtimeDependencies = with pkgs;
+        lib.optionals stdenv.isLinux [
+          wayland
+          libxkbcommon
         ];
       inherit buildInputs;
     };
 
-    # simplemoji artifacts
-    simplemojiDeps = cranixLib.buildCranixDepsOnly commonArgs;
-
     # Lambda for build packages with cached artifacts
-    packageArgs = targetName:
-      commonArgs
+    commonArgs = targetName:
+      deps
       // {
+        src = lib.cleanSourceWith {
+          src = craneLib.path ./..;
+          filter = craneLib.filterCargoSources;
+        };
+        doCheck = false;
         CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER = "${stdenv.cc.targetPrefix}cc";
         CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER = "qemu-aarch64";
         HOST_CC = "${stdenv.cc.nativePrefix}cc";
-        cargoArtifacts = simplemojiDeps;
-        workspaceTargetName = targetName;
+        # workspaceTargetName = targetName;
       };
 
     # Build packages and `nix run` apps
-    simplemojiPkg = cranixLib.buildCranixBundle (packageArgs "simplemoji");
+    simplemojiPkg = cranixLib.buildCranixBundle (commonArgs "simplemoji");
   in {
     # `nix run`
     apps = rec {

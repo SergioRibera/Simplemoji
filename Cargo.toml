@@ -26,7 +26,6 @@ emojis = "0.6.1"
 dark-light = "1.0.0"
 lazy_static = "1.4.0"
 display-info = "0.4.3"
-device_query = "2.0"
 iced_tiny_skia = "0.1.0"
 iced = { version = "0.10.0", default-features = false, features = ["advanced"] }
 iced_aw = { version = "0.7.0", default-features = false, features = ["grid"] }
@@ -38,6 +37,7 @@ clap = { version = "4.4.6", features = [
     "wrap_help",
 ] }
 arboard = { version = "3.2", features = ["wayland-data-control"] }
+mouse_position = { git = "https://github.com/SergioRibera/mouse_position", branch = "compositors_protocols" }
 
 [patch.crates-io]
 display-info = { git = "https://github.com/SergioRibera/display-info", branch = "master" }
