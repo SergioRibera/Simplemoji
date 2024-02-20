@@ -10,10 +10,12 @@ impl text_input::StyleSheet for SearchStyle {
 
         text_input::Appearance {
             background: palette.background.base.color.into(),
-            border_radius: 2.0.into(),
-            border_width: 0.,
-            border_color: palette.background.strong.color,
             icon_color: palette.background.strong.color,
+            border: iced::Border {
+                color: palette.background.strong.color,
+                width: 0.,
+                radius: 2.into(),
+            },
         }
     }
 
@@ -22,10 +24,12 @@ impl text_input::StyleSheet for SearchStyle {
 
         text_input::Appearance {
             background: palette.background.base.color.into(),
-            border_radius: 2.0.into(),
-            border_width: 0.,
-            border_color: palette.background.base.text,
             icon_color: palette.background.base.text,
+            border: iced::Border {
+                color: palette.background.base.text,
+                width: 0.,
+                radius: 2.into(),
+            },
         }
     }
 
@@ -34,10 +38,12 @@ impl text_input::StyleSheet for SearchStyle {
 
         text_input::Appearance {
             background: palette.background.base.color.into(),
-            border_radius: 2.0.into(),
-            border_width: 0.,
-            border_color: palette.primary.strong.color,
             icon_color: palette.primary.strong.color,
+            border: iced::Border {
+                color: palette.background.strong.color,
+                width: 0.,
+                radius: 2.into(),
+            },
         }
     }
 
@@ -64,10 +70,12 @@ impl text_input::StyleSheet for SearchStyle {
 
         text_input::Appearance {
             background: palette.background.base.color.into(),
-            border_radius: 2.0.into(),
-            border_width: 0.,
-            border_color: palette.background.base.text,
             icon_color: palette.background.base.text,
+            border: iced::Border {
+                color: palette.background.base.text,
+                width: 0.,
+                radius: 2.into(),
+            },
         }
     }
 

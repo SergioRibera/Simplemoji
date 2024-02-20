@@ -1,5 +1,5 @@
 use arboard::Clipboard;
-use iced::subscription::events_with;
+use iced::event::listen_with;
 use iced::widget::{container, text_input};
 use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
 
@@ -93,7 +93,7 @@ impl Application for MainApp {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        events_with(|e, _status| match e {
+        listen_with(|e, _status| match e {
             Event::Mouse(mouse::Event::CursorLeft) => Some(MainAppMessage::HiddeApplication),
             _ => None,
         })
@@ -103,7 +103,7 @@ impl Application for MainApp {
         update::update(self, message)
     }
 
-    fn view(&self) -> iced::Element<'_, Self::Message, iced::Renderer<Self::Theme>> {
+    fn view(&self) -> iced::Element<'_, Self::Message, Self::Theme, iced::Renderer> {
         container(show_content(
             self.tabs.as_ref(),
             &self.settings,

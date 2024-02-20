@@ -17,9 +17,11 @@ impl pick_list::StyleSheet for SelectStyle {
             background: Color::new(bg.r, bg.g, bg.b, 0.6).into(),
             placeholder_color: palette.background.strong.color,
             handle_color: Color::new(bg.r, bg.g, bg.b, 0.),
-            border_radius: 2.0.into(),
-            border_width: 0.0,
-            border_color: palette.background.strong.color,
+            border: iced::Border {
+                color: palette.background.strong.color,
+                width: 0.,
+                radius: 2.into(),
+            },
         }
     }
 
@@ -44,11 +46,13 @@ impl overlay::menu::StyleSheet for SelectMenuStyle {
         overlay::menu::Appearance {
             text_color: palette.background.weak.text,
             background: palette.background.weak.color.into(),
-            border_width: 0.0,
-            border_radius: 0.0.into(),
-            border_color: palette.background.strong.color,
             selected_text_color: palette.primary.strong.text,
             selected_background: palette.primary.strong.color.into(),
+            border: iced::Border {
+                color: palette.background.strong.color,
+                width: 0.,
+                radius: 0.into(),
+            },
         }
     }
 }

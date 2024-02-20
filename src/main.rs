@@ -1,7 +1,7 @@
 use app::MainApp;
 use clap::Parser;
 use iced::window::Level;
-use iced::{Application, Font, Settings};
+use iced::{Application, Font, Point, Settings, Size};
 use lazy_static::lazy_static;
 use settings::ArgOpts;
 use utils::mouse_to_window_pos;
@@ -39,17 +39,15 @@ fn main() -> iced::Result {
     let position = mouse_position::Mouse::default()
         .get_pos()
         .map(|pos| {
-            println!("Pos: {pos:?}");
             let (x, y) = mouse_to_window_pos(pos);
-            println!("Pos: {x}x{y}");
-            iced::window::Position::Specific(x, y)
+            iced::window::Position::Specific(Point::new(x as f32, y as f32))
         })
         .unwrap_or(iced::window::Position::Centered);
 
     MainApp::run(Settings {
         window: iced::window::Settings {
             position,
-            size: (APP_WIDTH as u32, *APP_HEIGHT as u32),
+            size: Size::new(APP_WIDTH as f32, *APP_HEIGHT as f32),
             visible: true,
             resizable: false,
             decorations: false,
@@ -57,7 +55,7 @@ fn main() -> iced::Result {
             ..Default::default()
         },
         flags: args,
-        default_text_size: 20.,
+        default_text_size: iced::Pixels(20.),
         ..Default::default()
     })
 }

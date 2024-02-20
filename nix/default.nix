@@ -47,6 +47,7 @@ in
       xorg.libXcursor
       xorg.libXrandr
       xorg.libXi
+      noto-fonts-color-emoji
     ];
 
     # Base args, need for build all crate artifacts and caching this for late builds
@@ -65,6 +66,7 @@ in
       runtimeDependencies = with pkgs;
         lib.optionals stdenv.isLinux [
           wayland
+          libGL
           libxkbcommon
         ];
       inherit buildInputs;

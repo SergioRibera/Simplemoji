@@ -26,8 +26,8 @@ emojis = "0.6.1"
 dark-light = "1.0.0"
 lazy_static = "1.4.0"
 display-info = "0.4.3"
-iced_tiny_skia = "0.1.0"
-iced = { version = "0.10.0", default-features = false, features = ["advanced"] }
+iced_tiny_skia = "0.12.0"
+iced = { version = "0.12.0", default-features = false }
 iced_aw = { version = "0.7.0", default-features = false, features = ["grid"] }
 clap = { version = "4.4.6", features = [
     "derive",
@@ -41,6 +41,7 @@ mouse_position = { git = "https://github.com/SergioRibera/mouse_position", branc
 
 [patch.crates-io]
 display-info = { git = "https://github.com/SergioRibera/display-info", branch = "master" }
+iced_aw = { git = "https://github.com/iced-rs/iced_aw", rev = "687fe55689517c82d289af311bc6a17d9d08c01a" }
 
 [package.metadata]
 depends = ["noto-fonts-emoji", "noto-fonts"]
