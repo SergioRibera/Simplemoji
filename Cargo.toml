@@ -30,7 +30,7 @@ device_query = "2.0"
 iced_tiny_skia = "0.1.0"
 iced = { version = "0.10.0", default-features = false, features = ["advanced"] }
 iced_aw = { version = "0.7.0", default-features = false, features = ["grid"] }
-clap = { version = "4.4.6", features = [
+clap = { version = "4.5.7", features = [
     "derive",
     "color",
     "env",
