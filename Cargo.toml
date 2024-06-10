@@ -37,7 +37,7 @@ clap = { version = "4.5.7", features = [
     "suggestions",
     "wrap_help",
 ] }
-arboard = { version = "3.2", features = ["wayland-data-control"] }
+arboard = { version = "3.4", features = ["wayland-data-control"] }
 
 [patch.crates-io]
 display-info = { git = "https://github.com/SergioRibera/display-info", branch = "master" }
