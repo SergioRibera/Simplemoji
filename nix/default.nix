@@ -37,6 +37,7 @@ in
 
     # buildInputs for Simplemoji
     buildInputs = with pkgs; [
+      noto-fonts-color-emoji
       fontconfig.dev
       libxkbcommon.dev
       xorg.libxcb
