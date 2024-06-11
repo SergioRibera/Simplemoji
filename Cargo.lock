@@ -749,12 +749,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cursor-icon"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
-
-[[package]]
 name = "dark-light"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -859,12 +853,12 @@ checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
 [[package]]
 name = "display-info"
 version = "0.4.8"
-source = "git+https://github.com/SergioRibera/display-info?branch=master#5f97822533d703d9b3a7dca3761f31e93629e38f"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ba4b5ddb26d674c9cd40b7a747e42658ffe1289843615b838532f660e0e3dd0"
 dependencies = [
  "anyhow",
  "core-graphics 0.23.1",
  "fxhash",
- "smithay-client-toolkit 0.18.1",
  "widestring",
  "windows 0.52.0",
  "xcb",
@@ -1707,15 +1701,6 @@ name = "memmap2"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6d28bba84adfe6646737845bc5ebbfa2c08424eb1c37e94a1fd2a82adb56a872"
-dependencies = [
- "libc",
-]
-
-[[package]]
-name = "memmap2"
-version = "0.9.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe751422e4a8caa417e13c3ea66452215d7d63e19e604f4980461212f3ae1322"
 dependencies = [
  "libc",
 ]
@@ -2595,7 +2580,7 @@ dependencies = [
  "ab_glyph",
  "log",
  "memmap2 0.5.10",
- "smithay-client-toolkit 0.16.1",
+ "smithay-client-toolkit",
  "tiny-skia 0.8.4",
 ]
 
@@ -2719,31 +2704,8 @@ dependencies = [
  "nix 0.24.3",
  "pkg-config",
  "wayland-client 0.29.5",
- "wayland-cursor 0.29.5",
+ "wayland-cursor",
  "wayland-protocols 0.29.5",
-]
-
-[[package]]
-name = "smithay-client-toolkit"
-version = "0.18.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "922fd3eeab3bd820d76537ce8f582b1cf951eceb5475c28500c7457d9d17f53a"
-dependencies = [
- "bitflags 2.5.0",
- "cursor-icon",
- "libc",
- "log",
- "memmap2 0.9.4",
- "rustix 0.38.28",
- "thiserror",
- "wayland-backend 0.3.2",
- "wayland-client 0.31.1",
- "wayland-csd-frame",
- "wayland-cursor 0.31.1",
- "wayland-protocols 0.31.0",
- "wayland-protocols-wlr",
- "wayland-scanner 0.31.0",
- "xkeysym",
 ]
 
 [[package]]
@@ -2752,7 +2714,7 @@ version = "0.6.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0a345c870a1fae0b1b779085e81b51e614767c239e93503588e54c5b17f4b0e8"
 dependencies = [
- "smithay-client-toolkit 0.16.1",
+ "smithay-client-toolkit",
  "wayland-client 0.29.5",
 ]
 
@@ -3322,17 +3284,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "wayland-csd-frame"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "625c5029dbd43d25e6aa9615e88b829a5cad13b2819c4ae129fdbb7c31ab4c7e"
-dependencies = [
- "bitflags 2.5.0",
- "cursor-icon",
- "wayland-backend 0.3.2",
-]
-
-[[package]]
 name = "wayland-cursor"
 version = "0.29.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3340,17 +3291,6 @@ checksum = "6865c6b66f13d6257bef1cd40cbfe8ef2f150fb8ebbdb1e8e873455931377661"
 dependencies = [
  "nix 0.24.3",
  "wayland-client 0.29.5",
- "xcursor",
-]
-
-[[package]]
-name = "wayland-cursor"
-version = "0.31.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71ce5fa868dd13d11a0d04c5e2e65726d0897be8de247c0c5a65886e283231ba"
-dependencies = [
- "rustix 0.38.28",
- "wayland-client 0.31.1",
  "xcursor",
 ]
 
@@ -3775,7 +3715,7 @@ dependencies = [
  "raw-window-handle",
  "redox_syscall 0.3.5",
  "sctk-adwaita",
- "smithay-client-toolkit 0.16.1",
+ "smithay-client-toolkit",
  "wasm-bindgen",
  "wayland-client 0.29.5",
  "wayland-commons",
@@ -3925,12 +3865,6 @@ dependencies = [
  "nix 0.26.4",
  "winapi",
 ]
-
-[[package]]
-name = "xkeysym"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9cc00251562a284751c9973bace760d86c0276c471b4be569fe6b068ee97a56"
 
 [[package]]
 name = "xml-rs"
