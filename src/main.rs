@@ -7,6 +7,7 @@ use settings::ArgOpts;
 use utils::mouse_to_window_pos;
 
 mod app;
+mod color;
 mod components;
 mod ids;
 mod layouts;
