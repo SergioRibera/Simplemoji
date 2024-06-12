@@ -12,8 +12,10 @@ pub struct ArgOpts {
     pub show_search: bool,
     #[arg(long, short = 'p')]
     pub show_preview: bool,
-    /// By default the application closes automatically when it is out of focus, this option disables that behavior.
-    #[arg(long, short = 'e')]
+    #[arg(long, short = 'o')]
+    pub close_on_copy: bool,
+    /// By default the application closes automatically when it is out of focus, this option disables that behavior
+    #[arg(long, short = 'x')]
     pub no_close: bool,
     /// Background color in hex (RGB, RGBA, RRGGBB, RRGGBBAA)
     #[arg(long, short = 'b')]

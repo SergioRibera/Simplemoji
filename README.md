@@ -43,7 +43,9 @@ Options:
 
   -p, --show-preview
 
-  -e, --no-close
+  -o, --close-on-copy
+
+  -x, --no-close
           By default the application closes automatically when it is out of focus, this option disables that behavior
   -b, --background-color <BACKGROUND_COLOR>
           Background color in hex (RGB, RGBA, RRGGBB, RRGGBBAA)

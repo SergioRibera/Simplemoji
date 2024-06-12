@@ -26,7 +26,10 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
                 args.push(&emoji);
                 std::process::Command::new(bin).args(args).spawn().unwrap();
             } else {
-                app.clipboard.set_text(emoji).unwrap()
+                app.clipboard.set_text(emoji).unwrap();
+            }
+            if app.settings.close_on_copy {
+                return window::close(iced::window::Id::MAIN);
             }
         }
         MainAppMessage::SelectSkinTone(t) => app.tone = t,
