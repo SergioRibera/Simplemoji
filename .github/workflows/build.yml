@@ -41,8 +41,8 @@ jobs:
             channel: win
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: dsherret/rust-toolchain-file@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Build Release
         uses: actions-rs/cargo@v1.0.1
@@ -81,13 +81,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: dsherret/rust-toolchain-file@v1
+      - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Install cargo-aur
-        run: cargo install --git https://github.com/SergioRibera/cargo-aur --branch dev
+        run: cargo install --git https://github.com/SergioRibera/cargo-pkgbuild --branch dev
 
       - name: Generate PKGBUILD
-        run: cargo aur -s ""; ls -l
+        run: cargo aur build; ls -l
 
       - name: Post Build | Upload Artifact
         uses: actions/upload-artifact@v3
