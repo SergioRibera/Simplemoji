@@ -1,5 +1,4 @@
 use iced::widget::scrollable;
-#[allow(unused_imports)]
 use iced::{window, Command};
 
 use crate::app::{MainApp, MainAppMessage};
@@ -15,8 +14,9 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
             );
         }
         MainAppMessage::HiddeApplication => {
-            #[cfg(not(debug_assertions))]
-            return window::close(iced::window::Id::MAIN);
+            if !app.settings.no_close {
+                return window::close(iced::window::Id::MAIN);
+            }
         }
         MainAppMessage::CopyEmoji(emoji) => {
             if let Some(cmd) = app.settings.copy_command.as_deref() {
