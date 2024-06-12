@@ -2,6 +2,7 @@ use arboard::Clipboard;
 use iced::widget::{container, text_input};
 use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
 
+use crate::color::ToRgba;
 use crate::ids::SEARCH_ID;
 use crate::layouts::show_content;
 use crate::settings::ArgOpts;
@@ -33,8 +34,32 @@ pub struct MainApp {
 impl MainApp {
     pub fn new(settings: ArgOpts) -> Self {
         let tone = settings.tone.unwrap_or_default();
+        let theme = match dark_light::detect() {
+            dark_light::Mode::Light => Theme::Light,
+            _ => Theme::Dark,
+        };
+        let theme = Theme::custom(
+            "Custom".to_owned(),
+            iced::theme::Palette {
+                background: settings
+                    .background_color
+                    .as_deref()
+                    .inspect(|v| log::debug!("Background Custom Color: {v}"))
+                    .map(|b| b.to_rgba().unwrap())
+                    .unwrap_or(theme.palette().background),
+                primary: settings
+                    .primary_color
+                    .as_deref()
+                    .inspect(|v| log::debug!("Primary Custom Color: {v}"))
+                    .map(|b| b.to_rgba().unwrap())
+                    .unwrap_or(theme.palette().primary),
+                ..theme.palette()
+            },
+        );
+
         Self {
             tone,
+            theme,
             settings,
             ..Default::default()
         }
