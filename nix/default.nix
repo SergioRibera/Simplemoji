@@ -37,9 +37,10 @@ in
 
     # buildInputs for Simplemoji
     buildInputs = with pkgs; [
-      noto-fonts-color-emoji
       fontconfig.dev
       libxkbcommon.dev
+      wayland
+      libxkbcommon
       xorg.libxcb
       xorg.libX11
       xorg.libXcursor
@@ -55,6 +56,12 @@ in
         [pkgs.pkg-config]
         ++ lib.optionals stdenv.buildPlatform.isDarwin [
           pkgs.libiconv
+        ];
+      runtimeDependencies = with pkgs;
+        lib.optionals stdenv.isLinux [
+          wayland
+          libxkbcommon
+          noto-fonts-color-emoji
         ];
       inherit buildInputs;
     };
@@ -94,8 +101,12 @@ in
           pkg-config
           cargo-dist
           cargo-release
+
+          libxkbcommon
+          noto-fonts-color-emoji
         ]
         ++ buildInputs;
+      LD_LIBRARY_PATH = "${lib.makeLibraryPath buildInputs}";
       PKG_CONFIG_PATH = "${pkgs.fontconfig.dev}/lib/pkgconfig";
     };
   }
