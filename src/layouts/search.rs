@@ -16,7 +16,7 @@ pub fn show_search_row<'a>(s: &'a str, tone: &'a SkinTone) -> Element<'a, MainAp
                 .icon(Icon {
                     font: ICON_FONT,
                     code_point: '🔎',
-                    size: Some(20.),
+                    size: Some(20f32.into()),
                     spacing: 5.,
                     side: text_input::Side::Left,
                 })

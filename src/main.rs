@@ -16,6 +16,7 @@ mod styles;
 mod update;
 mod utils;
 
+pub const ICON_FONT: Font = Font::with_name("Noto Color Emoji");
 pub const APP_MOUSE_MARGIN: i32 = 25;
 pub const APP_WIDTH: i32 = 320;
 pub const EMOJI_COLS: usize = 9;
@@ -51,7 +52,7 @@ fn main() -> iced::Result {
         },
         flags,
         default_text_size: 20f32.into(),
-        default_font: Font::with_name("Noto Color Emoji"),
+        default_font: ICON_FONT,
         ..Default::default()
     })
 }

@@ -1,13 +1,12 @@
 use iced::widget::{Column, Row, Text};
-use iced::{Element, Length};
+use iced::{Element, Font, Length};
 use iced_tiny_skia::core::text::Shaping;
 
 use crate::app::MainAppMessage;
-use crate::ICON_FONT;
 
 pub fn show_preview(selected: &(String, String, Vec<String>)) -> Element<'_, MainAppMessage> {
     let mut info = Column::new()
-        .push(Text::new(selected.0.as_str()).size(18))
+        .push(Text::new(selected.0.as_str()).font(Font::DEFAULT).size(18))
         .width(Length::Fill)
         .spacing(5);
 
@@ -17,7 +16,7 @@ pub fn show_preview(selected: &(String, String, Vec<String>)) -> Element<'_, Mai
         .width(Length::Fill);
 
     for s in &selected.2 {
-        shortcodes = shortcodes.push(Text::new(s).size(12));
+        shortcodes = shortcodes.push(Text::new(s).font(Font::DEFAULT).size(12));
     }
 
     info = info.push(shortcodes);
@@ -25,7 +24,6 @@ pub fn show_preview(selected: &(String, String, Vec<String>)) -> Element<'_, Mai
     Row::new()
         .push(
             Text::new(selected.1.as_str())
-                .font(ICON_FONT)
                 .shaping(Shaping::Advanced)
                 .size(40),
         )

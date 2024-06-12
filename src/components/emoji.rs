@@ -5,15 +5,11 @@ use iced_tiny_skia::core::text::Shaping;
 
 use crate::app::MainAppMessage;
 use crate::styles::get_btn_transparent_style;
-use crate::ICON_FONT;
 
 use super::Hoverable;
 
 pub fn render_emoji(e: &str) -> Element<'_, MainAppMessage> {
-    Text::new(e)
-        .shaping(Shaping::Advanced)
-        .font(ICON_FONT)
-        .into()
+    Text::new(e).shaping(Shaping::Advanced).into()
 }
 
 pub fn render_emoji_btn(e: &Emoji) -> Element<'_, MainAppMessage> {
