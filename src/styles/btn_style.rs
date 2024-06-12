@@ -14,7 +14,7 @@ impl button::StyleSheet for TransparentButton {
             shadow_offset: iced::Vector::default(),
             background: self
                 .0
-                .then(|| Background::Color(palette.background.weak.color)),
+                .then_some(Background::Color(palette.background.weak.color)),
             border: Border {
                 color: palette.background.strong.color,
                 width: 0.,

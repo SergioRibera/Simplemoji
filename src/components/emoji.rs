@@ -14,7 +14,7 @@ pub fn render_emoji_btn(e: &Emoji) -> Element<'_, MainAppMessage> {
     MouseArea::new(
         button(render_emoji(e.as_str()))
             .style(get_btn_transparent_style(false))
-            .on_press(MainAppMessage::CopyEmoji(e.to_string()))
+            .on_press(MainAppMessage::CopyEmoji(e.to_string())),
     )
     .on_enter(MainAppMessage::HoverEmoji(
         e.name().to_string(),

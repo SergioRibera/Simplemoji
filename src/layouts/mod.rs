@@ -26,9 +26,7 @@ pub fn show_content<'a>(
     selected: &'a Group,
     on_click: fn(Group) -> MainAppMessage,
 ) -> Element<'a, MainAppMessage> {
-    let mut tab = Row::new()
-        .spacing(1.0)
-        .width(Length::Fill);
+    let mut tab = Row::new().spacing(1.0).width(Length::Fill);
 
     for (t, i) in tabs {
         tab = tab.push(
