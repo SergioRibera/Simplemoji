@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use iced::widget::pick_list;
-use iced::{overlay, Border, Color};
+use iced::{overlay, Border};
 
 pub struct SelectStyle;
 
@@ -10,13 +10,13 @@ impl pick_list::StyleSheet for SelectStyle {
 
     fn active(&self, style: &Self::Style) -> pick_list::Appearance {
         let palette = style.extended_palette();
-        let bg = palette.background.weak.color;
+        let bg = palette.background.base.color;
 
         pick_list::Appearance {
             text_color: palette.background.weak.text,
-            background: Color::new(bg.r, bg.g, bg.b, 0.6).into(),
-            placeholder_color: palette.background.strong.color,
-            handle_color: Color::new(bg.r, bg.g, bg.b, 0.),
+            background: palette.background.weak.color.into(),
+            placeholder_color: palette.background.weak.color,
+            handle_color: bg,
             border: Border {
                 color: palette.background.strong.color,
                 width: 0.,
@@ -47,7 +47,7 @@ impl overlay::menu::StyleSheet for SelectMenuStyle {
             text_color: palette.background.weak.text,
             background: palette.background.weak.color.into(),
             selected_text_color: palette.primary.strong.text,
-            selected_background: palette.primary.strong.color.into(),
+            selected_background: palette.primary.base.color.into(),
             border: Border {
                 color: palette.background.strong.color,
                 width: 0.,
