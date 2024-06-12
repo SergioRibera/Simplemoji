@@ -19,10 +19,13 @@ An application where you can have all the emojis with easy and quick access
 - Searchbar
 - Tone emoji selector
 - Preview block
+- Copy to clipboard
+- Custom UI Colors
+- Blazing Fast
+- Crossplatform (Linux (X11/Wayland), MacOs, Windows)
 
 # Installation
 Requirements:
- - X11 (Not support wayland, at moment. Contributions are welcome)
  - Install [Noto Color Emoji](https://fonts.google.com/noto/specimen/Noto+Color+Emoji) font on your system
 
 Options:
@@ -36,10 +39,18 @@ Usage: simplemoji [OPTIONS]
 Options:
   -t, --tone <TONE>
           [possible values: default, light, medium-light, medium, medium-dark, dark]
-      --show-search
-          
-      --show-preview
-          
+  -s, --show-search
+
+  -p, --show-preview
+
+  -e, --no-close
+          By default the application closes automatically when it is out of focus, this option disables that behavior
+  -b, --background-color <BACKGROUND_COLOR>
+          Background color in hex (RGB, RGBA, RRGGBB, RRGGBBAA)
+  -m, --primary-color <PRIMARY_COLOR>
+          Primary color in hex (RGB, RGBA, RRGGBB, RRGGBBAA)
+  -c, --copy-command <COPY_COMMAND>
+          This is the command that will be executed to copy the emoji
   -h, --help
           Print help
   -V, --version
