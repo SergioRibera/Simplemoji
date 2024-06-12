@@ -19,16 +19,16 @@ mod utils;
 
 pub const ICON_FONT: Font = Font::with_name("Noto Color Emoji");
 pub const APP_MOUSE_MARGIN: i32 = 25;
-pub const APP_WIDTH: i32 = 320;
+pub const APP_WIDTH: i32 = 335;
 pub const EMOJI_COLS: usize = 9;
 
 lazy_static! {
     pub static ref APP_HEIGHT: i32 = {
         let show_preview = std::env::args().any(|a| a.contains("show-preview"));
         if show_preview {
-            return 380;
+            return 390;
         }
-        320
+        330
     };
 }
 

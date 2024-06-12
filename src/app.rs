@@ -137,6 +137,7 @@ impl Application for MainApp {
             &self.tab,
             MainAppMessage::ChangeTab,
         ))
+        .padding(5)
         .width(Length::Fill)
         .height(Length::Fill)
         .center_x()
