@@ -27,8 +27,8 @@ pub fn show_content<'a>(
     on_click: fn(Group) -> MainAppMessage,
 ) -> Element<'a, MainAppMessage> {
     let mut tab = Row::new()
-        .width(Length::Fill)
-        .align_items(iced::Alignment::Center);
+        .spacing(1.0)
+        .width(Length::Fill);
 
     for (t, i) in tabs {
         tab = tab.push(
