@@ -1,4 +1,5 @@
 use iced::widget::text_input;
+use iced::Border;
 
 pub struct SearchStyle;
 
@@ -10,9 +11,11 @@ impl text_input::StyleSheet for SearchStyle {
 
         text_input::Appearance {
             background: palette.background.base.color.into(),
-            border_radius: 2.0.into(),
-            border_width: 0.,
-            border_color: palette.background.strong.color,
+            border: Border {
+                color: palette.background.strong.color,
+                width: 0.,
+                radius: 2f32.into(),
+            },
             icon_color: palette.background.strong.color,
         }
     }
@@ -22,9 +25,11 @@ impl text_input::StyleSheet for SearchStyle {
 
         text_input::Appearance {
             background: palette.background.base.color.into(),
-            border_radius: 2.0.into(),
-            border_width: 0.,
-            border_color: palette.background.base.text,
+            border: Border {
+                color: palette.background.base.text,
+                width: 0.,
+                radius: 2f32.into(),
+            },
             icon_color: palette.background.base.text,
         }
     }
@@ -34,9 +39,11 @@ impl text_input::StyleSheet for SearchStyle {
 
         text_input::Appearance {
             background: palette.background.base.color.into(),
-            border_radius: 2.0.into(),
-            border_width: 0.,
-            border_color: palette.primary.strong.color,
+            border: Border {
+                color: palette.primary.strong.color,
+                width: 0.,
+                radius: 2f32.into(),
+            },
             icon_color: palette.primary.strong.color,
         }
     }
@@ -64,9 +71,11 @@ impl text_input::StyleSheet for SearchStyle {
 
         text_input::Appearance {
             background: palette.background.base.color.into(),
-            border_radius: 2.0.into(),
-            border_width: 0.,
-            border_color: palette.background.base.text,
+            border: Border {
+                color: palette.background.base.text,
+                width: 0.,
+                radius: 2f32.into(),
+            },
             icon_color: palette.background.base.text,
         }
     }

@@ -16,10 +16,10 @@ mod styles;
 mod update;
 mod utils;
 
-pub const ICON_FONT: Font = Font::with_name("Noto Color Emoji");
 pub const APP_MOUSE_MARGIN: i32 = 25;
+pub const APP_WIDTH: i32 = 320;
+pub const EMOJI_COLS: usize = 9;
 
-pub static APP_WIDTH: i32 = 325;
 lazy_static! {
     pub static ref APP_HEIGHT: i32 = {
         let show_preview = std::env::args().any(|a| a.contains("show-preview"));
@@ -33,7 +33,7 @@ lazy_static! {
 fn main() -> iced::Result {
     env_logger::Builder::from_env("SIMPLEMOJI").init();
 
-    let args = ArgOpts::parse();
+    let flags = ArgOpts::parse();
 
     let device_state = device_query::DeviceState::new();
     let pos = device_state.query_pointer().coords;
@@ -41,16 +41,17 @@ fn main() -> iced::Result {
 
     MainApp::run(Settings {
         window: iced::window::Settings {
-            position: iced::window::Position::Specific(x, y),
-            size: (APP_WIDTH as u32, *APP_HEIGHT as u32),
+            position: iced::window::Position::Specific(iced::Point::new(x as f32, y as f32)),
+            size: [APP_WIDTH as f32, *APP_HEIGHT as f32].into(),
             visible: true,
             resizable: false,
             decorations: false,
             level: Level::AlwaysOnTop,
             ..Default::default()
         },
-        flags: args,
-        default_text_size: 20.,
+        flags,
+        default_text_size: 20f32.into(),
+        default_font: Font::with_name("Noto Color Emoji"),
         ..Default::default()
     })
 }

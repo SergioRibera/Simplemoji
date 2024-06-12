@@ -1,5 +1,6 @@
+use iced::border::Radius;
 use iced::widget::button;
-use iced::{Background, BorderRadius, Color};
+use iced::{Background, Border, Color};
 
 pub struct TransparentButton(bool);
 
@@ -12,10 +13,13 @@ impl button::StyleSheet for TransparentButton {
             background: self
                 .0
                 .then(|| Background::Color(Color::new(1., 1., 1., 0.15))),
-            border_radius: BorderRadius::from(0.),
-            border_width: 0.,
-            border_color: style.palette().primary,
+            border: Border {
+                color: style.palette().primary,
+                width: 0.,
+                radius: Radius::default(),
+            },
             text_color: style.palette().text,
+            shadow: iced::Shadow::default(),
         }
     }
 
