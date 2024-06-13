@@ -4,6 +4,7 @@ permissions:
   contents: write
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["Release"]
     types:
@@ -27,7 +28,7 @@ jobs:
         run: curl -O "https://github.com/SergioRibera/simplemoji/releases/download/$(git describe --tags --abbrev=0)/simplemoji-x86_64-unknown-linux-gnu.tar.xz"
 
       - name: Generate PKGBUILD
-        run: cargo-aur generate -o ./ simplemoji-x86_64-unknown-linux-gnu.tar.xz
+        run: cargo-aur -o . generate simplemoji-x86_64-unknown-linux-gnu.tar.xz
 
       - name: Publish to the AUR
         uses: KSXGitHub/github-actions-deploy-aur@v2.3.0
