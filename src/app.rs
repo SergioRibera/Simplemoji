@@ -13,6 +13,7 @@ use crate::utils::get_default_tabs;
 #[derive(Clone, Debug)]
 pub enum MainAppMessage {
     HiddeApplication,
+    FocusSearch,
     ChangeTab(emojis::Group),
     CopyEmoji(String),
     SelectSkinTone(SkinTone),
@@ -119,6 +120,12 @@ impl Application for MainApp {
     fn subscription(&self) -> Subscription<Self::Message> {
         iced::event::listen_with(|e, _status| match e {
             Event::Mouse(mouse::Event::CursorLeft) => Some(MainAppMessage::HiddeApplication),
+            Event::Window(_, e) => {
+                if e == iced::window::Event::Focused {
+                    return Some(MainAppMessage::FocusSearch);
+                }
+                None
+            }
             _ => None,
         })
     }

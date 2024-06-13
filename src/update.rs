@@ -1,8 +1,8 @@
-use iced::widget::scrollable;
+use iced::widget::{scrollable, text_input};
 use iced::{window, Command};
 
 use crate::app::{MainApp, MainAppMessage};
-use crate::ids::EMOJI_SCROLL_ID;
+use crate::ids::{EMOJI_SCROLL_ID, SEARCH_ID};
 
 pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage> {
     match msg {
@@ -32,6 +32,7 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
                 return window::close(iced::window::Id::MAIN);
             }
         }
+        MainAppMessage::FocusSearch => return text_input::focus(SEARCH_ID.clone()),
         MainAppMessage::SelectSkinTone(t) => app.tone = t,
         MainAppMessage::OnSearchEmoji(s) => app.search = s,
         MainAppMessage::HoverEmoji(n, e, s) => app.emoji_hovered = (n, e, s),

@@ -51,7 +51,7 @@ impl text_input::StyleSheet for SearchStyle {
     fn placeholder_color(&self, style: &Self::Style) -> iced::Color {
         let palette = style.extended_palette();
 
-        palette.background.strong.color
+        palette.background.strong.text
     }
 
     fn value_color(&self, style: &Self::Style) -> iced::Color {
