@@ -24,6 +24,23 @@ An application where you can have all the emojis with easy and quick access
 - ⚡ Blazing Fast
 - 🐧 Crossplatform (Linux (X11/Wayland), MacOs)
 
+# 🎨 Custom UI Colors
+![SimplemojiTheme](https://github.com/SergioRibera/Simplemoji/assets/56278796/fc7a9b2f-c395-4f66-b5fc-e2153c5372f0)
+
+For this we use the arguments of the application, for example
+```sh
+simplemoji -m '#000' -b '#DEA584'
+```
+
+```sh
+simplemoji -m '#d485ad' --background-color '#262626'
+```
+
+```sh
+simplemoji --primary-color '#c9cbd1' --background-color '#f2ecbc'
+```
+
+
 # 💽 Installation
 Requirements:
  - Install [Noto Color Emoji](https://fonts.google.com/noto/specimen/Noto+Color+Emoji) font on your system
