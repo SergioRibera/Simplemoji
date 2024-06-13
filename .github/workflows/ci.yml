@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - ".github/"
+      - ".github/**"
       - "**/Makefile.toml"
       - "release.toml"
       - "LICENSE*"

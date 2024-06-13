@@ -5,6 +5,11 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      test:
+        description: 'Ignore this'
+        required: true
+        default: true
   workflow_run:
     workflows: ["Release"]
     types:
@@ -14,7 +19,7 @@ jobs:
   publish_aur_package:
     name: Publish AUR package
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.test }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
