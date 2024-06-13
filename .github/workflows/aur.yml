@@ -1,8 +1,5 @@
 name: Release to AUR
 
-permissions:
-  contents: write
-
 on:
   workflow_dispatch:
     inputs:
@@ -14,6 +11,9 @@ on:
     workflows: ["Release"]
     types:
       - completed
+
+env:
+  APP_NAME: simplemoji
 
 jobs:
   publish_aur_package:
