@@ -291,39 +291,3 @@ jobs:
           body: ${{ fromJson(needs.host.outputs.val).announcement_github_body }}
           prerelease: ${{ fromJson(needs.host.outputs.val).announcement_is_prerelease }}
           artifacts: "artifacts/*"
-
-  publish_aur_package:
-    needs:
-      - plan
-      - host
-      - publish-homebrew-formula
-    if: ${{ always() && needs.host.result == 'success' && (needs.publish-homebrew-formula.result == 'skipped' || needs.publish-homebrew-formula.result == 'success') }}
-    name: Publish AUR package
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-unknown-linux-gnu
-      - uses: Swatinem/rust-cache@v2
-      - name: Install cargo-aur
-        run: cargo install --git https://github.com/SergioRibera/cargo-pkgbuild --branch dev
-
-      - name: "Download Github Artifacts"
-        uses: actions/download-artifact@v3
-        with:
-          name: artifacts
-          path: artifacts
-
-      - name: Generate PKGBUILD
-        run: cargo-aur generate -o ./ artifacts/${{ env.APP_NAME }}-x86_64-unknown-linux-gnu.tar.xz; ls -l
-
-      - name: Publish to the AUR
-        uses: KSXGitHub/github-actions-deploy-aur@v2.3.0
-        with:
-          pkgname: ${{ env.APP_NAME }}
-          pkgbuild: ./PKGBUILD
-          commit_username: ${{ secrets.AUR_USERNAME }}
-          commit_email: ${{ secrets.AUR_EMAIL }}
-          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          commit_message: ${{ github.ref_name }}

@@ -1,0 +1,40 @@
+name: Release to AUR
+
+permissions:
+  contents: write
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
+
+jobs:
+  publish_aur_package:
+    name: Publish AUR package
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-aur
+        run: cargo install --git https://github.com/SergioRibera/cargo-pkgbuild --branch dev
+
+      - name: "Download Github Artifacts"
+        run: curl -O "https://github.com/SergioRibera/simplemoji/releases/download/$(git describe --tags --abbrev=0)/simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+
+      - name: Generate PKGBUILD
+        run: cargo-aur generate -o ./ simplemoji-x86_64-unknown-linux-gnu.tar.xz
+
+      - name: Publish to the AUR
+        uses: KSXGitHub/github-actions-deploy-aur@v2.3.0
+        with:
+          pkgname: ${{ env.APP_NAME }}
+          pkgbuild: ./PKGBUILD
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: ${{ github.ref_name }}
