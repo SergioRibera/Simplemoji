@@ -19,6 +19,11 @@ panic = 'abort'
 opt-level = 3
 codegen-units = 1
 
+# The profile that 'cargo dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
 [dependencies]
 log = "0.4.21"
 env_logger = "0.11"
@@ -38,6 +43,23 @@ clap = { version = "4.5.7", features = [
     "wrap_help",
 ] }
 arboard = { version = "3.4", features = ["wayland-data-control"] }
+
+# Config for 'cargo dist'
+[workspace.metadata.dist]
+# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.5.0"
+# CI backends to support
+ci = ["github"]
+# The installers to generate for each app
+installers = ["shell", "homebrew"]
+# A GitHub repo to push Homebrew formulas to
+tap = "SergioRibera/homebrew-tap"
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "x86_64-apple-darwin"]
+# Publish jobs to run in CI
+publish-jobs = ["homebrew"]
+# Publish jobs to run in CI
+pr-run-mode = "plan"
 
 [package.metadata]
 depends = ["noto-fonts-emoji", "noto-fonts"]
