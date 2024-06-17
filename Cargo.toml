@@ -27,7 +27,7 @@ lto = "thin"
 [dependencies]
 log = "0.4.21"
 env_logger = "0.11"
-emojis = "0.6.1"
+emojis = "0.6.2"
 dark-light = "1.0.0"
 lazy_static = "1.4.0"
 display-info = "0.4.3"
