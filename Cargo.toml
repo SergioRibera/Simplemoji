@@ -30,7 +30,7 @@ env_logger = "0.11"
 emojis = "0.6.1"
 dark-light = "1.0.0"
 lazy_static = "1.4.0"
-display-info = "0.4.3"
+display-info = "0.5.1"
 device_query = "2.1"
 iced_tiny_skia = "0.12"
 iced = { version = "0.12", default-features = false, features = ["advanced"] }
