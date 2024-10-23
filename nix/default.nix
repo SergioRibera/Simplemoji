@@ -19,7 +19,6 @@ in
     pkgs ? import (getFlake "nixpkgs") {localSystem = {inherit system;};},
     lib ? pkgs.lib,
     crane,
-    cranix,
     fenix,
     stdenv ? pkgs.stdenv,
     ...
@@ -31,9 +30,7 @@ in
       sha256 = "sha256-opUgs6ckUQCyDxcB9Wy51pqhd0MPGHUVbwRKKPGiwZU=";
     };
     # crane: cargo and artifacts manager
-    craneLib = crane.${system}.overrideToolchain toolchain;
-    # cranix: extends crane building system with workspace bin building and Mold + Cranelift integrations
-    cranixLib = craneLib.overrideScope' (cranix.${system}.craneOverride);
+    craneLib = crane.overrideToolchain toolchain;
 
     # buildInputs for Simplemoji
     buildInputs = with pkgs; [
@@ -67,7 +64,7 @@ in
     };
 
     # simplemoji artifacts
-    simplemojiDeps = cranixLib.buildCranixDepsOnly commonArgs;
+    simplemojiDeps = craneLib.buildDepsOnly commonArgs;
 
     # Lambda for build packages with cached artifacts
     packageArgs = targetName:
@@ -81,22 +78,22 @@ in
       };
 
     # Build packages and `nix run` apps
-    simplemojiPkg = cranixLib.buildCranixBundle (packageArgs "simplemoji");
+    genBuild = name:  rec {
+      pkg = craneLib.buildPackage (packageArgs name);
+      app = {
+        type = "app";
+        program = "${pkg}${pkg.passthru.exePath or "/bin/${pkg.pname or pkg.name}"}";
+      };
+    };
+    simplemojiPkg = genBuild "simplemoji";
   in {
     # `nix run`
-    apps = rec {
-      simplemoji = simplemojiPkg.app;
-      default = simplemoji;
-    };
+    apps.default = simplemojiPkg.app;
     # `nix build`
-    packages = rec {
-      simplemoji = simplemojiPkg.pkg;
-      default = simplemoji;
-    };
+    packages.default = simplemojiPkg.pkg;
     # `nix develop`
-    devShells.default = cranixLib.devShell {
-      packages = with pkgs;
-        [
+    devShells.default = craneLib.devShell {
+      packages = with pkgs; [
           toolchain
           pkg-config
           cargo-dist
@@ -104,8 +101,7 @@ in
 
           libxkbcommon
           noto-fonts-color-emoji
-        ]
-        ++ buildInputs;
+        ] ++ buildInputs;
       LD_LIBRARY_PATH = "${lib.makeLibraryPath buildInputs}";
       PKG_CONFIG_PATH = "${pkgs.fontconfig.dev}/lib/pkgconfig";
     };
