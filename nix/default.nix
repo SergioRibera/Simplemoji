@@ -1,26 +1,13 @@
 let
-  inherit
-    (builtins)
-    currentSystem
-    fromJSON
-    readFile
-    ;
-  getFlake = name:
-    with (fromJSON (readFile ../flake.lock)).nodes.${name}.locked; {
-      inherit rev;
-      outPath = fetchTarball {
-        url = "https://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
-        sha256 = narHash;
-      };
-    };
+  inherit (builtins) currentSystem;
 in
   {
+    stdenv ? pkgs.stdenv,
     system ? currentSystem,
-    pkgs ? import (getFlake "nixpkgs") {localSystem = {inherit system;};},
     lib ? pkgs.lib,
+    pkgs,
     crane,
     fenix,
-    stdenv ? pkgs.stdenv,
     ...
   }: let
     # fenix: rustup replacement for reproducible builds
