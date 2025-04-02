@@ -24,7 +24,12 @@ pub fn update(app: &mut MainApp, msg: MainAppMessage) -> Command<MainAppMessage>
                 let bin = cmd.next().unwrap();
                 let mut args = cmd.collect::<Vec<&str>>();
                 args.push(&emoji);
-                std::process::Command::new(bin).args(args).spawn().unwrap();
+                _ = std::process::Command::new(bin)
+                    .args(args)
+                    .spawn()
+                    .unwrap()
+                    .wait()
+                    .unwrap();
             } else {
                 app.clipboard.set_text(emoji).unwrap();
             }

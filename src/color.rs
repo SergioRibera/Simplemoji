@@ -47,10 +47,10 @@ impl ToRgba for String {
                 let b = (color & 0xf) as u8;
 
                 Ok(Color::from_rgba8(
-                    r << 4 | r,
-                    g << 4 | g,
-                    b << 4 | b,
-                    ((a << 4 | a) as f32) / 255.,
+                    (r << 4) | r,
+                    (g << 4) | g,
+                    (b << 4) | b,
+                    (((a << 4) | a) as f32) / 255.,
                 ))
             }
             // RRGGBB or RRGGBBAA
