@@ -13,7 +13,7 @@ pub fn mouse_to_window_pos((x, y): (i32, i32)) -> (i32, i32) {
     else {
         return (x, y);
     };
-    let app_height = *APP_HEIGHT;
+    let app_height = *APP_HEIGHT.get().unwrap_or(&330);
 
     let left_x = ((x - display_x) as u32) < (width / 2);
     let bottom_y = ((y - display_y) as u32) > (height / 2);

@@ -1,8 +1,9 @@
+use std::sync::OnceLock;
+
 use app::MainApp;
 use clap::Parser;
 use iced::window::Level;
 use iced::{Application, Font, Settings};
-use lazy_static::lazy_static;
 use settings::ArgOpts;
 use utils::mouse_to_window_pos;
 
@@ -21,21 +22,14 @@ pub const ICON_FONT: Font = Font::with_name("Noto Color Emoji");
 pub const APP_MOUSE_MARGIN: i32 = 25;
 pub const APP_WIDTH: i32 = 335;
 pub const EMOJI_COLS: usize = 9;
-
-lazy_static! {
-    pub static ref APP_HEIGHT: i32 = {
-        let show_preview = std::env::args().any(|a| a.contains("show-preview"));
-        if show_preview {
-            return 390;
-        }
-        330
-    };
-}
+pub static APP_HEIGHT: OnceLock<i32> = OnceLock::new();
 
 fn main() -> iced::Result {
     env_logger::Builder::from_env("SIMPLEMOJI").init();
 
     let flags = ArgOpts::parse();
+    let height = if flags.show_preview { 390 } else { 330 };
+    APP_HEIGHT.set(height).unwrap();
 
     let device_state = device_query::DeviceState::new();
     let pos = device_state.query_pointer().coords;
@@ -44,7 +38,7 @@ fn main() -> iced::Result {
     MainApp::run(Settings {
         window: iced::window::Settings {
             position: iced::window::Position::Specific(iced::Point::new(x as f32, y as f32)),
-            size: [APP_WIDTH as f32, *APP_HEIGHT as f32].into(),
+            size: [APP_WIDTH as f32, *APP_HEIGHT.get().unwrap_or(&330) as f32].into(),
             visible: true,
             resizable: false,
             decorations: false,

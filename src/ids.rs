@@ -1,7 +1,8 @@
-use iced::widget::{scrollable, text_input};
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
 
-lazy_static! {
-    pub static ref SEARCH_ID: text_input::Id = text_input::Id::new("search_input");
-    pub static ref EMOJI_SCROLL_ID: scrollable::Id = scrollable::Id::new("scrollable_grid");
-}
+use iced::widget::{scrollable, text_input};
+
+pub static SEARCH_ID: LazyLock<text_input::Id> =
+    LazyLock::new(|| text_input::Id::new("search_input"));
+pub static EMOJI_SCROLL_ID: LazyLock<scrollable::Id> =
+    LazyLock::new(|| scrollable::Id::new("scrollable_grid"));
