@@ -3,10 +3,10 @@ name: Release to AUR
 on:
   workflow_dispatch:
     inputs:
-      test:
-        description: 'Ignore this'
+      version:
+        description: "Version to release (e.g., 1.2.3)"
         required: true
-        default: true
+        default: ""
   workflow_run:
     workflows: ["Release"]
     types:
@@ -19,9 +19,24 @@ jobs:
   publish_aur_package:
     name: Publish AUR package
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.test }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "Using manually specified version: ${{ github.event.inputs.version }}"
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            AUTO_VERSION=$(git describe --tags --abbrev=0)
+            echo "Using auto-detected version: ${AUTO_VERSION}"
+            echo "version=${AUTO_VERSION}" >> $GITHUB_OUTPUT
+          fi
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-gnu
@@ -30,17 +45,54 @@ jobs:
         run: cargo install --git https://github.com/SergioRibera/cargo-pkgbuild --branch dev
 
       - name: "Download Github Artifacts"
-        run: curl -O "https://github.com/SergioRibera/simplemoji/releases/download/$(git describe --tags --abbrev=0)/simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+        run: |
+          echo "Downloading version: ${{ steps.version.outputs.version }}"
+
+          DOWNLOAD_URL="https://github.com/SergioRibera/Simplemoji/releases/download/v${{ steps.version.outputs.version }}/simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+
+          if ! curl -v -fL -o "simplemoji-x86_64-unknown-linux-gnu.tar.xz" "$DOWNLOAD_URL"; then
+            echo "::error::Failed to download release artifact from $DOWNLOAD_URL"
+
+            echo "Checking if release exists..."
+            if ! curl -I -fL "$DOWNLOAD_URL" > curl_headers.log 2>&1; then
+              echo "::error::Release URL is not accessible (HTTP HEAD failed)"
+              cat curl_headers.log
+            else
+              echo "HTTP headers:"
+              cat curl_headers.log
+            fi
+
+            exit 1
+          fi
+
+          echo "Download verification:"
+          ls -lh "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+          file "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+
+          echo "SHA256 checksum:"
+          sha256sum "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+
+          if ! tar -tf "simplemoji-x86_64-unknown-linux-gnu.tar.xz" > /dev/null 2>&1; then
+            echo "::error::Downloaded file is not a valid tar.xz archive"
+            exit 1
+          fi
 
       - name: Generate PKGBUILD
-        run: cargo-aur -o . generate simplemoji-x86_64-unknown-linux-gnu.tar.xz
+        run: cargo-aur -o ./aur generate simplemoji-x86_64-unknown-linux-gnu.tar.xz
+
+      - name: Check PKGBUILD
+        run: |
+          ls -l
+          cat ./aur/PKGBUILD
+          sha256sum simplemoji-x86_64-unknown-linux-gnu.tar.xz || true
 
       - name: Publish to the AUR
-        uses: KSXGitHub/github-actions-deploy-aur@v2.3.0
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
         with:
+          test: true
           pkgname: ${{ env.APP_NAME }}
-          pkgbuild: ./PKGBUILD
+          pkgbuild: ./aur/PKGBUILD
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          commit_message: ${{ github.ref_name }}
+          commit_message: Release ${{ steps.version.outputs.version }}

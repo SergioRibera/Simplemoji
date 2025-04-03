@@ -43,5 +43,7 @@ clap = { version = "4", features = [
 ] }
 arboard = { version = "3", features = ["wayland-data-control"] }
 
-[package.metadata]
+[package.metadata.aur]
+arch = ["x86_64", "aarch64"]                                                                                         # not support for now
 depends = ["noto-fonts-emoji", "noto-fonts"]
+source_download = "{{ repository }}/releases/download/v{{ version }}/{{ name }}-{{ arch }}-unknown-linux-gnu.tar.xz"
