@@ -29,11 +29,12 @@ jobs:
         id: version
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
-            echo "Using manually specified version: ${{ github.event.inputs.version }}"
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            CLEAN_VERSION=$(echo "${{ github.event.inputs.version }}" | sed 's/^v//')
+            echo "Using manually specified version: ${{ github.event.inputs.version }} (clean: ${CLEAN_VERSION})"
+            echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
           else
-            AUTO_VERSION=$(git describe --tags --abbrev=0)
-            echo "Using auto-detected version: ${AUTO_VERSION}"
+            AUTO_VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
+            echo "Using auto-detected version: $(git describe --tags --abbrev=0) (clean: ${AUTO_VERSION})"
             echo "version=${AUTO_VERSION}" >> $GITHUB_OUTPUT
           fi
 
