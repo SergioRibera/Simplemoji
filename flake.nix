@@ -22,6 +22,11 @@
         };
       in {
         inherit (simplemojiBundle) apps packages devShells;
+    }) // (flake-utils.lib.eachDefaultSystemPassThrough (system: let
+        pkgs = nixpkgs.legacyPackages.${system};
+        crane = inputs.crane.mkLib pkgs;
+        fenix = inputs.fenix.packages;
+      in {
         # Overlays
         overlays.default = import ./nix/overlay.nix {
           inherit pkgs crane fenix;
@@ -29,12 +34,12 @@
         # nixosModules
         nixosModules = {
           default = import ./nix/nixos-module.nix {
-            inherit pkgs crane fenix;
+            inherit crane fenix;
           };
           home-manager = import ./nix/hm-module.nix {
-            inherit pkgs crane fenix;
+            inherit crane fenix;
           };
         };
       }
-    );
+    ));
 }
