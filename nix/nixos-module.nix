@@ -1,7 +1,4 @@
 {
-  crane,
-  fenix,
-}: {
   config,
   lib,
   pkgs,
@@ -9,7 +6,7 @@
 }:
 with lib; let
   simplemoji = import ./. {
-    inherit crane fenix pkgs lib;
+    inherit pkgs lib;
     system = pkgs.system;
   };
   cfg = config.programs.simplemoji;
