@@ -31,7 +31,7 @@ emojis = "0.6"
 dark-light = "1"
 display-info = "0.5"
 device_query = "3"
-iced_tiny_skia = "0.12"
+iced_tiny_skia = "0.13"
 iced = { version = "0.12", default-features = false, features = ["advanced"] }
 iced_aw = { version = "0.9", default-features = false, features = ["grid"] }
 clap = { version = "4", features = [
