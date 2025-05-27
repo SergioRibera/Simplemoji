@@ -65,10 +65,8 @@ in {
         pkg-config
         cargo-dist
         cargo-release
-
-        # libxkbcommon
-        # noto-fonts-color-emoji
       ] ++ buildInputs;
+    RUSTFLAGS = "-C link-arg=-Wl,-rpath,${lib.makeLibraryPath [pkgs.libxkbcommon]}";
     LD_LIBRARY_PATH = "${lib.makeLibraryPath buildInputs}";
     PKG_CONFIG_PATH = "${pkgs.fontconfig.dev}/lib/pkgconfig";
   };
