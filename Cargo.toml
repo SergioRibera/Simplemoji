@@ -28,12 +28,8 @@ lto = "thin"
 log = "0.4.21"
 env_logger = "0.11"
 emojis = "0.6"
-dark-light = "1"
 display-info = "0.5"
 device_query = "3"
-iced_tiny_skia = "0.12"
-iced = { version = "0.12", default-features = false, features = ["advanced"] }
-iced_aw = { version = "0.9", default-features = false, features = ["grid"] }
 clap = { version = "4", features = [
     "derive",
     "color",
@@ -42,6 +38,7 @@ clap = { version = "4", features = [
     "wrap_help",
 ] }
 arboard = { version = "3", features = ["wayland-data-control"] }
+slint = { version = "1.12", default-features = false, features = ["accessibility", "compat-1-2", "backend-winit", "renderer-femtovg"] }
 
 [package.metadata.aur]
 depends = ["noto-fonts-emoji", "noto-fonts"]

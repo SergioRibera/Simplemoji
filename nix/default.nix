@@ -9,16 +9,15 @@
 
   # buildInputs for Simplemoji
   buildInputs = with pkgs; [
-    pkg-config
-    fontconfig.dev
-    libxkbcommon.dev
+    libGL
+    fontconfig
+    libxkbcommon
     wayland
-    xorg.libxcb
+
     xorg.libX11
     xorg.libXcursor
-    xorg.libXrandr
     xorg.libXi
-    libgcc
+    xorg.libXrandr
   ];
 
   simplemojiPkg = pkgs.rustPlatform.buildRustPackage {
@@ -66,8 +65,7 @@ in {
         cargo-dist
         cargo-release
       ] ++ buildInputs;
-    RUSTFLAGS = "-C link-arg=-Wl,-rpath,${lib.makeLibraryPath [pkgs.libxkbcommon]}";
+    PATH = ["/home/s4rch/.cargo/bin"];
     LD_LIBRARY_PATH = "${lib.makeLibraryPath buildInputs}";
-    PKG_CONFIG_PATH = "${pkgs.fontconfig.dev}/lib/pkgconfig";
   };
 }
