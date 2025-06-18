@@ -1,0 +1,25 @@
+import { Emoji, EmojiModel } from "./emoji.slint";
+
+export global TabsHandle {
+    in-out property<int> tab;
+    in property<[EmojiModel]> tabs;
+
+    callback change_tab(/* new_tab */ int);
+}
+
+export component Tabs inherits Rectangle {
+    callback click();
+
+    HorizontalLayout {
+        alignment: center;
+        for tab[i] in TabsHandle.tabs: Emoji {
+            enabled: i == TabsHandle.tab;
+            emoji: tab;
+            click => {
+                root.click();
+                TabsHandle.tab = i;
+                TabsHandle.change_tab(i);
+            }
+        }
+    }
+}

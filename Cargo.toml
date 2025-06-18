@@ -40,6 +40,9 @@ clap = { version = "4", features = [
 arboard = { version = "3", features = ["wayland-data-control"] }
 slint = { version = "1.12", default-features = false, features = ["accessibility", "compat-1-2", "backend-winit", "renderer-femtovg"] }
 
+[build-dependencies]
+slint-build = "1.12"
+
 [package.metadata.aur]
 depends = ["noto-fonts-emoji", "noto-fonts"]
 source_download = "{{ repository }}/releases/download/v{{ version }}/{{ name }}-{{ arch }}-unknown-linux-gnu.tar.xz"

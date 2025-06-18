@@ -1,0 +1,33 @@
+import { MyColors } from "../globals.slint";
+
+export struct EmojiModel {
+    name: string,
+    codes: [string],
+    character: string,
+}
+
+export component Emoji inherits Rectangle {
+    in property<bool> enabled: false;
+    in property<EmojiModel> emoji;
+    callback click();
+
+    width: 35px;
+    height: 35px;
+    background: area.has-hover || enabled ? MyColors.foreground.transparentize(0.7) : transparent;
+    animate background { duration: 100ms; }
+
+    Text {
+        text: root.emoji.character;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    area := TouchArea {
+        width: parent.width;
+        height: parent.height;
+
+        mouse-cursor: pointer;
+
+        clicked => { root.click(); }
+    }
+}

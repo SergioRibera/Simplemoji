@@ -1,0 +1,63 @@
+import { ListView } from "std-widgets.slint";
+
+import { MyColors } from "./globals.slint";
+
+import { Emoji, EmojiModel } from "./components/emoji.slint";
+import { Tabs } from "./components/tab.slint";
+
+export { MyColors, EmojiModel }
+export { TabsHandle } from "./components/tab.slint";
+
+export component MainWindow inherits Window {
+    in property<bool> show-preview: true;
+    in property<[[EmojiModel]]> emojis: [];
+    callback close();
+
+    title: "Simplemoji";
+    width: 320px;
+    height: show-preview ? 390px : 330px;
+    background: MyColors.background;
+
+    no-frame: true;
+    always-on-top: true;
+    default-font-size: 20px;
+    default-font-family: "Noto Color Emoji";
+
+    forward-focus: global-event;
+    global-event := FocusScope {
+        focus-lost(event) => { close() }
+        key-pressed(event) => {
+            if (event.text == Key.Escape) {
+                close()
+            }
+            accept
+        }
+    }
+
+    VerticalLayout {
+        width: root.width;
+
+        Tabs {
+            click() => {
+                content.viewport-y = 0;
+            }
+        }
+
+        HorizontalLayout {
+            padding-left: 2px;
+
+            content := ListView {
+                width: root.width;
+                horizontal-scrollbar-policy: always-off;
+                vertical-scrollbar-policy: always-off;
+
+                for row in emojis: HorizontalLayout {
+                    for emoji in row: Emoji {
+                        emoji: emoji;
+                        click => {}
+                    }
+                }
+            }
+        }
+    }
+}
