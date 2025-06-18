@@ -38,7 +38,7 @@ clap = { version = "4", features = [
     "wrap_help",
 ] }
 arboard = { version = "3", features = ["wayland-data-control"] }
-slint = { version = "1.12", default-features = false, features = ["accessibility", "compat-1-2", "backend-winit", "renderer-femtovg"] }
+slint = { version = "1.12", default-features = false, features = ["accessibility", "compat-1-2", "backend-winit", "renderer-winit-skia"] }
 
 [build-dependencies]
 slint-build = "1.12"

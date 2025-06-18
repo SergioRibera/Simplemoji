@@ -18,6 +18,10 @@
     xorg.libXcursor
     xorg.libXi
     xorg.libXrandr
+    xorg.libxcb
+
+    freetype
+    pkgs.stdenv.cc.cc.lib
   ];
 
   simplemojiPkg = pkgs.rustPlatform.buildRustPackage {
