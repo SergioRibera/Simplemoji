@@ -1,81 +1,34 @@
-use arboard::Clipboard;
-use iced::widget::{container, text_input};
-use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
+use std::borrow::BorrowMut;
+use std::rc::Rc;
 
-use crate::color::ToRgba;
-use crate::ids::SEARCH_ID;
-use crate::layouts::show_content;
+use arboard::Clipboard;
+use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
+
 use crate::settings::ArgOpts;
 use crate::skin_tone::SkinTone;
-use crate::update;
-use crate::utils::get_default_tabs;
-
-#[derive(Clone, Debug)]
-pub enum MainAppMessage {
-    HiddeApplication,
-    FocusSearch,
-    ChangeTab(emojis::Group),
-    CopyEmoji(String),
-    SelectSkinTone(SkinTone),
-    OnSearchEmoji(String),
-    HoverEmoji(String, String, Vec<String>),
-}
+use crate::utils::{emoji_to_model, emojis_from_group, get_default_tabs, group_from};
+use crate::{EmojiModel, MainWindow, TabsHandle, EMOJI_COLS};
 
 pub struct MainApp {
-    pub tabs: Vec<(emojis::Group, String)>,
-    pub settings: ArgOpts,
-    pub search: String,
-    pub emoji_hovered: (String, String, Vec<String>),
-    pub tone: SkinTone,
-    pub tab: emojis::Group,
-    pub theme: Theme,
-    pub clipboard: Clipboard,
-}
+    window: MainWindow,
+    settings: ArgOpts,
+    search: String,
+    emoji_hovered: (String, String, Vec<String>),
+    tone: SkinTone,
+    clipboard: Clipboard,
 
-impl MainApp {
-    pub fn new(settings: ArgOpts) -> Self {
-        let tone = settings.tone.unwrap_or_default();
-        let theme = match dark_light::detect() {
-            dark_light::Mode::Light => Theme::Light,
-            _ => Theme::Dark,
-        };
-        let theme = Theme::custom(
-            "Custom".to_owned(),
-            iced::theme::Palette {
-                background: settings
-                    .background_color
-                    .as_deref()
-                    .inspect(|v| log::debug!("Background Custom Color: {v}"))
-                    .map(|b| b.to_rgba().unwrap())
-                    .unwrap_or(theme.palette().background),
-                primary: settings
-                    .primary_color
-                    .as_deref()
-                    .inspect(|v| log::debug!("Primary Custom Color: {v}"))
-                    .map(|b| b.to_rgba().unwrap())
-                    .unwrap_or(theme.palette().primary),
-                ..theme.palette()
-            },
-        );
-
-        Self {
-            tone,
-            theme,
-            settings,
-            ..Default::default()
-        }
-    }
+    content: ModelRc<ModelRc<EmojiModel>>,
 }
 
 impl Default for MainApp {
     fn default() -> Self {
         Self {
-            tabs: get_default_tabs(),
+            window: MainWindow::new().unwrap(),
             settings: Default::default(),
             search: Default::default(),
             tone: Default::default(),
-            tab: emojis::Group::SmileysAndEmotion,
             clipboard: Clipboard::new().unwrap(),
+            content: emojis_from_group(emojis::Group::SmileysAndEmotion),
             emoji_hovered: emojis::Group::SmileysAndEmotion
                 .emojis()
                 .next()
@@ -89,70 +42,72 @@ impl Default for MainApp {
                     )
                 })
                 .unwrap(),
-            theme: match dark_light::detect() {
-                dark_light::Mode::Light => Theme::Light,
-                _ => Theme::Dark,
-            },
         }
     }
 }
 
-impl Application for MainApp {
-    type Executor = iced::executor::Default;
-    type Message = MainAppMessage;
-    type Theme = Theme;
-    type Flags = ArgOpts;
+/*
+TODO:
+- focus search input on start
+- close on cursor left and press scape
+*/
 
-    fn new(settings: Self::Flags) -> (Self, Command<Self::Message>) {
-        let focus_search = if settings.show_search {
-            text_input::focus(SEARCH_ID.clone())
-        } else {
-            Command::none()
-        };
+impl MainApp {
+    pub fn new(settings: ArgOpts) -> Self {
+        let tone = settings.tone.unwrap_or_default();
 
-        (MainApp::new(settings), focus_search)
+        Self {
+            tone,
+            settings,
+            ..Default::default()
+        }
     }
 
-    fn title(&self) -> String {
-        "Simplemoji".to_string()
-    }
+    pub fn run(&self) -> Result<(), slint::PlatformError> {
+        self.window.set_show_preview(self.settings.show_preview);
+        let tabs = self.window.global::<TabsHandle>();
+        tabs.set_tab(emojis::Group::SmileysAndEmotion as i32);
+        tabs.set_tabs(get_default_tabs());
 
-    fn subscription(&self) -> Subscription<Self::Message> {
-        iced::event::listen_with(|e, _status| match e {
-            Event::Mouse(mouse::Event::CursorLeft) => Some(MainAppMessage::HiddeApplication),
-            Event::Window(_, e) => {
-                if e == iced::window::Event::Focused {
-                    return Some(MainAppMessage::FocusSearch);
-                }
-                None
+        self.window.set_emojis(self.content.clone());
+        tabs.on_change_tab({
+            let content = self.content.clone();
+            move |id| {
+                let group = group_from(id);
+                let emojis = group
+                    .emojis()
+                    .collect::<Vec<_>>()
+                    .chunks(EMOJI_COLS)
+                    .map(|e| {
+                        ModelRc::from(
+                            e.iter()
+                                .cloned()
+                                .map(emoji_to_model)
+                                .collect::<Vec<_>>()
+                                .as_slice(),
+                        )
+                    })
+                    .collect::<Vec<ModelRc<_>>>();
+                content
+                    .as_any()
+                    .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
+                    .unwrap()
+                    .set_vec(emojis);
             }
-            _ => None,
-        })
-    }
+        });
 
-    fn update(&mut self, message: Self::Message) -> iced::Command<Self::Message> {
-        update::update(self, message)
-    }
+        self.window.on_close({
+            let window = self.window.as_weak();
+            move || {
+                // window
+                //     .unwrap()
+                //     .window()
+                //     .dispatch_event(slint::platform::WindowEvent::CloseRequested);
+            }
+        });
 
-    fn view(&self) -> iced::Element<'_, Self::Message, Self::Theme> {
-        container(show_content(
-            self.tabs.as_ref(),
-            &self.settings,
-            &self.search,
-            &self.tone,
-            &self.emoji_hovered,
-            &self.tab,
-            MainAppMessage::ChangeTab,
-        ))
-        .padding(5)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .center_x()
-        .center_y()
-        .into()
-    }
+        // self.window.global::<TabsHandle>();
 
-    fn theme(&self) -> Self::Theme {
-        self.theme.clone()
+        self.window.run()
     }
 }
