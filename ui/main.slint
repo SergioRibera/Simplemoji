@@ -2,10 +2,10 @@ import { ListView } from "std-widgets.slint";
 
 import { MyColors } from "./globals.slint";
 
-import { Emoji, EmojiModel } from "./components/emoji.slint";
+import { Emoji, EmojiModel, EmojiHandle } from "./components/emoji.slint";
 import { Tabs } from "./components/tab.slint";
 
-export { MyColors, EmojiModel }
+export { MyColors, EmojiModel, EmojiHandle }
 export { TabsHandle } from "./components/tab.slint";
 
 export component MainWindow inherits Window {
@@ -54,7 +54,9 @@ export component MainWindow inherits Window {
                 for row in emojis: HorizontalLayout {
                     for emoji in row: Emoji {
                         emoji: emoji;
-                        click => {}
+                        click => {
+                            EmojiHandle.click(emoji.character);
+                        }
                     }
                 }
             }

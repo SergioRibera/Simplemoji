@@ -7,7 +7,7 @@ use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
 use crate::settings::ArgOpts;
 use crate::skin_tone::SkinTone;
 use crate::utils::{emoji_to_model, emojis_from_group, get_default_tabs, group_from};
-use crate::{EmojiModel, MainWindow, TabsHandle, EMOJI_COLS};
+use crate::{EmojiHandle, EmojiModel, MainWindow, TabsHandle, EMOJI_COLS};
 
 pub struct MainApp {
     window: MainWindow,
@@ -15,7 +15,6 @@ pub struct MainApp {
     search: String,
     emoji_hovered: (String, String, Vec<String>),
     tone: SkinTone,
-    clipboard: Clipboard,
 
     content: ModelRc<ModelRc<EmojiModel>>,
 }
@@ -27,7 +26,6 @@ impl Default for MainApp {
             settings: Default::default(),
             search: Default::default(),
             tone: Default::default(),
-            clipboard: Clipboard::new().unwrap(),
             content: emojis_from_group(emojis::Group::SmileysAndEmotion),
             emoji_hovered: emojis::Group::SmileysAndEmotion
                 .emojis()
@@ -103,6 +101,36 @@ impl MainApp {
                 //     .unwrap()
                 //     .window()
                 //     .dispatch_event(slint::platform::WindowEvent::CloseRequested);
+            }
+        });
+
+        self.window.global::<EmojiHandle>().on_click({
+            let window = self.window.as_weak();
+            let close = self.settings.close_on_copy;
+            let cmd = self.settings.copy_command.clone();
+            let mut clipboard = cmd.is_none().then(|| Clipboard::new().unwrap());
+
+            move |emoji| {
+                if let Some(cmd) = cmd.as_deref() {
+                    let mut cmd = cmd.split(' ');
+                    let bin = cmd.next().unwrap();
+                    let mut args = cmd.collect::<Vec<&str>>();
+                    args.push(&emoji);
+                    _ = std::process::Command::new(bin)
+                        .args(args)
+                        .spawn()
+                        .unwrap()
+                        .wait()
+                        .unwrap();
+                } else if let Some(clipboard) = clipboard.as_mut() {
+                    clipboard.set_text(emoji.as_str()).unwrap();
+                }
+                if close {
+                    window
+                        .unwrap()
+                        .window()
+                        .dispatch_event(slint::platform::WindowEvent::CloseRequested);
+                }
             }
         });
 

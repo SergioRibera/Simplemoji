@@ -6,6 +6,10 @@ export struct EmojiModel {
     character: string,
 }
 
+export global EmojiHandle {
+    callback click(/* new_tab */ string);
+}
+
 export component Emoji inherits Rectangle {
     in property<bool> enabled: false;
     in property<EmojiModel> emoji;
