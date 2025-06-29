@@ -4,6 +4,7 @@ import { MyColors } from "./globals.slint";
 
 import { Emoji, EmojiModel, EmojiHandle } from "./components/emoji.slint";
 import { Tabs } from "./components/tab.slint";
+import { Preview } from "./components/preview.slint";
 
 export { MyColors, EmojiModel, EmojiHandle }
 export { TabsHandle } from "./components/tab.slint";
@@ -12,6 +13,8 @@ export component MainWindow inherits Window {
     in property<bool> show-preview: true;
     in property<[[EmojiModel]]> emojis: [];
     callback close();
+
+    property<{ has: bool, content: EmojiModel }> emoji-preview;
 
     title: "Simplemoji";
     width: 320px;
@@ -43,6 +46,10 @@ export component MainWindow inherits Window {
             }
         }
 
+        if show-preview && emoji-preview.has: Preview {
+            emoji: emoji-preview.content;
+        }
+
         HorizontalLayout {
             padding-left: 2px;
 
@@ -54,6 +61,10 @@ export component MainWindow inherits Window {
                 for row in emojis: HorizontalLayout {
                     for emoji in row: Emoji {
                         emoji: emoji;
+                        hover => {
+                            emoji-preview.has = true;
+                            emoji-preview.content = emoji;
+                        }
                         click => {
                             EmojiHandle.click(emoji.character);
                         }

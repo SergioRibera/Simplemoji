@@ -12,8 +12,7 @@ use crate::{EmojiHandle, EmojiModel, MainWindow, TabsHandle, EMOJI_COLS};
 pub struct MainApp {
     window: MainWindow,
     settings: ArgOpts,
-    search: String,
-    emoji_hovered: (String, String, Vec<String>),
+    search: SharedString,
     tone: SkinTone,
 
     content: ModelRc<ModelRc<EmojiModel>>,
@@ -27,19 +26,6 @@ impl Default for MainApp {
             search: Default::default(),
             tone: Default::default(),
             content: emojis_from_group(emojis::Group::SmileysAndEmotion),
-            emoji_hovered: emojis::Group::SmileysAndEmotion
-                .emojis()
-                .next()
-                .map(|e| {
-                    (
-                        e.name().to_string(),
-                        e.to_string(),
-                        e.shortcodes()
-                            .map(|s| s.to_string())
-                            .collect::<Vec<String>>(),
-                    )
-                })
-                .unwrap(),
         }
     }
 }
@@ -47,7 +33,6 @@ impl Default for MainApp {
 /*
 TODO:
 - focus search input on start
-- close on cursor left and press scape
 */
 
 impl MainApp {
@@ -95,12 +80,14 @@ impl MainApp {
         });
 
         self.window.on_close({
+            #[cfg(not(debug_assertions))]
             let window = self.window.as_weak();
             move || {
-                // window
-                //     .unwrap()
-                //     .window()
-                //     .dispatch_event(slint::platform::WindowEvent::CloseRequested);
+                #[cfg(not(debug_assertions))]
+                window
+                    .unwrap()
+                    .window()
+                    .dispatch_event(slint::platform::WindowEvent::CloseRequested);
             }
         });
 
@@ -133,8 +120,6 @@ impl MainApp {
                 }
             }
         });
-
-        // self.window.global::<TabsHandle>();
 
         self.window.run()
     }
