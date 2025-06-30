@@ -14,7 +14,6 @@ use crate::{EmojiHandle, EmojiModel, MainWindow, SearchGlobal, SkinTone, TabsHan
 pub struct MainApp {
     window: MainWindow,
     settings: ArgOpts,
-    search: SharedString,
     tone: Rc<RefCell<SkinTone>>,
 
     content: ModelRc<ModelRc<EmojiModel>>,
@@ -25,7 +24,6 @@ impl Default for MainApp {
         Self {
             window: MainWindow::new().unwrap(),
             settings: Default::default(),
-            search: Default::default(),
             tone: Default::default(),
             content: emojis_from_group(emojis::Group::SmileysAndEmotion),
         }
@@ -95,6 +93,56 @@ impl MainApp {
 
         let search = self.window.global::<SearchGlobal>();
         search.set_tone(self.tone.clone().take());
+        search.on_search({
+            let tone = self.tone.clone();
+            let window = self.window.as_weak();
+            let content = self.content.clone();
+            move |s| {
+                let s = s.trim().to_lowercase();
+                let tone = tone.borrow();
+                let content = content
+                    .as_any()
+                    .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
+                    .unwrap();
+                if s.is_empty() {
+                    let tab = window.unwrap().global::<TabsHandle>().get_tab();
+                    let group = group_from(tab);
+
+                    let emojis = group
+                        .emojis()
+                        .collect::<Vec<_>>()
+                        .chunks(EMOJI_COLS)
+                        .map(|e| {
+                            ModelRc::from(
+                                e.iter()
+                                    .cloned()
+                                    .flat_map(|e| {
+                                        e.with_skin_tone((*tone).into()).or_else(|| Some(e))
+                                    })
+                                    .map(emoji_to_model)
+                                    .collect::<Vec<_>>()
+                                    .as_slice(),
+                            )
+                        })
+                        .collect::<Vec<ModelRc<_>>>();
+                    content.set_vec(emojis);
+                    return;
+                }
+                let emojis = emojis::iter()
+                    .filter_map(|e| {
+                        (e.name().to_lowercase().contains(s.as_str())
+                            || e.shortcodes()
+                                .any(|c| c.to_lowercase().contains(s.as_str())))
+                        .then(|| emoji_to_model(e.with_skin_tone((*tone).into()).unwrap_or(e)))
+                    })
+                    .collect::<Vec<_>>()
+                    .chunks(EMOJI_COLS)
+                    .map(|e| ModelRc::from(e.iter().cloned().collect::<Vec<_>>().as_slice()))
+                    .collect::<Vec<ModelRc<_>>>();
+
+                content.set_vec(emojis);
+            }
+        });
         search.on_change_tone({
             let tone = self.tone.clone();
             let content = self.content.clone();
