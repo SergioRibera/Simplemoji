@@ -50,6 +50,10 @@ pub fn group_from(i: i32) -> emojis::Group {
     }
 }
 
+pub fn emoji_from_model(e: EmojiModel) -> &'static emojis::Emoji {
+    emojis::get(&e.character).unwrap()
+}
+
 pub fn emoji_to_model(e: &'static emojis::Emoji) -> EmojiModel {
     EmojiModel {
         character: e.as_str().into(),

@@ -5,13 +5,16 @@ import { MyColors } from "./globals.slint";
 import { Emoji, EmojiModel, EmojiHandle } from "./components/emoji.slint";
 import { Tabs } from "./components/tab.slint";
 import { Preview } from "./components/preview.slint";
+import { Search, SearchGlobal, SkinTone } from "./components/search.slint";
 
-export { MyColors, EmojiModel, EmojiHandle }
+export { MyColors, EmojiModel, EmojiHandle, SearchGlobal, SkinTone }
 export { TabsHandle } from "./components/tab.slint";
 
 export component MainWindow inherits Window {
     in property<bool> show-preview: true;
+    in property<bool> show-search: true;
     in property<[[EmojiModel]]> emojis: [];
+
     callback close();
 
     property<{ has: bool, content: EmojiModel }> emoji-preview;
@@ -28,7 +31,7 @@ export component MainWindow inherits Window {
 
     forward-focus: global-event;
     global-event := FocusScope {
-        focus-lost(event) => { close() }
+        // focus-lost(event) => { close() }
         key-pressed(event) => {
             if (event.text == Key.Escape) {
                 close()
@@ -45,6 +48,8 @@ export component MainWindow inherits Window {
                 content.viewport-y = 0;
             }
         }
+
+        if show-search: Search { }
 
         if show-preview && emoji-preview.has: Preview {
             emoji: emoji-preview.content;

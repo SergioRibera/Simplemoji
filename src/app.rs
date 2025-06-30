@@ -1,19 +1,21 @@
-use std::borrow::BorrowMut;
+use std::cell::RefCell;
 use std::rc::Rc;
 
 use arboard::Clipboard;
-use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
+
+use slint::{ComponentHandle, Model, ModelExt, ModelRc, SharedString, VecModel, Weak};
 
 use crate::settings::ArgOpts;
-use crate::skin_tone::SkinTone;
-use crate::utils::{emoji_to_model, emojis_from_group, get_default_tabs, group_from};
-use crate::{EmojiHandle, EmojiModel, MainWindow, TabsHandle, EMOJI_COLS};
+use crate::utils::{
+    emoji_from_model, emoji_to_model, emojis_from_group, get_default_tabs, group_from,
+};
+use crate::{EmojiHandle, EmojiModel, MainWindow, SearchGlobal, SkinTone, TabsHandle, EMOJI_COLS};
 
 pub struct MainApp {
     window: MainWindow,
     settings: ArgOpts,
     search: SharedString,
-    tone: SkinTone,
+    tone: Rc<RefCell<SkinTone>>,
 
     content: ModelRc<ModelRc<EmojiModel>>,
 }
@@ -36,11 +38,20 @@ TODO:
 */
 
 impl MainApp {
+    fn close(_window: Weak<MainWindow>) {
+        #[cfg(debug_assertions)]
+        println!("Close");
+        #[cfg(not(debug_assertions))]
+        _window
+            .unwrap()
+            .window()
+            .dispatch_event(slint::platform::WindowEvent::CloseRequested);
+    }
     pub fn new(settings: ArgOpts) -> Self {
         let tone = settings.tone.unwrap_or_default();
 
         Self {
-            tone,
+            tone: Rc::new(RefCell::new(tone)),
             settings,
             ..Default::default()
         }
@@ -55,8 +66,10 @@ impl MainApp {
         self.window.set_emojis(self.content.clone());
         tabs.on_change_tab({
             let content = self.content.clone();
+            let tone = self.tone.clone();
             move |id| {
                 let group = group_from(id);
+                let tone = tone.borrow();
                 let emojis = group
                     .emojis()
                     .collect::<Vec<_>>()
@@ -65,6 +78,7 @@ impl MainApp {
                         ModelRc::from(
                             e.iter()
                                 .cloned()
+                                .flat_map(|e| e.with_skin_tone((*tone).into()).or_else(|| Some(e)))
                                 .map(emoji_to_model)
                                 .collect::<Vec<_>>()
                                 .as_slice(),
@@ -79,15 +93,42 @@ impl MainApp {
             }
         });
 
+        let search = self.window.global::<SearchGlobal>();
+        search.set_tone(self.tone.clone().take());
+        search.on_change_tone({
+            let tone = self.tone.clone();
+            let content = self.content.clone();
+            move |t| {
+                let t = t.as_str().parse().unwrap();
+                tone.replace(t);
+
+                let content = content
+                    .as_any()
+                    .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
+                    .unwrap();
+                let new_content: Vec<ModelRc<EmojiModel>> = content.iter().collect();
+                content.set_vec(
+                    new_content
+                        .into_iter()
+                        .map(|e| {
+                            let e = e
+                                .iter()
+                                .map(|e| {
+                                    let e = emoji_from_model(e);
+                                    emoji_to_model(&e.with_skin_tone(t.into()).unwrap_or(e))
+                                })
+                                .collect::<Vec<_>>();
+                            ModelRc::from(e.as_slice())
+                        })
+                        .collect::<Vec<ModelRc<_>>>(),
+                );
+            }
+        });
+
         self.window.on_close({
-            #[cfg(not(debug_assertions))]
             let window = self.window.as_weak();
             move || {
-                #[cfg(not(debug_assertions))]
-                window
-                    .unwrap()
-                    .window()
-                    .dispatch_event(slint::platform::WindowEvent::CloseRequested);
+                Self::close(window.clone());
             }
         });
 

@@ -1,0 +1,62 @@
+import { ComboBox } from "std-widgets.slint";
+
+import { MyColors } from "../globals.slint";
+
+import { Emoji, EmojiModel } from "./emoji.slint";
+
+@rust-attr(derive(clap::ValueEnum))
+export enum SkinTone {
+    Default,
+    Light,
+    MediumLight,
+    Medium,
+    MediumDark,
+    Dark,
+}
+
+export global SearchGlobal {
+    in-out property<SkinTone> tone: SkinTone.Default;
+
+    callback search(/* search */ string);
+    callback change_tone(/* tone */ string);
+}
+
+export component Search inherits Rectangle {
+    property<[string]> tones: [ "👋", "👋🏻", "👋🏼", "👋🏽", "👋🏾", "👋🏿" ];
+    in-out property<string> search-terms;
+
+    init => {
+        search-input.focus();
+    }
+
+    HorizontalLayout {
+        alignment: start;
+
+        padding-left: 10px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+
+        Text {
+            font-size: 20px;
+            text: "🔎";
+        }
+
+        search-input := TextInput {
+            text <=> root.search-terms;
+            vertical-alignment: center;
+            color: MyColors.foreground;
+            font-size: 20px;
+
+            changed text => {
+                SearchGlobal.search(self.text);
+            }
+        }
+
+        ComboBox {
+            model: root.tones;
+            selected(v) => {
+                SearchGlobal.change_tone(v)
+            }
+        }
+    }
+}
