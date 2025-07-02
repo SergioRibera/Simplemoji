@@ -1,4 +1,4 @@
-import { MyColors } from "../globals.slint";
+import { MyColors, MainState } from "../globals.slint";
 
 export struct EmojiModel {
     name: string,
@@ -8,6 +8,14 @@ export struct EmojiModel {
 
 export global EmojiHandle {
     callback click(/* new_tab */ string);
+
+    public pure function from-string(c: string) -> EmojiModel {
+        {
+            character: c,
+            name: "",
+            codes: [""],
+        }
+    }
 }
 
 export component Emoji inherits Rectangle {
@@ -23,6 +31,7 @@ export component Emoji inherits Rectangle {
 
     Text {
         text: root.emoji.character;
+        font-size: MainState.font-size;
         horizontal-alignment: center;
         vertical-alignment: center;
     }

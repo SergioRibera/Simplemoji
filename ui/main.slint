@@ -1,17 +1,17 @@
 import { ListView } from "std-widgets.slint";
 
 import { MyColors } from "./globals.slint";
+import { MyColors, MainState } from "./globals.slint";
 
 import { Emoji, EmojiModel, EmojiHandle } from "./components/emoji.slint";
 import { Tabs } from "./components/tab.slint";
 import { Preview } from "./components/preview.slint";
 import { Search, SearchGlobal, SkinTone } from "./components/search.slint";
 
-export { MyColors, EmojiModel, EmojiHandle, SearchGlobal, SkinTone }
+export { MainState, MyColors, EmojiModel, EmojiHandle, SearchGlobal, SkinTone }
 export { TabsHandle } from "./components/tab.slint";
 
 export component MainWindow inherits Window {
-    in property<bool> show-preview: true;
     in property<bool> show-search: true;
     in property<[[EmojiModel]]> emojis: [];
 
@@ -20,13 +20,13 @@ export component MainWindow inherits Window {
     property<{ has: bool, content: EmojiModel }> emoji-preview;
 
     title: "Simplemoji";
-    width: 320px;
-    height: show-preview ? 390px : 330px;
+    width: MainState.width;
+    height: MainState.height;
     background: MyColors.background;
 
     no-frame: true;
     always-on-top: true;
-    default-font-size: 20px;
+    default-font-size: MainState.font-size;
     default-font-family: "Noto Color Emoji";
 
     forward-focus: global-event;
@@ -51,7 +51,7 @@ export component MainWindow inherits Window {
 
         if show-search: Search { }
 
-        if show-preview && emoji-preview.has: Preview {
+        if MainState.show-preview && emoji-preview.has: Preview {
             emoji: emoji-preview.content;
         }
 

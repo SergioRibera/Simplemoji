@@ -1,7 +1,6 @@
-import { ComboBox } from "std-widgets.slint";
-
 import { MyColors } from "../globals.slint";
 
+import { ComboBox } from "./combobox.slint";
 import { Emoji, EmojiModel } from "./emoji.slint";
 
 @rust-attr(derive(clap::ValueEnum))
@@ -53,9 +52,9 @@ export component Search inherits Rectangle {
         }
 
         ComboBox {
-            model: root.tones;
-            selected(v) => {
-                SearchGlobal.change_tone(v)
+            choices: root.tones;
+            changed value => {
+                SearchGlobal.change_tone(self.value)
             }
         }
     }

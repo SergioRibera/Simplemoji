@@ -2,3 +2,10 @@ export global MyColors {
     in-out property<color> background: #fff;
     in-out property<color> foreground: #000;
 }
+
+export global MainState {
+    in-out property<bool> show-preview: false;
+    out property<length> height: show-preview ? 390px : 330px;
+    out property<length> width: 320px;
+    out property<length> font-size: 20px;
+}

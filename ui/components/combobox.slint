@@ -1,0 +1,47 @@
+import { MyColors, MainState } from "../globals.slint";
+import { Emoji, EmojiHandle } from "./emoji.slint";
+
+export component ComboBox inherits Rectangle {
+    in-out property <string> value: choices[0];
+    in property <[string]> choices;
+
+    height: 32px;
+    min-width: 32px;
+
+    Emoji {
+        emoji: EmojiHandle.from-string(root.value);
+        click() => {
+            popup.show();
+        }
+    }
+
+    popup := PopupWindow {
+        x: 0;
+        y: root.height;
+        width: root.width;
+
+        Rectangle {
+            x: 0 - root.absolute-position.x;
+            y: 0 - root.absolute-position.y - parent.y;
+
+            width: MainState.width;
+            height: MainState.height;
+
+            background: MyColors.foreground.transparentize(0.7);
+        }
+
+
+        Rectangle {
+            border-radius: 3px;
+            background: MyColors.background.darker(0.1);
+        }
+
+        VerticalLayout {
+            for value[idx] in root.choices: Emoji {
+                border-radius: 3px;
+                emoji: EmojiHandle.from-string(value);
+                click() => { root.value = value; }
+            }
+        }
+    }
+}

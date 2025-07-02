@@ -9,7 +9,9 @@ use crate::settings::ArgOpts;
 use crate::utils::{
     emoji_from_model, emoji_to_model, emojis_from_group, get_default_tabs, group_from,
 };
-use crate::{EmojiHandle, EmojiModel, MainWindow, SearchGlobal, SkinTone, TabsHandle, EMOJI_COLS};
+use crate::{
+    EmojiHandle, EmojiModel, MainState, MainWindow, SearchGlobal, SkinTone, TabsHandle, EMOJI_COLS,
+};
 
 pub struct MainApp {
     window: MainWindow,
@@ -56,10 +58,12 @@ impl MainApp {
     }
 
     pub fn run(&self) -> Result<(), slint::PlatformError> {
-        self.window.set_show_preview(self.settings.show_preview);
         let tabs = self.window.global::<TabsHandle>();
         tabs.set_tab(emojis::Group::SmileysAndEmotion as i32);
         tabs.set_tabs(get_default_tabs());
+
+        let global = self.window.global::<MainState>();
+        global.set_show_preview(self.settings.show_preview);
 
         self.window.set_emojis(self.content.clone());
         tabs.on_change_tab({
