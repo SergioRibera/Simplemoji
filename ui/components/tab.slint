@@ -11,7 +11,6 @@ export component Tabs inherits Rectangle {
     callback click();
 
     HorizontalLayout {
-        alignment: center;
         for tab[i] in TabsHandle.tabs: Emoji {
             enabled: i == TabsHandle.tab;
             emoji: tab;
