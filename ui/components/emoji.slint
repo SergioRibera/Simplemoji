@@ -20,6 +20,7 @@ export global EmojiHandle {
 
 export component Emoji inherits Rectangle {
     in property<bool> enabled: false;
+    in property<length> font-size: MainState.font-size;
     in property<EmojiModel> emoji;
     callback click();
     callback hover();
@@ -31,7 +32,7 @@ export component Emoji inherits Rectangle {
 
     Text {
         text: root.emoji.character;
-        font-size: MainState.font-size;
+        font-family: MainState.font;
         horizontal-alignment: center;
         vertical-alignment: center;
     }

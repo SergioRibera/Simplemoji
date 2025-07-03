@@ -62,6 +62,9 @@ impl MainApp {
     pub fn set_globals(&self) {
         let global = self.window.global::<MainState>();
         global.set_show_preview(self.settings.show_preview);
+        if let Some(font) = self.settings.font.as_deref() {
+            global.set_font(SharedString::from(font));
+        }
 
         let colors = self.window.global::<MyColors>();
         if let Some(color) = self.settings.background_color.as_ref() {
