@@ -1,6 +1,7 @@
-import { MyColors } from "../globals.slint";
+import { MyColors, MainState } from "../globals.slint";
 
 import { ComboBox } from "./combobox.slint";
+import { Input } from "./input.slint";
 import { Emoji, EmojiModel } from "./emoji.slint";
 
 @rust-attr(derive(clap::ValueEnum))
@@ -28,33 +29,35 @@ export component Search inherits Rectangle {
         search-input.focus();
     }
 
-    HorizontalLayout {
-        alignment: start;
+    GridLayout {
+        spacing-horizontal: 15px;
 
         padding-left: 10px;
+        padding-right: 10px;
         padding-top: 5px;
-        padding-bottom: 5px;
 
-        Text {
-            font-size: 20px;
-            text: "🔎";
-        }
 
-        search-input := TextInput {
-            text <=> root.search-terms;
-            vertical-alignment: center;
-            color: MyColors.foreground;
-            font-size: 20px;
-
-            changed text => {
-                SearchGlobal.search(self.text);
+        Row {
+            Text {
+                font-size: 20px;
+                text: "🔎";
+                vertical-alignment: center;
             }
-        }
 
-        ComboBox {
-            choices: root.tones;
-            changed value => {
-                SearchGlobal.change_tone(self.value)
+            search-input := Input {
+                text-color: MyColors.foreground;
+                background: MyColors.background;
+
+                changed text => {
+                    SearchGlobal.search(self.text);
+                }
+            }
+
+            ComboBox {
+                choices: root.tones;
+                changed value => {
+                    SearchGlobal.change_tone(self.value)
+                }
             }
         }
     }
