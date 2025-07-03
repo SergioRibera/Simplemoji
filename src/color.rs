@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::num::ParseIntError;
 
-use iced::Color;
+use slint::Color;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum ParseColor {
@@ -46,11 +46,11 @@ impl ToRgba for String {
                 let g = ((color >> 4) & 0xf) as u8;
                 let b = (color & 0xf) as u8;
 
-                Ok(Color::from_rgba8(
+                Ok(Color::from_argb_u8(
+                    (a << 4) | a,
                     (r << 4) | r,
                     (g << 4) | g,
                     (b << 4) | b,
-                    (((a << 4) | a) as f32) / 255.,
                 ))
             }
             // RRGGBB or RRGGBBAA
@@ -65,11 +65,11 @@ impl ToRgba for String {
                     0xff
                 };
 
-                Ok(Color::from_rgba8(
+                Ok(Color::from_argb_u8(
+                    alpha,
                     (color >> 16) as u8,
                     (color >> 8) as u8,
                     color as u8,
-                    (alpha as f32) / 255.,
                 ))
             }
             _ => Err(ParseColor::InvalidLength),

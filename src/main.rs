@@ -4,7 +4,7 @@ use settings::ArgOpts;
 // use utils::mouse_to_window_pos;
 
 mod app;
-// mod color;
+mod color;
 // mod components;
 // mod ids;
 // mod layouts;
@@ -28,5 +28,7 @@ fn main() -> Result<(), slint::PlatformError> {
     let pos = device_state.query_pointer().coords;
     // let (x, y) = mouse_to_window_pos(pos);
 
-    MainApp::new(flags).run()
+    let app = MainApp::new(flags);
+    app.set_globals();
+    app.run()
 }
