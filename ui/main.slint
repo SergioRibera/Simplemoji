@@ -15,7 +15,6 @@ export component MainWindow inherits Window {
     in property<[[EmojiModel]]> emojis: [];
 
     callback start(length, length);
-    callback close();
 
     property<{ has: bool, content: EmojiModel }> emoji-preview;
 
@@ -30,10 +29,9 @@ export component MainWindow inherits Window {
 
     forward-focus: global-event;
     global-event := FocusScope {
-        // focus-lost(event) => { close() }
         key-pressed(event) => {
             if (event.text == Key.Escape) {
-                close()
+                MainState.close()
             }
             accept
         }

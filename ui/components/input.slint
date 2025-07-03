@@ -1,3 +1,5 @@
+import { MainState } from "../globals.slint";
+
 export component Input inherits Rectangle {
     in property <color> text-color;
 
@@ -27,11 +29,18 @@ export component Input inherits Rectangle {
         font-size: 12pt;
 
         cursor-position-changed(position) => {
-        if position.x + self.computed-x < root.margin {
-            self.computed-x = -position.x + root.margin * 2;
-        } else if position.x + self.computed-x > root.width - root.margin * 2 - self.text-cursor-width {
-            self.computed-x = root.width - position.x - root.margin * 2 - self.text-cursor-width;
+            if position.x + self.computed-x < root.margin {
+                self.computed-x = -position.x + root.margin * 2;
+            } else if position.x + self.computed-x > root.width - root.margin * 2 - self.text-cursor-width {
+                self.computed-x = root.width - position.x - root.margin * 2 - self.text-cursor-width;
+            }
         }
+
+        key-released(event) => {
+            if (event.text == Key.Escape) {
+                MainState.close();
+            }
+            accept
         }
     }
 }

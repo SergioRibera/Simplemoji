@@ -4432,6 +4432,7 @@ checksum = "fad0f31b974d0d69db787cc4f8b2965806f4991b0b47bfcb40538ae714fd9448"
 dependencies = [
  "const-field-offset",
  "i-slint-backend-selector",
+ "i-slint-backend-winit",
  "i-slint-core",
  "i-slint-core-macros",
  "num-traits",

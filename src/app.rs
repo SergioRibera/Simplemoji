@@ -3,7 +3,9 @@ use std::rc::Rc;
 
 use arboard::Clipboard;
 
-use slint::{ComponentHandle, Model, ModelExt, ModelRc, SharedString, VecModel, Weak};
+use slint::winit_030::winit::event::WindowEvent;
+use slint::winit_030::{WinitWindowAccessor, WinitWindowEventResult};
+use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel, Weak};
 
 use crate::color::ToRgba;
 use crate::settings::ArgOpts;
@@ -96,7 +98,9 @@ impl MainApp {
                 ));
             }
         });
-        self.window.on_close({
+
+        let global = self.window.global::<MainState>();
+        global.on_close({
             let window = self.window.as_weak();
             move || {
                 Self::close(window.clone());
@@ -220,10 +224,13 @@ impl MainApp {
             }
         });
 
-        self.window.on_close({
-            let window = self.window.as_weak();
-            move || {
-                Self::close(window.clone());
+        self.window.window().on_winit_window_event({
+            move |w, ev| match ev {
+                WindowEvent::CursorLeft { .. } => w
+                    .hide()
+                    .map(|_| WinitWindowEventResult::PreventDefault)
+                    .unwrap_or(WinitWindowEventResult::Propagate),
+                _ => WinitWindowEventResult::Propagate,
             }
         });
 
