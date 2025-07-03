@@ -17,12 +17,9 @@ fn main() -> Result<(), slint::PlatformError> {
     env_logger::Builder::from_env("SIMPLEMOJI").init();
 
     let flags = ArgOpts::parse();
-
-    let device_state = device_query::DeviceState::new();
-    let pos = device_state.query_pointer().coords;
-    // let (x, y) = mouse_to_window_pos(pos);
-
     let app = MainApp::new(flags);
+
     app.set_globals();
+    app.set_events();
     app.run()
 }

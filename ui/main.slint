@@ -14,6 +14,7 @@ export { TabsHandle } from "./components/tab.slint";
 export component MainWindow inherits Window {
     in property<[[EmojiModel]]> emojis: [];
 
+    callback start(length, length);
     callback close();
 
     property<{ has: bool, content: EmojiModel }> emoji-preview;
@@ -37,6 +38,8 @@ export component MainWindow inherits Window {
             accept
         }
     }
+
+    init => { start(MainState.width, MainState.height) }
 
     VerticalLayout {
         width: root.width;

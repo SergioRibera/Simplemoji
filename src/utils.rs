@@ -5,36 +5,35 @@ use slint::{ModelRc, SharedString, VecModel};
 
 use crate::{EmojiModel, APP_MOUSE_MARGIN, EMOJI_COLS};
 
-// pub fn mouse_to_window_pos((x, y): (i32, i32)) -> (i32, i32) {
-//     let Ok(DisplayInfo {
-//         width,
-//         height,
-//         x: display_x,
-//         y: display_y,
-//         ..
-//     }) = DisplayInfo::from_point(x, y)
-//     else {
-//         return (x, y);
-//     };
-//     let app_height = *APP_HEIGHT.get().unwrap_or(&330);
+pub fn mouse_to_window_pos((app_width, app_height): (i32, i32), (x, y): (i32, i32)) -> (i32, i32) {
+    let Ok(DisplayInfo {
+        width,
+        height,
+        x: display_x,
+        y: display_y,
+        ..
+    }) = DisplayInfo::from_point(x, y)
+    else {
+        return (x, y);
+    };
 
-//     let left_x = ((x - display_x) as u32) < (width / 2);
-//     let bottom_y = ((y - display_y) as u32) > (height / 2);
+    let left_x = ((x - display_x) as u32) < (width / 2);
+    let bottom_y = ((y - display_y) as u32) > (height / 2);
 
-//     match (left_x, bottom_y) {
-//         // Top Left
-//         (true, false) => (x - APP_MOUSE_MARGIN, y - APP_MOUSE_MARGIN),
-//         // Top Right
-//         (false, false) => ((x - APP_WIDTH) + APP_MOUSE_MARGIN, y - APP_MOUSE_MARGIN),
-//         // Bottom Left
-//         (true, true) => (x - APP_MOUSE_MARGIN, y - app_height + APP_MOUSE_MARGIN),
-//         // Bottom Right
-//         (false, true) => (
-//             (x - APP_WIDTH) + APP_MOUSE_MARGIN,
-//             y - app_height + APP_MOUSE_MARGIN,
-//         ),
-//     }
-// }
+    match (left_x, bottom_y) {
+        // Top Left
+        (true, false) => (x - APP_MOUSE_MARGIN, y - APP_MOUSE_MARGIN),
+        // Top Right
+        (false, false) => ((x - app_width) + APP_MOUSE_MARGIN, y - APP_MOUSE_MARGIN),
+        // Bottom Left
+        (true, true) => (x - APP_MOUSE_MARGIN, y - app_height + APP_MOUSE_MARGIN),
+        // Bottom Right
+        (false, true) => (
+            (x - app_width) + APP_MOUSE_MARGIN,
+            y - app_height + APP_MOUSE_MARGIN,
+        ),
+    }
+}
 
 pub fn group_from(i: i32) -> emojis::Group {
     match i {
