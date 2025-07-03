@@ -9,6 +9,7 @@ export component Preview inherits Rectangle {
         alignment: start;
         height: 60px;
 
+        spacing: 15px;
         padding-left: 10px;
         padding-top: 5px;
         padding-bottom: 5px;
@@ -21,7 +22,6 @@ export component Preview inherits Rectangle {
 
         VerticalLayout {
             alignment: center;
-            padding-left: 10px;
 
             if root.emoji.codes.length > 0: HorizontalLayout {
                 alignment: start;
