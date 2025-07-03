@@ -27,13 +27,15 @@ export component ComboBox inherits Rectangle {
             width: MainState.width;
             height: MainState.height;
 
-            background: MyColors.foreground.transparentize(0.7);
+            background: MyColors.foreground.transparentize(0.8);
         }
 
 
         Rectangle {
             border-radius: 3px;
             background: MyColors.background.darker(0.1);
+            // drop-shadow-color: MyColors.background.darker(0.3);
+            // drop-shadow-blur: 15px;
         }
 
         VerticalLayout {
