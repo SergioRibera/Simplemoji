@@ -1,17 +1,11 @@
 use app::MainApp;
 use clap::Parser;
 use settings::ArgOpts;
-// use utils::mouse_to_window_pos;
 
 mod app;
 mod color;
-// mod components;
-// mod ids;
-// mod layouts;
 mod settings;
 mod skin_tone;
-// mod styles;
-// mod update;
 mod utils;
 
 slint::include_modules!();
