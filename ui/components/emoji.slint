@@ -20,6 +20,7 @@ export global EmojiHandle {
 
 export component Emoji inherits Rectangle {
     in property<bool> enabled: false;
+    in property<bool> handle-hover: true;
     in property<length> font-size: MainState.font-size;
     in property<EmojiModel> emoji;
     callback click();
@@ -27,11 +28,13 @@ export component Emoji inherits Rectangle {
 
     width: 35px;
     height: 35px;
-    background: area.has-hover || enabled ? MyColors.foreground.transparentize(0.7) : transparent;
+    background: (area.has-hover || enabled) && handle-hover ? MyColors.foreground.transparentize(0.7) : transparent;
     animate background { duration: 100ms; }
 
     Text {
+        color: MyColors.foreground;
         text: root.emoji.character;
+        font-size: root.font-size;
         font-family: MainState.font;
         horizontal-alignment: center;
         vertical-alignment: center;
