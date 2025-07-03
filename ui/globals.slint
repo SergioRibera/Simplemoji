@@ -4,7 +4,8 @@ export global MyColors {
 }
 
 export global MainState {
-    in-out property<bool> show-preview: false;
+    in property<bool> show-preview: false;
+    in property<bool> show-search: false;
     out property<length> height: show-preview ? 390px : 330px;
     out property<length> width: 320px;
     out property<length> font-size: 20px;

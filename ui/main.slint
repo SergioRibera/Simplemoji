@@ -12,7 +12,6 @@ export { MainState, MyColors, EmojiModel, EmojiHandle, SearchGlobal, SkinTone }
 export { TabsHandle } from "./components/tab.slint";
 
 export component MainWindow inherits Window {
-    in property<bool> show-search: true;
     in property<[[EmojiModel]]> emojis: [];
 
     callback close();
@@ -48,7 +47,7 @@ export component MainWindow inherits Window {
             }
         }
 
-        if show-search: Search { }
+        if MainState.show-search: Search { }
 
         if MainState.show-preview && emoji-preview.has: Preview {
             emoji: emoji-preview.content;
