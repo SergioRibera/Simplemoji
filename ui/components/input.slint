@@ -1,4 +1,5 @@
 import { MainState } from "../globals.slint";
+import { Navigation } from "../navigation.slint";
 
 export component Input inherits Rectangle {
     in property <color> text-color;
@@ -36,11 +37,17 @@ export component Input inherits Rectangle {
             }
         }
 
-        key-released(event) => {
+        key-pressed(event) => {
+            if Navigation.key(event) {
+                self.clear-focus();
+                return accept;
+            }
+
             if (event.text == Key.Escape) {
                 MainState.close();
             }
-            accept
+
+            reject
         }
     }
 }

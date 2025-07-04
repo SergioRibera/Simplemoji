@@ -2,14 +2,14 @@ import { ListView } from "std-widgets.slint";
 
 import { MyColors } from "./globals.slint";
 import { MyColors, MainState } from "./globals.slint";
+import { FocusDirection, Navigation } from "./navigation.slint";
 
 import { Emoji, EmojiModel, EmojiHandle } from "./components/emoji.slint";
-import { Tabs } from "./components/tab.slint";
+import { Tabs, TabsHandle } from "./components/tab.slint";
 import { Preview } from "./components/preview.slint";
 import { Search, SearchGlobal, SkinTone } from "./components/search.slint";
 
-export { MainState, MyColors, EmojiModel, EmojiHandle, SearchGlobal, SkinTone }
-export { TabsHandle } from "./components/tab.slint";
+export { MainState, MyColors, EmojiModel, EmojiHandle, FocusDirection, Navigation, SearchGlobal, SkinTone, TabsHandle }
 
 export component MainWindow inherits Window {
     in property<[[EmojiModel]]> emojis: [];
@@ -31,9 +31,15 @@ export component MainWindow inherits Window {
     global-event := FocusScope {
         key-pressed(event) => {
             if (event.text == Key.Escape) {
-                MainState.close()
+                MainState.close();
+                return accept;
             }
-            accept
+
+            if Navigation.key(event) {
+                return accept;
+            }
+
+            reject
         }
     }
 

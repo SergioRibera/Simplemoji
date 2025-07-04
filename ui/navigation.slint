@@ -1,0 +1,42 @@
+import { TabsHandle } from "./components/tab.slint";
+
+export enum FocusDirection {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+export global Navigation {
+    callback move(FocusDirection);
+
+    public function key(event: KeyEvent) -> bool {
+        if (event.text == Key.UpArrow) {
+            move(FocusDirection.Up);
+            return true;
+        }
+        if (event.text == Key.DownArrow) {
+            move(FocusDirection.Down);
+            return true;
+        }
+        if (event.text == Key.LeftArrow) {
+            move(FocusDirection.Left);
+            return true;
+        }
+        if (event.text == Key.RightArrow) {
+            move(FocusDirection.Right);
+            return true;
+        }
+
+        if (event.text == Key.Tab) {
+            if event.modifiers.shift {
+                TabsHandle.prev();
+                return true;
+            }
+            TabsHandle.next();
+            return true;
+        }
+
+        false
+    }
+}
