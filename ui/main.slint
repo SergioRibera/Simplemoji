@@ -16,8 +16,6 @@ export component MainWindow inherits Window {
 
     callback start(length, length);
 
-    property<{ has: bool, content: EmojiModel }> emoji-preview;
-
     title: "Simplemoji";
     width: MainState.width;
     height: MainState.height;
@@ -57,8 +55,8 @@ export component MainWindow inherits Window {
 
         if MainState.show-search: Search { }
 
-        if MainState.show-preview && emoji-preview.has: Preview {
-            emoji: emoji-preview.content;
+        if MainState.show-preview && TabsHandle.emoji-preview.has: Preview {
+            emoji: TabsHandle.emoji-preview.content;
         }
 
         HorizontalLayout {
@@ -71,8 +69,8 @@ export component MainWindow inherits Window {
                     for emoji in row: Emoji {
                         emoji: emoji;
                         hover => {
-                            emoji-preview.has = true;
-                            emoji-preview.content = emoji;
+                            TabsHandle.emoji-preview.has = true;
+                            TabsHandle.emoji-preview.content = emoji;
                         }
                         click => {
                             EmojiHandle.click(emoji.character);
