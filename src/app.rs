@@ -8,14 +8,15 @@ use slint::winit_030::{WinitWindowAccessor, WinitWindowEventResult};
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel, Weak};
 
 use crate::color::ToRgba;
+use crate::navigation::MoveFocus;
 use crate::settings::ArgOpts;
 use crate::utils::{
     emoji_from_model, emoji_to_model, emojis_from_group, get_default_tabs, group_from,
     mouse_to_window_pos,
 };
 use crate::{
-    EmojiHandle, EmojiModel, MainState, MainWindow, MyColors, SearchGlobal, SkinTone, TabsHandle,
-    EMOJI_COLS,
+    EmojiHandle, EmojiModel, MainState, MainWindow, MyColors, Navigation, SearchGlobal, SkinTone,
+    TabsHandle, EMOJI_COLS,
 };
 
 pub struct MainApp {
@@ -104,6 +105,12 @@ impl MainApp {
             let window = self.window.as_weak();
             move || {
                 Self::close(window.clone());
+            }
+        });
+        self.window.global::<Navigation>().on_move({
+            let window = self.window.as_weak();
+            move |e| {
+                window.upgrade().unwrap().window().move_focus(e);
             }
         });
     }

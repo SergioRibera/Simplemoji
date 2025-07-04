@@ -10,6 +10,19 @@ export enum FocusDirection {
 export global Navigation {
     callback move(FocusDirection);
 
+    public function tab(event: KeyEvent) -> bool {
+        if (event.text == Key.Tab) {
+            if event.modifiers.shift {
+                TabsHandle.prev();
+                return true;
+            }
+            TabsHandle.next();
+            return true;
+        }
+
+        false
+    }
+
     public function key(event: KeyEvent) -> bool {
         if (event.text == Key.UpArrow) {
             move(FocusDirection.Up);
@@ -25,15 +38,6 @@ export global Navigation {
         }
         if (event.text == Key.RightArrow) {
             move(FocusDirection.Right);
-            return true;
-        }
-
-        if (event.text == Key.Tab) {
-            if event.modifiers.shift {
-                TabsHandle.prev();
-                return true;
-            }
-            TabsHandle.next();
             return true;
         }
 

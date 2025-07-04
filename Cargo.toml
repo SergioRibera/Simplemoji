@@ -39,6 +39,7 @@ clap = { version = "4", features = [
 ] }
 arboard = { version = "3", features = ["wayland-data-control"] }
 slint = { version = "1.12", default-features = false, features = ["accessibility", "compat-1-2", "backend-winit", "renderer-winit-skia", "unstable-winit-030"] }
+i-slint-core = { version = "1.12", default-features = false }
 
 [build-dependencies]
 slint-build = "1.12"

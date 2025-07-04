@@ -38,8 +38,7 @@ export component Input inherits Rectangle {
         }
 
         key-pressed(event) => {
-            if Navigation.key(event) {
-                self.clear-focus();
+            if Navigation.tab(event) || Navigation.key(event) {
                 return accept;
             }
 

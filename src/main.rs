@@ -4,12 +4,14 @@ use settings::ArgOpts;
 
 mod app;
 mod color;
+mod navigation;
 mod settings;
 mod skin_tone;
 mod utils;
 
 slint::include_modules!();
 
+const TOLERANCE: i_slint_core::Coord = 0.001;
 pub const APP_MOUSE_MARGIN: i32 = 25;
 pub const EMOJI_COLS: usize = 9;
 

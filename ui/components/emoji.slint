@@ -21,15 +21,36 @@ export global EmojiHandle {
 export component Emoji inherits Rectangle {
     in property<bool> enabled: false;
     in property<bool> handle-hover: true;
+    in property<bool> handle-focus: true;
     in property<length> font-size: MainState.font-size;
     in property<EmojiModel> emoji;
     callback click();
     callback hover();
+    callback key-pressed(/* event */ KeyEvent) -> bool;
 
     width: 35px;
     height: 35px;
-    background: (area.has-hover || enabled) && handle-hover ? MyColors.foreground.transparentize(0.7) : transparent;
+    background: ((area.has-hover || enabled) && handle-hover) || (focus-handler.has-focus && handle-focus) ? MyColors.foreground.transparentize(0.7) : transparent;
     animate background { duration: 100ms; }
+
+    forward-focus: focus-handler;
+
+    focus-handler := FocusScope {
+        enabled: root.handle-focus;
+
+        changed has-focus => { root.hover(); }
+        key-pressed(event) => {
+            if (event.text == Key.Escape) {
+                MainState.close();
+            }
+
+            if root.key-pressed(event) {
+                return accept;
+            }
+
+            reject
+        }
+    }
 
     Text {
         color: MyColors.foreground;

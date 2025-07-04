@@ -4378,6 +4378,7 @@ dependencies = [
  "display-info",
  "emojis",
  "env_logger",
+ "i-slint-core",
  "log",
  "slint",
  "slint-build",

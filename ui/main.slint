@@ -25,22 +25,6 @@ export component MainWindow inherits Window {
     always-on-top: true;
     default-font-size: MainState.font-size;
 
-    forward-focus: global-event;
-    global-event := FocusScope {
-        key-pressed(event) => {
-            if (event.text == Key.Escape) {
-                MainState.close();
-                return accept;
-            }
-
-            if Navigation.key(event) {
-                return accept;
-            }
-
-            reject
-        }
-    }
-
     init => { start(MainState.width, MainState.height) }
 
     VerticalLayout {
@@ -72,9 +56,8 @@ export component MainWindow inherits Window {
                             TabsHandle.emoji-preview.has = true;
                             TabsHandle.emoji-preview.content = emoji;
                         }
-                        click => {
-                            EmojiHandle.click(emoji.character);
-                        }
+                        key-pressed(event) => { Navigation.key(event) || Navigation.tab(event) }
+                        click => { EmojiHandle.click(emoji.character); }
                     }
                 }
             }
