@@ -111,7 +111,7 @@ impl MainApp {
     pub fn run(&self) -> Result<(), slint::PlatformError> {
         let tabs = self.window.global::<TabsHandle>();
         tabs.set_tab(emojis::Group::SmileysAndEmotion as i32);
-        tabs.set_tabs(get_default_tabs());
+        tabs.set_tabs(get_default_tabs((*self.tone.borrow()).into()));
 
         tabs.on_change_tab({
             let content = self.content.clone();
@@ -119,6 +119,8 @@ impl MainApp {
             move |id| {
                 let group = group_from(id);
                 let tone = tone.borrow();
+                let tone: emojis::SkinTone = (*tone).into();
+
                 let emojis = group
                     .emojis()
                     .collect::<Vec<_>>()
@@ -127,7 +129,7 @@ impl MainApp {
                         ModelRc::from(
                             e.iter()
                                 .cloned()
-                                .flat_map(|e| e.with_skin_tone((*tone).into()).or_else(|| Some(e)))
+                                .flat_map(|e| e.with_skin_tone(tone).or_else(|| Some(e)))
                                 .map(emoji_to_model)
                                 .collect::<Vec<_>>()
                                 .as_slice(),
@@ -197,9 +199,15 @@ impl MainApp {
         search.on_change_tone({
             let tone = self.tone.clone();
             let content = self.content.clone();
+            let window = self.window.as_weak();
             move |t| {
                 let t = t.as_str().parse().unwrap();
                 tone.replace(t);
+                let t = t.into();
+                window
+                    .unwrap()
+                    .global::<TabsHandle>()
+                    .set_tabs(get_default_tabs(t));
 
                 let content = content
                     .as_any()
@@ -214,7 +222,7 @@ impl MainApp {
                                 .iter()
                                 .map(|e| {
                                     let e = emoji_from_model(e);
-                                    emoji_to_model(&e.with_skin_tone(t.into()).unwrap_or(e))
+                                    emoji_to_model(&e.with_skin_tone(t).unwrap_or(e))
                                 })
                                 .collect::<Vec<_>>();
                             ModelRc::from(e.as_slice())

@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use display_info::DisplayInfo;
+use emojis::SkinTone;
 use slint::{ModelRc, SharedString, VecModel};
 
 use crate::{EmojiModel, APP_MOUSE_MARGIN, EMOJI_COLS};
@@ -83,8 +84,17 @@ pub fn emojis_from_group(g: emojis::Group) -> ModelRc<ModelRc<EmojiModel>> {
     ModelRc::from(emojis.as_slice())
 }
 
-pub fn get_default_tabs() -> ModelRc<EmojiModel> {
-    let map = |group: emojis::Group| group.emojis().next().map(emoji_to_model).unwrap();
+pub fn get_default_tabs(tone: SkinTone) -> ModelRc<EmojiModel> {
+    let map = |group: emojis::Group| {
+        group
+            .emojis()
+            .next()
+            .map(|e| {
+                let e = e.with_skin_tone(tone).unwrap_or_else(|| e);
+                emoji_to_model(e)
+            })
+            .unwrap()
+    };
 
     VecModel::from_slice(&[
         map(emojis::Group::SmileysAndEmotion),
