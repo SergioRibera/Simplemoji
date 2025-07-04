@@ -39,7 +39,7 @@ impl Default for MainApp {
 
 /*
 TODO:
-- focus search input on start
+- keyboard navigation
 */
 
 impl MainApp {
@@ -85,7 +85,7 @@ impl MainApp {
             let window = self.window.as_weak();
             move |width, height| {
                 println!("Start invoked");
-                let window = window.unwrap();
+                let window = window.upgrade().unwrap();
 
                 let size = (width as i32, height as i32);
                 println!("{size:?}");
@@ -156,7 +156,7 @@ impl MainApp {
                     .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
                     .unwrap();
                 if s.is_empty() {
-                    let tab = window.unwrap().global::<TabsHandle>().get_tab();
+                    let tab = window.upgrade().unwrap().global::<TabsHandle>().get_tab();
                     let group = group_from(tab);
 
                     let emojis = group
@@ -257,6 +257,7 @@ impl MainApp {
                 }
                 if close {
                     window
+                        .upgrade()
                         .unwrap()
                         .window()
                         .dispatch_event(slint::platform::WindowEvent::CloseRequested);
