@@ -1,0 +1,27 @@
+import { EmojiModel, EmojiHandle } from "../components/emoji.slint";
+
+export global TabsHandle {
+    in-out property<int> tab;
+    in property<[EmojiModel]> tabs;
+    in-out property<{ has: bool, content: EmojiModel }> emoji-preview: TabsHandle.get-emoji();
+
+    callback change_tab(/* new_tab */ int);
+
+    public function next() {
+        TabsHandle.tab = Math.mod(TabsHandle.tab + 1, tabs.length);
+        change_tab(TabsHandle.tab);
+        emoji-preview = get-emoji();
+    }
+
+    public function prev() {
+        TabsHandle.tab = Math.mod(TabsHandle.tab - 1, tabs.length);
+        change_tab(TabsHandle.tab);
+        emoji-preview = get-emoji();
+    }
+
+    public pure function get-emoji() -> { has: bool, content: EmojiModel } {
+        tabs.length > 0
+            ? { has: true, content: tabs[TabsHandle.tab] }
+            : { has: false, content: EmojiHandle.from-string("😀") }
+    }
+}

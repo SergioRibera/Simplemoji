@@ -26,6 +26,7 @@ export component Emoji inherits Rectangle {
     in property<EmojiModel> emoji;
     callback click();
     callback hover();
+    callback on-focus();
     callback key-pressed(/* event */ KeyEvent) -> bool;
 
     width: 35px;
@@ -33,12 +34,18 @@ export component Emoji inherits Rectangle {
     background: ((area.has-hover || enabled) && handle-hover) || (focus-handler.has-focus && handle-focus) ? MyColors.foreground.transparentize(0.7) : transparent;
     animate background { duration: 100ms; }
 
-    forward-focus: focus-handler;
+    changed enabled => { focus-handler.focus(); }
 
+    forward-focus: focus-handler;
     focus-handler := FocusScope {
         enabled: root.handle-focus;
 
-        changed has-focus => { root.hover(); }
+        changed has-focus => {
+            if self.has-focus {
+                root.hover();
+                root.on-focus();
+            }
+        }
         key-pressed(event) => {
             if (event.text == Key.Escape) {
                 MainState.close();

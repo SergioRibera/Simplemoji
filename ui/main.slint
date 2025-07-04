@@ -4,8 +4,10 @@ import { MyColors } from "./globals.slint";
 import { MyColors, MainState } from "./globals.slint";
 import { FocusDirection, Navigation } from "./navigation.slint";
 
+import { TabsHandle } from "./api/tabs.slint";
+
 import { Emoji, EmojiModel, EmojiHandle } from "./components/emoji.slint";
-import { Tabs, TabsHandle } from "./components/tab.slint";
+import { Tabs } from "./components/tab.slint";
 import { Preview } from "./components/preview.slint";
 import { Search, SearchGlobal, SkinTone } from "./components/search.slint";
 
@@ -27,6 +29,21 @@ export component MainWindow inherits Window {
 
     init => { start(MainState.width, MainState.height) }
 
+    forward-focus: focus-handler;
+    focus-handler := FocusScope {
+        key-pressed(event) => {
+            if event.text == Key.Escape {
+                MainState.close();
+            }
+
+            if Navigation.tab(event) || Navigation.key(event) {
+                return accept;
+            }
+
+            reject
+        }
+    }
+
     VerticalLayout {
         width: root.width;
         spacing: 2px;
@@ -37,7 +54,7 @@ export component MainWindow inherits Window {
             }
         }
 
-        if MainState.show-search: Search { }
+        if MainState.show-search: search := Search { }
 
         if MainState.show-preview && TabsHandle.emoji-preview.has: Preview {
             emoji: TabsHandle.emoji-preview.content;
@@ -49,15 +66,25 @@ export component MainWindow inherits Window {
                 horizontal-scrollbar-policy: always-off;
                 vertical-scrollbar-policy: always-off;
 
-                for row in emojis: HorizontalLayout {
+                for row in emojis: r := HorizontalLayout {
                     for emoji in row: Emoji {
                         emoji: emoji;
                         hover => {
                             TabsHandle.emoji-preview.has = true;
                             TabsHandle.emoji-preview.content = emoji;
                         }
-                        key-pressed(event) => { Navigation.key(event) || Navigation.tab(event) }
+                        on-focus() => {
+                            if ((r.y + content.viewport-y) < 0) {
+                                content.viewport-y = -r.y + 20px;
+                            } else if (((r.y + content.viewport-y) + r.height) > content.height) {
+                                content.viewport-y = -(r.y + r.height - content.height + 20px);
+                            }
+
+                            content.viewport-y = max(-(content.viewport-height - content.height), content.viewport-y);
+                            content.viewport-y = min(0, content.viewport-y);
+                        }
                         click => { EmojiHandle.click(emoji.character); }
+                        key-pressed(event) => { Navigation.tab(event) || Navigation.key(event) }
                     }
                 }
             }
