@@ -103,7 +103,11 @@ impl MainApp {
         let global = self.window.global::<MainState>();
         global.on_close({
             let window = self.window.as_weak();
+            let no_close = self.settings.no_close;
             move || {
+                if no_close {
+                    return;
+                }
                 Self::close(window.clone());
             }
         });
@@ -240,9 +244,11 @@ impl MainApp {
         });
 
         self.window.window().on_winit_window_event({
+            let no_close = self.settings.no_close;
             move |w, ev| match ev {
-                WindowEvent::CursorLeft { .. } => w
-                    .hide()
+                WindowEvent::CursorLeft { .. } => (!no_close)
+                    .then(|| w.hide().ok())
+                    .flatten()
                     .map(|_| WinitWindowEventResult::PreventDefault)
                     .unwrap_or(WinitWindowEventResult::Propagate),
                 _ => WinitWindowEventResult::Propagate,
