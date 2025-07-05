@@ -9,7 +9,7 @@ An application where you can have all the emojis with easy and quick access
 </p>
 
 <p align="center">
-  <img src="https://github.com/SergioRibera/Simplemoji/assets/56278796/06d1bc25-d19e-423e-a986-11b80d0e8351" />
+  <img src="https://github.com/user-attachments/assets/5aed54e0-e71d-4b3b-ad20-a544dedd59f1" />
 </p>
 
 > [!NOTE]
@@ -19,13 +19,15 @@ An application where you can have all the emojis with easy and quick access
 - 🔎 Searchbar
 - 👋 Tone emoji selector
 - 👁️ Preview block
+- 🗺️ Keyboard Navigation (Tab/Shift Tab/Arrows/Space/Enter)
+- 🔣 Customizable Emoji Font
 - ©️ Copy to clipboard
 - 🎨 Custom UI Colors
 - ⚡ Blazing Fast
 - 🐧 Crossplatform (Linux (X11/Wayland), MacOs)
 
 # 🎨 Custom UI Colors
-![SimplemojiTheme](https://github.com/SergioRibera/Simplemoji/assets/56278796/fc7a9b2f-c395-4f66-b5fc-e2153c5372f0)
+![SimplemojiTheme](https://github.com/user-attachments/assets/6217bc36-3b5a-4b42-96c1-c225d49498fd)
 
 For this we use the arguments of the application, for example
 ```sh
@@ -51,11 +53,15 @@ Options:
 
 # 🙇 Usage
 ```
+Fast Application for look your amazing emojis write in Rust
+
 Usage: simplemoji [OPTIONS]
 
 Options:
   -t, --tone <TONE>
           [possible values: default, light, medium-light, medium, medium-dark, dark]
+  -f, --font <FONT>
+          The font use for render emojis
   -s, --show-search
 
   -p, --show-preview
