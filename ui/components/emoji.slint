@@ -51,6 +51,11 @@ export component Emoji inherits Rectangle {
                 MainState.close();
             }
 
+            if event.text == Key.Return || event.text == Key.Space {
+                root.click();
+                return accept;
+            }
+
             if root.key-pressed(event) {
                 return accept;
             }
