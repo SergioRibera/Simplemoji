@@ -19,6 +19,25 @@ export global SearchGlobal {
 
     callback search(/* search */ string);
     callback change_tone(/* tone */ string);
+
+    public pure function tone-id(tone: SkinTone) -> int {
+        if tone == SkinTone.Light {
+            return 1;
+        }
+        if tone == SkinTone.MediumLight {
+            return 2;
+        }
+        if tone == SkinTone.Medium {
+            return 3;
+        }
+        if tone == SkinTone.MediumDark {
+            return 4;
+        }
+        if tone == SkinTone.Dark {
+            return 5;
+        }
+        0
+    }
 }
 
 export component Search inherits Rectangle {
@@ -53,6 +72,7 @@ export component Search inherits Rectangle {
 
             ComboBox {
                 choices: root.tones;
+                value: root.tones[SearchGlobal.tone-id(SearchGlobal.tone)];
                 changed value => {
                     SearchGlobal.change_tone(self.value)
                 }
