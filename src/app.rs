@@ -104,11 +104,7 @@ impl MainApp {
         global.set_enable_dbg(self.settings.debug);
         global.on_close({
             let window = self.window.as_weak();
-            let no_close = self.settings.no_close;
             move || {
-                if no_close {
-                    return;
-                }
                 Self::close(window.clone());
             }
         });
