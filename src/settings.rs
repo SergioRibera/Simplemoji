@@ -8,6 +8,9 @@ use crate::SkinTone;
 pub struct ArgOpts {
     #[arg(long, short)]
     pub tone: Option<SkinTone>,
+    /// Show debug keys
+    #[arg(long, short = 'd')]
+    pub debug: bool,
     /// The font use for render emojis
     #[arg(long, short)]
     pub font: Option<String>,

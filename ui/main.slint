@@ -7,6 +7,7 @@ import { FocusDirection, Navigation } from "./navigation.slint";
 import { TabsHandle } from "./api/tabs.slint";
 
 import { Emoji, EmojiModel, EmojiHandle } from "./components/emoji.slint";
+import { KeyDebug } from "./components/keydebug.slint";
 import { Tabs } from "./components/tab.slint";
 import { Preview } from "./components/preview.slint";
 import { Search, SearchGlobal, SkinTone } from "./components/search.slint";
@@ -32,6 +33,7 @@ export component MainWindow inherits Window {
     forward-focus: focus-handler;
     focus-handler := FocusScope {
         key-pressed(event) => {
+            MainState.dbg-key(event);
             if event.text == Key.Escape {
                 MainState.close();
             }
@@ -90,4 +92,6 @@ export component MainWindow inherits Window {
             }
         }
     }
+
+    if MainState.enable-dbg: KeyDebug {}
 }

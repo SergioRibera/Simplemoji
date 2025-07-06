@@ -47,6 +47,7 @@ export component Emoji inherits Rectangle {
             }
         }
         key-pressed(event) => {
+            MainState.dbg-key(event);
             if (event.text == Key.Escape) {
                 MainState.close();
             }

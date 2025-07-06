@@ -38,6 +38,7 @@ export component Input inherits Rectangle {
         }
 
         key-pressed(event) => {
+            MainState.dbg-key(event);
             if Navigation.tab(event) || Navigation.key(event) {
                 return accept;
             }

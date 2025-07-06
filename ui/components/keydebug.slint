@@ -1,0 +1,19 @@
+import { MyColors, MainState } from "../globals.slint";
+
+export component KeyDebug inherits Rectangle {
+    x: (MainState.width / 2) - (self.width / 2);
+    y: MainState.height - 80px;
+    width: 50px;
+    height:30px;
+    background: MyColors.foreground.transparentize(0.2);
+    border-radius: 8px;
+
+    label := Text {
+        width: 100%;
+        font-size: 20px;
+        text <=> MainState.dbg-text;
+        color: MyColors.background;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+}
