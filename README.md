@@ -31,6 +31,7 @@ An application where you can have all the emojis with easy and quick access
   <img alt="Simplemoji Theme Preview" src="https://github.com/user-attachments/assets/6217bc36-3b5a-4b42-96c1-c225d49498fd"/>
   <img alt="Simplemoji Debug Keys Right Arrow Preview" src="https://github.com/user-attachments/assets/3c40c331-86e6-449e-a595-f02ca91a43c1" />
   <img alt="Simplemoji Debug Keys Shift Tab Preview" src="https://github.com/user-attachments/assets/de118ac6-f626-495e-85c9-d2226ca25d6d" />
+  <img alt="Simplemoji Debug Keys Top Arrow Preview" src="https://github.com/user-attachments/assets/b5b8e972-6665-4c25-bd28-114b8068463a" />
 </p>
 
 For this we use the arguments of the application, for example
