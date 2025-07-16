@@ -25,7 +25,15 @@
           inherit system pkgs;
         };
       in {
-        inherit (simplemojiBundle) apps packages devShells;
+        inherit (simplemojiBundle) apps devShells;
+        packages = simplemojiBundle.packages // {
+          x86_64-linux-tar = pkgs.callPackage ./bundle.nix {
+            target = { os = "linux"; arch = "x86_64"; pname = "simplemoji"; };
+            format = "tar.gz";
+            pname = "simplemoji";
+            drv = simplemojiBundle.packages.default;
+          };
+        };
     }) // (flake-utils.lib.eachDefaultSystemPassThrough (system: {
         # Overlays
         overlays.default = final: prev: {
