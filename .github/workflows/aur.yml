@@ -49,9 +49,9 @@ jobs:
         run: |
           echo "Downloading version: ${{ steps.version.outputs.version }}"
 
-          DOWNLOAD_URL="https://github.com/SergioRibera/Simplemoji/releases/download/v${{ steps.version.outputs.version }}/simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+          DOWNLOAD_URL="https://github.com/SergioRibera/Simplemoji/releases/download/v${{ steps.version.outputs.version }}/simplemoji-x86_64-unknown-linux-gnu.tar.gz"
 
-          if ! curl -v -fL -o "simplemoji-x86_64-unknown-linux-gnu.tar.xz" "$DOWNLOAD_URL"; then
+          if ! curl -v -fL -o "simplemoji-x86_64-unknown-linux-gnu.tar.gz" "$DOWNLOAD_URL"; then
             echo "::error::Failed to download release artifact from $DOWNLOAD_URL"
 
             echo "Checking if release exists..."
@@ -67,25 +67,25 @@ jobs:
           fi
 
           echo "Download verification:"
-          ls -lh "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
-          file "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+          ls -lh "simplemoji-x86_64-unknown-linux-gnu.tar.gz"
+          file "simplemoji-x86_64-unknown-linux-gnu.tar.gz"
 
           echo "SHA256 checksum:"
-          sha256sum "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+          sha256sum "simplemoji-x86_64-unknown-linux-gnu.tar.gz"
 
-          if ! tar -tf "simplemoji-x86_64-unknown-linux-gnu.tar.xz" > /dev/null 2>&1; then
-            echo "::error::Downloaded file is not a valid tar.xz archive"
+          if ! tar -tf "simplemoji-x86_64-unknown-linux-gnu.tar.gz" > /dev/null 2>&1; then
+            echo "::error::Downloaded file is not a valid tar.gz archive"
             exit 1
           fi
 
       - name: Generate PKGBUILD
-        run: cargo-aur -o ./aur generate simplemoji-x86_64-unknown-linux-gnu.tar.xz
+        run: cargo-aur -o ./aur generate simplemoji-x86_64-unknown-linux-gnu.tar.gz
 
       - name: Check PKGBUILD
         run: |
           ls -l
           cat ./aur/PKGBUILD
-          sha256sum simplemoji-x86_64-unknown-linux-gnu.tar.xz || true
+          sha256sum simplemoji-x86_64-unknown-linux-gnu.tar.gz || true
 
       - name: Publish to the AUR
         uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
