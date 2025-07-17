@@ -19,8 +19,8 @@ jobs:
         uses: nixbuild/nix-quick-install-action@v30
         with:
           nix_conf: |
-            keep-env-derivations=true
-            keep-outputs=true
+            keep-env-derivations = true
+            keep-outputs = true
 
       - name: Restore and save Nix store
         uses: nix-community/cache-nix-action@v6
@@ -32,11 +32,13 @@ jobs:
         run: nix build .#x86_64-linux-tar
 
       - name: Move Bundle
+        if: ${{ github.event_name != 'pull_request' }}
         working-directory: .
         run: |
           cp result/*.tar.gz simplemoji-x86_64-unknown-linux-gnu.tar.gz
 
       - name: Generate a Changelog
+        if: ${{ github.event_name != 'pull_request' }}
         uses: orhun/git-cliff-action@v4
         id: git-cliff
         with:
@@ -45,6 +47,7 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
 
       - name: Release
+        if: ${{ github.event_name != 'pull_request' }}
         uses: softprops/action-gh-release@v2
         with:
           prerelease: ${{ contains(github.ref_name, 'a') }}
