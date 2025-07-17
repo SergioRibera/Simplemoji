@@ -76,7 +76,7 @@ pub fn emojis_from_group(g: emojis::Group) -> ModelRc<ModelRc<EmojiModel>> {
         .collect::<Vec<_>>()
         .chunks(EMOJI_COLS)
         .map(|e| {
-            let e = e.into_iter().map(|e| *e).collect::<Vec<_>>();
+            let e = e.iter().copied();
             emojis_to_modelrc(e)
         })
         .collect::<Vec<_>>();
@@ -90,7 +90,7 @@ pub fn get_default_tabs(tone: SkinTone) -> ModelRc<EmojiModel> {
             .emojis()
             .next()
             .map(|e| {
-                let e = e.with_skin_tone(tone).unwrap_or_else(|| e);
+                let e = e.with_skin_tone(tone).unwrap_or(e);
                 emoji_to_model(e)
             })
             .unwrap()

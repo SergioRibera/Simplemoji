@@ -137,7 +137,7 @@ impl MainApp {
                         ModelRc::from(
                             e.iter()
                                 .cloned()
-                                .flat_map(|e| e.with_skin_tone(tone).or_else(|| Some(e)))
+                                .flat_map(|e| e.with_skin_tone(tone).or(Some(e)))
                                 .map(emoji_to_model)
                                 .collect::<Vec<_>>()
                                 .as_slice(),
@@ -177,9 +177,7 @@ impl MainApp {
                             ModelRc::from(
                                 e.iter()
                                     .cloned()
-                                    .flat_map(|e| {
-                                        e.with_skin_tone((*tone).into()).or_else(|| Some(e))
-                                    })
+                                    .flat_map(|e| e.with_skin_tone((*tone).into()).or(Some(e)))
                                     .map(emoji_to_model)
                                     .collect::<Vec<_>>()
                                     .as_slice(),
@@ -190,15 +188,15 @@ impl MainApp {
                     return;
                 }
                 let emojis = emojis::iter()
-                    .filter_map(|e| {
-                        (e.name().to_lowercase().contains(s.as_str())
+                    .filter(|&e| {
+                        e.name().to_lowercase().contains(s.as_str())
                             || e.shortcodes()
-                                .any(|c| c.to_lowercase().contains(s.as_str())))
-                        .then(|| emoji_to_model(e.with_skin_tone((*tone).into()).unwrap_or(e)))
+                                .any(|c| c.to_lowercase().contains(s.as_str()))
                     })
+                    .map(|e| emoji_to_model(e.with_skin_tone((*tone).into()).unwrap_or(e)))
                     .collect::<Vec<_>>()
                     .chunks(EMOJI_COLS)
-                    .map(|e| ModelRc::from(e.iter().cloned().collect::<Vec<_>>().as_slice()))
+                    .map(|e| ModelRc::from(e.to_vec().as_slice()))
                     .collect::<Vec<ModelRc<_>>>();
 
                 content.set_vec(emojis);
@@ -230,7 +228,7 @@ impl MainApp {
                                 .iter()
                                 .map(|e| {
                                     let e = emoji_from_model(e);
-                                    emoji_to_model(&e.with_skin_tone(t).unwrap_or(e))
+                                    emoji_to_model(e.with_skin_tone(t).unwrap_or(e))
                                 })
                                 .collect::<Vec<_>>();
                             ModelRc::from(e.as_slice())
