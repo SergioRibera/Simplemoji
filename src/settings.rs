@@ -16,6 +16,9 @@ pub struct ArgOpts {
     pub font: Option<String>,
     #[arg(long, short = 's')]
     pub show_search: bool,
+    /// Use fuzzing search algorithms
+    #[arg(long, short = 'z')]
+    pub fuzzing_search: bool,
     #[arg(long, short = 'p')]
     pub show_preview: bool,
     #[arg(long, short = 'o')]
