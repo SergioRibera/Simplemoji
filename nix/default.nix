@@ -109,6 +109,7 @@ in {
         pkg-config
         cargo-dist
         cargo-release
+        git-cliff
       ] ++ buildInputs;
     LD_LIBRARY_PATH = "${lib.makeLibraryPath buildInputs}";
   };
