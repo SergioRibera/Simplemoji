@@ -1,0 +1,57 @@
+export global MyColors {
+    in-out property<color> background: #fff;
+    in-out property<color> foreground: #000;
+}
+
+export global MainState {
+    in property<bool> show-preview: false;
+    in property<bool> show-search: false;
+    out property<length> height: show-preview ? 390px : 330px;
+    out property<length> width: 315px;
+    out property<length> font-size: 20px;
+    in property<string> font: "Noto Color Emoji";
+
+    in property<bool> enable-dbg;
+    in-out property<string> dbg-text;
+
+    callback close();
+
+    public function dbg-key(event: KeyEvent) {
+        if !MainState.enable-dbg { return; }
+        if (event.text == Key.UpArrow) {
+            MainState.dbg-text = "";
+            return;
+        }
+        if (event.text == Key.DownArrow) {
+            MainState.dbg-text = "";
+            return;
+        }
+        if (event.text == Key.LeftArrow) {
+            MainState.dbg-text = "";
+            return;
+        }
+        if (event.text == Key.RightArrow) {
+            MainState.dbg-text = "";
+            return;
+        }
+        if (event.text == Key.Space) {
+            MainState.dbg-text = "󱁐";
+            return;
+        }
+        if (event.text == Key.Return) {
+            MainState.dbg-text = "󰌑";
+            return;
+        }
+        if (event.text == Key.Escape) {
+            MainState.dbg-text = "󱊷";
+            return;
+        }
+        if (event.text == Key.Tab) {
+            if event.modifiers.shift {
+                MainState.dbg-text = "󰧇 ";
+                return;
+            }
+            MainState.dbg-text = "";
+        }
+    }
+}

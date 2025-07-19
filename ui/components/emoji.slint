@@ -1,0 +1,86 @@
+import { MyColors, MainState } from "../globals.slint";
+
+export struct EmojiModel {
+    name: string,
+    codes: [string],
+    character: string,
+}
+
+export global EmojiHandle {
+    callback click(/* new_tab */ string);
+
+    public pure function from-string(c: string) -> EmojiModel {
+        {
+            character: c,
+            name: "",
+            codes: [""],
+        }
+    }
+}
+
+export component Emoji inherits Rectangle {
+    in property<bool> enabled: false;
+    in property<bool> handle-hover: true;
+    in property<bool> handle-focus: true;
+    in property<length> font-size: MainState.font-size;
+    in property<EmojiModel> emoji;
+    callback click();
+    callback hover();
+    callback on-focus();
+    callback key-pressed(/* event */ KeyEvent) -> bool;
+
+    width: 35px;
+    height: 35px;
+    background: ((area.has-hover || enabled) && handle-hover) || (focus-handler.has-focus && handle-focus) ? MyColors.foreground.transparentize(0.7) : transparent;
+    animate background { duration: 100ms; }
+
+    changed enabled => { focus-handler.focus(); }
+
+    forward-focus: focus-handler;
+    focus-handler := FocusScope {
+        enabled: root.handle-focus;
+
+        changed has-focus => {
+            if self.has-focus {
+                root.hover();
+                root.on-focus();
+            }
+        }
+        key-pressed(event) => {
+            MainState.dbg-key(event);
+            if (event.text == Key.Escape) {
+                MainState.close();
+            }
+
+            if event.text == Key.Return || event.text == Key.Space {
+                root.click();
+                return accept;
+            }
+
+            if root.key-pressed(event) {
+                return accept;
+            }
+
+            reject
+        }
+    }
+
+    Text {
+        color: MyColors.foreground;
+        text: root.emoji.character;
+        font-size: root.font-size;
+        font-family: MainState.font;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    area := TouchArea {
+        width: parent.width;
+        height: parent.height;
+
+        mouse-cursor: pointer;
+
+        changed has-hover => { root.hover(); }
+        clicked => { root.click(); }
+    }
+}

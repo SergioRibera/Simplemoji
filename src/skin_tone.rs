@@ -1,40 +1,6 @@
-use std::fmt::Display;
+use std::str::FromStr;
 
-use clap::ValueEnum;
-
-#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum SkinTone {
-    #[default]
-    Default,
-    Light,
-    MediumLight,
-    Medium,
-    MediumDark,
-    Dark,
-}
-
-impl SkinTone {
-    pub fn get_emoji(&self) -> String {
-        emojis::Group::PeopleAndBody
-            .emojis()
-            .next()
-            .unwrap()
-            .with_skin_tone((*self).into())
-            .unwrap()
-            .to_string()
-    }
-
-    pub fn get_all() -> &'static [SkinTone] {
-        &[
-            SkinTone::Default,
-            SkinTone::Light,
-            SkinTone::MediumLight,
-            SkinTone::Medium,
-            SkinTone::MediumDark,
-            SkinTone::Dark,
-        ]
-    }
-}
+use crate::SkinTone;
 
 impl From<SkinTone> for emojis::SkinTone {
     fn from(value: SkinTone) -> Self {
@@ -49,8 +15,17 @@ impl From<SkinTone> for emojis::SkinTone {
     }
 }
 
-impl Display for SkinTone {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.get_emoji().as_str())
+impl FromStr for SkinTone {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "👋🏻" => Ok(SkinTone::Light),
+            "👋🏼" => Ok(SkinTone::MediumLight),
+            "👋🏽" => Ok(SkinTone::Medium),
+            "👋🏾" => Ok(SkinTone::MediumDark),
+            "👋🏿" => Ok(SkinTone::Dark),
+            _ => Ok(SkinTone::Default),
+        }
     }
 }

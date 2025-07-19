@@ -1,0 +1,53 @@
+import { MainState } from "../globals.slint";
+import { Navigation } from "../navigation.slint";
+
+export component Input inherits Rectangle {
+    in property <color> text-color;
+
+    property <length> margin: 5px;
+    out property <string> text <=> text-input.text;
+
+    clip: true;
+    forward-focus: text-input;
+
+    Text {
+        x: 5px;
+        color: root.text-color.with_alpha(0.7);
+        text: text-input.text.is-empty ? "Placeholder" : "";
+        horizontal-alignment: left;
+        font-size: 12pt;
+    }
+
+    text-input := TextInput {
+        property <length> computed-x: 5px;
+
+        color: root.text-color;
+        x: min(0px, max(root.width - self.width - self.text-cursor-width - root.margin * 2, self.computed-x)) + root.margin;
+        width: max(self.preferred-width, parent.width - self.text-cursor-width);
+        height: 100%;
+        vertical-alignment: center;
+        single-line: true;
+        font-size: 12pt;
+
+        cursor-position-changed(position) => {
+            if position.x + self.computed-x < root.margin {
+                self.computed-x = -position.x + root.margin * 2;
+            } else if position.x + self.computed-x > root.width - root.margin * 2 - self.text-cursor-width {
+                self.computed-x = root.width - position.x - root.margin * 2 - self.text-cursor-width;
+            }
+        }
+
+        key-pressed(event) => {
+            MainState.dbg-key(event);
+            if Navigation.tab(event) || Navigation.key(event) {
+                return accept;
+            }
+
+            if (event.text == Key.Escape) {
+                MainState.close();
+            }
+
+            reject
+        }
+    }
+}

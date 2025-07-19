@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use crate::skin_tone::SkinTone;
+use crate::SkinTone;
 
 #[derive(Parser, Debug, Default)]
 #[command(author, version, about, long_about = None)]
@@ -8,8 +8,17 @@ use crate::skin_tone::SkinTone;
 pub struct ArgOpts {
     #[arg(long, short)]
     pub tone: Option<SkinTone>,
+    /// Show debug keys
+    #[arg(long, short = 'd')]
+    pub debug: bool,
+    /// The font use for render emojis
+    #[arg(long, short)]
+    pub font: Option<String>,
     #[arg(long, short = 's')]
     pub show_search: bool,
+    /// Use fuzzing search algorithms
+    #[arg(long, short = 'z')]
+    pub fuzzing_search: bool,
     #[arg(long, short = 'p')]
     pub show_preview: bool,
     #[arg(long, short = 'o')]

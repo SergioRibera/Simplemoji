@@ -1,0 +1,23 @@
+import { Emoji, EmojiModel, EmojiHandle } from "./emoji.slint";
+import { TabsHandle } from "../api/tabs.slint";
+import { Navigation } from "../navigation.slint";
+
+export component Tabs inherits Rectangle {
+    callback click();
+
+    HorizontalLayout {
+        for tab[i] in TabsHandle.tabs: Emoji {
+            handle-focus: false;
+            enabled: i == TabsHandle.tab;
+            emoji: tab;
+            click => {
+                root.click();
+                TabsHandle.tab = i;
+                TabsHandle.emoji-preview = TabsHandle.get-emoji();
+                TabsHandle.change_tab(i);
+            }
+
+            on-focus() => { root.click(); }
+        }
+    }
+}

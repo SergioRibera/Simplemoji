@@ -1,0 +1,53 @@
+import { MyColors } from "../globals.slint";
+
+import { Emoji, EmojiModel } from "./emoji.slint";
+
+export component Preview inherits HorizontalLayout {
+    in property<EmojiModel> emoji;
+
+    height: 60px;
+
+    spacing: 15px;
+    padding-right: 10px;
+    padding-left: 10px;
+
+    VerticalLayout {
+        alignment: center;
+        Emoji {
+            width: 40px;
+            font-size: 40px;
+            emoji: root.emoji;
+            handle-hover: false;
+            handle-focus: false;
+        }
+    }
+
+    VerticalLayout {
+        alignment: center;
+
+        if root.emoji.codes.length > 0: HorizontalLayout {
+            alignment: start;
+
+            for code in root.emoji.codes: Text {
+                text: code;
+                wrap: no-wrap;
+                overflow: elide;
+                font-size: 18px;
+                padding-right: 10px;
+                horizontal-alignment: left;
+                color: MyColors.foreground;
+                vertical-alignment: center;
+            }
+        }
+
+        if !root.emoji.name.is-empty: Text {
+            wrap: no-wrap;
+            overflow: elide;
+            font-size: 12px;
+            text: root.emoji.name;
+            horizontal-alignment: left;
+            color: MyColors.foreground;
+            vertical-alignment: center;
+        }
+    }
+}

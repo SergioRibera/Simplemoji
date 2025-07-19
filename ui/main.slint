@@ -1,0 +1,97 @@
+import { ListView } from "std-widgets.slint";
+
+import { MyColors } from "./globals.slint";
+import { MyColors, MainState } from "./globals.slint";
+import { FocusDirection, Navigation } from "./navigation.slint";
+
+import { TabsHandle } from "./api/tabs.slint";
+
+import { Emoji, EmojiModel, EmojiHandle } from "./components/emoji.slint";
+import { KeyDebug } from "./components/keydebug.slint";
+import { Tabs } from "./components/tab.slint";
+import { Preview } from "./components/preview.slint";
+import { Search, SearchGlobal, SkinTone } from "./components/search.slint";
+
+export { MainState, MyColors, EmojiModel, EmojiHandle, FocusDirection, Navigation, SearchGlobal, SkinTone, TabsHandle }
+
+export component MainWindow inherits Window {
+    in property<[[EmojiModel]]> emojis: [];
+
+    callback start(length, length);
+
+    title: "Simplemoji";
+    width: MainState.width;
+    height: MainState.height;
+    background: MyColors.background;
+
+    no-frame: true;
+    always-on-top: true;
+    default-font-size: MainState.font-size;
+
+    init => { start(MainState.width, MainState.height) }
+
+    forward-focus: focus-handler;
+    focus-handler := FocusScope {
+        key-pressed(event) => {
+            MainState.dbg-key(event);
+            if event.text == Key.Escape {
+                MainState.close();
+            }
+
+            if Navigation.tab(event) || Navigation.key(event) {
+                return accept;
+            }
+
+            reject
+        }
+    }
+
+    VerticalLayout {
+        width: root.width;
+        spacing: 2px;
+
+        Tabs {
+            click() => {
+                content.viewport-y = 0;
+            }
+        }
+
+        if MainState.show-search: search := Search { }
+
+        if MainState.show-preview && TabsHandle.emoji-preview.has: Preview {
+            emoji: TabsHandle.emoji-preview.content;
+        }
+
+        HorizontalLayout {
+            content := ListView {
+                width: root.width;
+                horizontal-scrollbar-policy: always-off;
+                vertical-scrollbar-policy: always-off;
+
+                for row in emojis: r := HorizontalLayout {
+                    for emoji in row: Emoji {
+                        emoji: emoji;
+                        hover => {
+                            TabsHandle.emoji-preview.has = true;
+                            TabsHandle.emoji-preview.content = emoji;
+                        }
+                        on-focus() => {
+                            if ((r.y + content.viewport-y) < 0) {
+                                content.viewport-y = -r.y + 20px;
+                            } else if (((r.y + content.viewport-y) + r.height) > content.height) {
+                                content.viewport-y = -(r.y + r.height - content.height + 20px);
+                            }
+
+                            content.viewport-y = max(-(content.viewport-height - content.height), content.viewport-y);
+                            content.viewport-y = min(0, content.viewport-y);
+                        }
+                        click => { EmojiHandle.click(emoji.character); }
+                        key-pressed(event) => { Navigation.tab(event) || Navigation.key(event) }
+                    }
+                }
+            }
+        }
+    }
+
+    if MainState.enable-dbg: KeyDebug {}
+}

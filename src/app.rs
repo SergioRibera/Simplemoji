@@ -1,158 +1,310 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use arboard::Clipboard;
-use iced::widget::{container, text_input};
-use iced::{mouse, Application, Command, Event, Length, Subscription, Theme};
+
+use fuzzy_matcher::skim::SkimMatcherV2;
+use fuzzy_matcher::FuzzyMatcher;
+use slint::winit_030::winit::event::WindowEvent;
+use slint::winit_030::{WinitWindowAccessor, WinitWindowEventResult};
+use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel, Weak};
 
 use crate::color::ToRgba;
-use crate::ids::SEARCH_ID;
-use crate::layouts::show_content;
+use crate::navigation::MoveFocus;
 use crate::settings::ArgOpts;
-use crate::skin_tone::SkinTone;
-use crate::update;
-use crate::utils::get_default_tabs;
-
-#[derive(Clone, Debug)]
-pub enum MainAppMessage {
-    HiddeApplication,
-    FocusSearch,
-    ChangeTab(emojis::Group),
-    CopyEmoji(String),
-    SelectSkinTone(SkinTone),
-    OnSearchEmoji(String),
-    HoverEmoji(String, String, Vec<String>),
-}
+use crate::utils::{
+    emoji_from_model, emoji_to_model, emojis_from_group, get_default_tabs, group_from,
+    mouse_to_window_pos,
+};
+use crate::{
+    EmojiHandle, EmojiModel, MainState, MainWindow, MyColors, Navigation, SearchGlobal, SkinTone,
+    TabsHandle, EMOJI_COLS,
+};
 
 pub struct MainApp {
-    pub tabs: Vec<(emojis::Group, String)>,
-    pub settings: ArgOpts,
-    pub search: String,
-    pub emoji_hovered: (String, String, Vec<String>),
-    pub tone: SkinTone,
-    pub tab: emojis::Group,
-    pub theme: Theme,
-    pub clipboard: Clipboard,
-}
+    window: MainWindow,
+    settings: ArgOpts,
+    tone: Rc<RefCell<SkinTone>>,
 
-impl MainApp {
-    pub fn new(settings: ArgOpts) -> Self {
-        let tone = settings.tone.unwrap_or_default();
-        let theme = match dark_light::detect() {
-            dark_light::Mode::Light => Theme::Light,
-            _ => Theme::Dark,
-        };
-        let theme = Theme::custom(
-            "Custom".to_owned(),
-            iced::theme::Palette {
-                background: settings
-                    .background_color
-                    .as_deref()
-                    .inspect(|v| log::debug!("Background Custom Color: {v}"))
-                    .map(|b| b.to_rgba().unwrap())
-                    .unwrap_or(theme.palette().background),
-                primary: settings
-                    .primary_color
-                    .as_deref()
-                    .inspect(|v| log::debug!("Primary Custom Color: {v}"))
-                    .map(|b| b.to_rgba().unwrap())
-                    .unwrap_or(theme.palette().primary),
-                ..theme.palette()
-            },
-        );
-
-        Self {
-            tone,
-            theme,
-            settings,
-            ..Default::default()
-        }
-    }
+    content: ModelRc<ModelRc<EmojiModel>>,
 }
 
 impl Default for MainApp {
     fn default() -> Self {
         Self {
-            tabs: get_default_tabs(),
+            window: MainWindow::new().unwrap(),
             settings: Default::default(),
-            search: Default::default(),
             tone: Default::default(),
-            tab: emojis::Group::SmileysAndEmotion,
-            clipboard: Clipboard::new().unwrap(),
-            emoji_hovered: emojis::Group::SmileysAndEmotion
-                .emojis()
-                .next()
-                .map(|e| {
-                    (
-                        e.name().to_string(),
-                        e.to_string(),
-                        e.shortcodes()
-                            .map(|s| s.to_string())
-                            .collect::<Vec<String>>(),
-                    )
-                })
-                .unwrap(),
-            theme: match dark_light::detect() {
-                dark_light::Mode::Light => Theme::Light,
-                _ => Theme::Dark,
-            },
+            content: emojis_from_group(emojis::Group::SmileysAndEmotion),
         }
     }
 }
 
-impl Application for MainApp {
-    type Executor = iced::executor::Default;
-    type Message = MainAppMessage;
-    type Theme = Theme;
-    type Flags = ArgOpts;
+impl MainApp {
+    fn close(_window: Weak<MainWindow>) {
+        #[cfg(debug_assertions)]
+        println!("Close");
+        #[cfg(not(debug_assertions))]
+        _window
+            .unwrap()
+            .window()
+            .dispatch_event(slint::platform::WindowEvent::CloseRequested);
+    }
+    pub fn new(settings: ArgOpts) -> Self {
+        let tone = settings.tone.unwrap_or_default();
 
-    fn new(settings: Self::Flags) -> (Self, Command<Self::Message>) {
-        let focus_search = if settings.show_search {
-            text_input::focus(SEARCH_ID.clone())
-        } else {
-            Command::none()
-        };
-
-        (MainApp::new(settings), focus_search)
+        Self {
+            tone: Rc::new(RefCell::new(tone)),
+            settings,
+            ..Default::default()
+        }
     }
 
-    fn title(&self) -> String {
-        "Simplemoji".to_string()
+    pub fn set_globals(&self) {
+        let global = self.window.global::<MainState>();
+        global.set_show_preview(self.settings.show_preview);
+        global.set_show_search(self.settings.show_search);
+        if let Some(font) = self.settings.font.as_deref() {
+            global.set_font(SharedString::from(font));
+        }
+
+        let colors = self.window.global::<MyColors>();
+        if let Some(color) = self.settings.background_color.as_ref() {
+            colors.set_background(color.to_rgba().unwrap());
+        }
+        if let Some(color) = self.settings.primary_color.as_ref() {
+            colors.set_foreground(color.to_rgba().unwrap());
+        }
+        self.window.set_emojis(self.content.clone());
     }
 
-    fn subscription(&self) -> Subscription<Self::Message> {
-        iced::event::listen_with(|e, _status| match e {
-            Event::Mouse(mouse::Event::CursorLeft) => Some(MainAppMessage::HiddeApplication),
-            Event::Window(_, e) => {
-                if e == iced::window::Event::Focused {
-                    return Some(MainAppMessage::FocusSearch);
-                }
-                None
+    pub fn set_events(&self) {
+        self.window.on_start({
+            let window = self.window.as_weak();
+            move |width, height| {
+                println!("Start invoked");
+                let window = window.upgrade().unwrap();
+
+                let size = (width as i32, height as i32);
+                println!("{size:?}");
+
+                let device_state = device_query::DeviceState::new();
+                let pos = device_state.query_pointer().coords;
+                let (x, y) = mouse_to_window_pos(size, pos);
+                window.window().set_position(slint::WindowPosition::Logical(
+                    slint::LogicalPosition::new(x as f32, y as f32),
+                ));
             }
-            _ => None,
-        })
+        });
+
+        let global = self.window.global::<MainState>();
+        global.set_enable_dbg(self.settings.debug);
+        global.on_close({
+            let window = self.window.as_weak();
+            move || {
+                Self::close(window.clone());
+            }
+        });
+        self.window.global::<Navigation>().on_move({
+            let window = self.window.as_weak();
+            move |e| {
+                window.upgrade().unwrap().window().move_focus(e);
+            }
+        });
     }
 
-    fn update(&mut self, message: Self::Message) -> iced::Command<Self::Message> {
-        update::update(self, message)
-    }
+    pub fn run(&self) -> Result<(), slint::PlatformError> {
+        let tabs = self.window.global::<TabsHandle>();
+        tabs.set_tab(emojis::Group::SmileysAndEmotion as i32);
+        tabs.set_tabs(get_default_tabs((*self.tone.borrow()).into()));
 
-    fn view(&self) -> iced::Element<'_, Self::Message, Self::Theme> {
-        container(show_content(
-            self.tabs.as_ref(),
-            &self.settings,
-            &self.search,
-            &self.tone,
-            &self.emoji_hovered,
-            &self.tab,
-            MainAppMessage::ChangeTab,
-        ))
-        .padding(5)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .center_x()
-        .center_y()
-        .into()
-    }
+        tabs.on_change_tab({
+            let content = self.content.clone();
+            let tone = self.tone.clone();
+            move |id| {
+                let group = group_from(id);
+                let tone = tone.borrow();
+                let tone: emojis::SkinTone = (*tone).into();
 
-    fn theme(&self) -> Self::Theme {
-        self.theme.clone()
+                let emojis = group
+                    .emojis()
+                    .collect::<Vec<_>>()
+                    .chunks(EMOJI_COLS)
+                    .map(|e| {
+                        ModelRc::from(
+                            e.iter()
+                                .cloned()
+                                .flat_map(|e| e.with_skin_tone(tone).or(Some(e)))
+                                .map(emoji_to_model)
+                                .collect::<Vec<_>>()
+                                .as_slice(),
+                        )
+                    })
+                    .collect::<Vec<ModelRc<_>>>();
+                content
+                    .as_any()
+                    .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
+                    .unwrap()
+                    .set_vec(emojis);
+            }
+        });
+
+        let search = self.window.global::<SearchGlobal>();
+        search.set_tone(self.tone.clone().take());
+        search.on_search({
+            let tone = self.tone.clone();
+            let window = self.window.as_weak();
+            let content = self.content.clone();
+
+            let use_fuzze = self.settings.fuzzing_search;
+            let matcher = SkimMatcherV2::default().smart_case().use_cache(true);
+            let matches_search = move |i: usize, s: String, e: &'static emojis::Emoji| -> bool {
+                if !use_fuzze {
+                    return e.name().to_lowercase().contains(&s)
+                        || e.shortcodes().any(|c| c.to_lowercase().contains(&s));
+                }
+
+                let a = matcher.fuzzy_match(e.name(), &s).unwrap_or_default();
+                let shortcodes = e.shortcodes();
+                let shortcodes_count = shortcodes.clone().count();
+                let shortcodes_count = if shortcodes_count == 0 {
+                    1
+                } else {
+                    shortcodes_count
+                };
+                let b = shortcodes
+                    .map(|e| matcher.fuzzy_match(e, &s).unwrap_or_default())
+                    .sum::<i64>()
+                    .saturating_div(shortcodes_count as i64);
+                let c = (a.saturating_mul(4))
+                    .saturating_add(b.saturating_mul(1))
+                    .saturating_sub(i as i64);
+
+                c > 0
+            };
+            move |s| {
+                let s = s.trim().to_lowercase();
+                let tone = tone.borrow();
+                let content = content
+                    .as_any()
+                    .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
+                    .unwrap();
+                if s.is_empty() {
+                    let tab = window.upgrade().unwrap().global::<TabsHandle>().get_tab();
+                    let group = group_from(tab);
+
+                    let emojis = group
+                        .emojis()
+                        .collect::<Vec<_>>()
+                        .chunks(EMOJI_COLS)
+                        .map(|e| {
+                            ModelRc::from(
+                                e.iter()
+                                    .cloned()
+                                    .flat_map(|e| e.with_skin_tone((*tone).into()).or(Some(e)))
+                                    .map(emoji_to_model)
+                                    .collect::<Vec<_>>()
+                                    .as_slice(),
+                            )
+                        })
+                        .collect::<Vec<ModelRc<_>>>();
+                    content.set_vec(emojis);
+                    return;
+                }
+                let emojis = emojis::iter()
+                    .enumerate()
+                    .flat_map(|(i, e)| {
+                        (matches_search(i, s.clone(), e)).then_some(emoji_to_model(
+                            e.with_skin_tone((*tone).into()).unwrap_or(e),
+                        ))
+                    })
+                    .collect::<Vec<_>>()
+                    .chunks(EMOJI_COLS)
+                    .map(|e| ModelRc::from(e.to_vec().as_slice()))
+                    .collect::<Vec<ModelRc<_>>>();
+
+                content.set_vec(emojis);
+            }
+        });
+        search.on_change_tone({
+            let tone = self.tone.clone();
+            let content = self.content.clone();
+            let window = self.window.as_weak();
+            move |t| {
+                let t = t.as_str().parse().unwrap();
+                tone.replace(t);
+                let t = t.into();
+                window
+                    .unwrap()
+                    .global::<TabsHandle>()
+                    .set_tabs(get_default_tabs(t));
+
+                let content = content
+                    .as_any()
+                    .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
+                    .unwrap();
+                let new_content: Vec<ModelRc<EmojiModel>> = content.iter().collect();
+                content.set_vec(
+                    new_content
+                        .into_iter()
+                        .map(|e| {
+                            let e = e
+                                .iter()
+                                .map(|e| {
+                                    let e = emoji_from_model(e);
+                                    emoji_to_model(e.with_skin_tone(t).unwrap_or(e))
+                                })
+                                .collect::<Vec<_>>();
+                            ModelRc::from(e.as_slice())
+                        })
+                        .collect::<Vec<ModelRc<_>>>(),
+                );
+            }
+        });
+
+        self.window.window().on_winit_window_event({
+            let no_close = self.settings.no_close;
+            move |w, ev| match ev {
+                WindowEvent::CursorLeft { .. } => (!no_close)
+                    .then(|| w.hide().ok())
+                    .flatten()
+                    .map(|_| WinitWindowEventResult::PreventDefault)
+                    .unwrap_or(WinitWindowEventResult::Propagate),
+                _ => WinitWindowEventResult::Propagate,
+            }
+        });
+
+        self.window.global::<EmojiHandle>().on_click({
+            let window = self.window.as_weak();
+            let close = self.settings.close_on_copy;
+            let cmd = self.settings.copy_command.clone();
+            let mut clipboard = cmd.is_none().then(|| Clipboard::new().unwrap());
+
+            move |emoji| {
+                if let Some(cmd) = cmd.as_deref() {
+                    let mut cmd = cmd.split(' ');
+                    let bin = cmd.next().unwrap();
+                    let mut args = cmd.collect::<Vec<&str>>();
+                    args.push(&emoji);
+                    _ = std::process::Command::new(bin)
+                        .args(args)
+                        .spawn()
+                        .unwrap()
+                        .wait()
+                        .unwrap();
+                } else if let Some(clipboard) = clipboard.as_mut() {
+                    clipboard.set_text(emoji.as_str()).unwrap();
+                }
+                if close {
+                    window
+                        .upgrade()
+                        .unwrap()
+                        .window()
+                        .dispatch_event(slint::platform::WindowEvent::CloseRequested);
+                }
+            }
+        });
+
+        self.window.run()
     }
 }

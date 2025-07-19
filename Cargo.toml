@@ -19,21 +19,12 @@ panic = 'abort'
 opt-level = 3
 codegen-units = 1
 
-# The profile that 'cargo dist' will build with
-[profile.dist]
-inherits = "release"
-lto = "thin"
-
 [dependencies]
 log = "0.4.21"
 env_logger = "0.11"
 emojis = "0.6"
-dark-light = "1"
 display-info = "0.5"
 device_query = "3"
-iced_tiny_skia = "0.12"
-iced = { version = "0.12", default-features = false, features = ["advanced"] }
-iced_aw = { version = "0.9", default-features = false, features = ["grid"] }
 clap = { version = "4", features = [
     "derive",
     "color",
@@ -42,7 +33,20 @@ clap = { version = "4", features = [
     "wrap_help",
 ] }
 arboard = { version = "3", features = ["wayland-data-control"] }
+slint = { version = "1.12", default-features = false, features = [
+    "accessibility",
+    "compat-1-2",
+    "backend-winit",
+    "renderer-winit-skia",
+    "renderer-winit-skia-opengl",
+    "unstable-winit-030",
+] }
+i-slint-core = { version = "1.12", default-features = false }
+fuzzy-matcher = "0.3.7"
+
+[build-dependencies]
+slint-build = "1.12"
 
 [package.metadata.aur]
 depends = ["noto-fonts-emoji", "noto-fonts"]
-source_download = "{{ repository }}/releases/download/v{{ version }}/{{ name }}-{{ arch }}-unknown-linux-gnu.tar.xz"
+source_download = "{{ repository }}/releases/download/v{{ version }}/{{ name }}-{{ arch }}-unknown-linux-gnu.tar.gz"
