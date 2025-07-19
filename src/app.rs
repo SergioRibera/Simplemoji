@@ -3,6 +3,8 @@ use std::rc::Rc;
 
 use arboard::Clipboard;
 
+use fuzzy_matcher::skim::SkimMatcherV2;
+use fuzzy_matcher::FuzzyMatcher;
 use slint::winit_030::winit::event::WindowEvent;
 use slint::winit_030::{WinitWindowAccessor, WinitWindowEventResult};
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel, Weak};
@@ -37,11 +39,6 @@ impl Default for MainApp {
         }
     }
 }
-
-/*
-TODO:
-- keyboard navigation
-*/
 
 impl MainApp {
     fn close(_window: Weak<MainWindow>) {
@@ -158,6 +155,33 @@ impl MainApp {
             let tone = self.tone.clone();
             let window = self.window.as_weak();
             let content = self.content.clone();
+
+            let use_fuzze = self.settings.fuzzing_search;
+            let matcher = SkimMatcherV2::default().smart_case().use_cache(true);
+            let matches_search = move |i: usize, s: String, e: &'static emojis::Emoji| -> bool {
+                if !use_fuzze {
+                    return e.name().to_lowercase().contains(&s)
+                        || e.shortcodes().any(|c| c.to_lowercase().contains(&s));
+                }
+
+                let a = matcher.fuzzy_match(e.name(), &s).unwrap_or_default();
+                let shortcodes = e.shortcodes();
+                let shortcodes_count = shortcodes.clone().count();
+                let shortcodes_count = if shortcodes_count == 0 {
+                    1
+                } else {
+                    shortcodes_count
+                };
+                let b = shortcodes
+                    .map(|e| matcher.fuzzy_match(e, &s).unwrap_or_default())
+                    .sum::<i64>()
+                    .saturating_div(shortcodes_count as i64);
+                let c = (a.saturating_mul(4))
+                    .saturating_add(b.saturating_mul(1))
+                    .saturating_sub(i as i64);
+
+                c > 0
+            };
             move |s| {
                 let s = s.trim().to_lowercase();
                 let tone = tone.borrow();
@@ -188,12 +212,12 @@ impl MainApp {
                     return;
                 }
                 let emojis = emojis::iter()
-                    .filter(|&e| {
-                        e.name().to_lowercase().contains(s.as_str())
-                            || e.shortcodes()
-                                .any(|c| c.to_lowercase().contains(s.as_str()))
+                    .enumerate()
+                    .flat_map(|(i, e)| {
+                        (matches_search(i, s.clone(), e)).then_some(emoji_to_model(
+                            e.with_skin_tone((*tone).into()).unwrap_or(e),
+                        ))
                     })
-                    .map(|e| emoji_to_model(e.with_skin_tone((*tone).into()).unwrap_or(e)))
                     .collect::<Vec<_>>()
                     .chunks(EMOJI_COLS)
                     .map(|e| ModelRc::from(e.to_vec().as_slice()))
