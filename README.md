@@ -20,18 +20,17 @@ An application where you can have all the emojis with easy and quick access
 - 👋 Tone emoji selector
 - 👁️ Preview block
 - 🗺️ Keyboard Navigation (Tab/Shift Tab/Arrows/Space/Enter)
+- 📊 Fuzzy Search Support
 - 🔣 Customizable Emoji Font
 - ©️ Copy to clipboard
 - 🎨 Custom UI Colors
 - ⚡ Blazing Fast
-- 🐧 Crossplatform (Linux (X11/Wayland), MacOs)
+- 🐧 Linux (X11/Wayland)
 
 # 🎨 Custom UI Colors
 <p align="center">
   <img alt="Simplemoji Theme Preview" src="https://github.com/user-attachments/assets/6217bc36-3b5a-4b42-96c1-c225d49498fd"/>
-  <img alt="Simplemoji Debug Keys Right Arrow Preview" src="https://github.com/user-attachments/assets/3c40c331-86e6-449e-a595-f02ca91a43c1" />
-  <img alt="Simplemoji Debug Keys Shift Tab Preview" src="https://github.com/user-attachments/assets/de118ac6-f626-495e-85c9-d2226ca25d6d" />
-  <img alt="Simplemoji Debug Keys Top Arrow Preview" src="https://github.com/user-attachments/assets/b5b8e972-6665-4c25-bd28-114b8068463a" />
+  <img alt="Simplemoji Debug Keys Preview" src="https://github.com/user-attachments/assets/aec32063-5150-4dea-acc0-5083ad40f788" />
 </p>
 
 For this we use the arguments of the application, for example
@@ -65,16 +64,21 @@ Usage: simplemoji [OPTIONS]
 Options:
   -t, --tone <TONE>
           [possible values: default, light, medium-light, medium, medium-dark, dark]
+  -d, --debug
+          Show debug keys
   -f, --font <FONT>
           The font use for render emojis
   -s, --show-search
 
+  -z, --fuzzing-search
+          Use fuzzing search algorithms
   -p, --show-preview
 
   -o, --close-on-copy
 
   -x, --no-close
-          By default the application closes automatically when it is out of focus, this option disables that behavior
+          By default the application closes automatically when it is out of focus, this option disables
+          that behavior
   -b, --background-color <BACKGROUND_COLOR>
           Background color in hex (RGB, RGBA, RRGGBB, RRGGBBAA)
   -m, --primary-color <PRIMARY_COLOR>
