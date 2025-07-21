@@ -14,7 +14,6 @@ use crate::navigation::MoveFocus;
 use crate::settings::ArgOpts;
 use crate::utils::{
     emoji_from_model, emoji_to_model, emojis_from_group, get_default_tabs, group_from,
-    mouse_to_window_pos,
 };
 use crate::{
     EmojiHandle, EmojiModel, MainState, MainWindow, MyColors, Navigation, SearchGlobal, SkinTone,
@@ -79,24 +78,6 @@ impl MainApp {
     }
 
     pub fn set_events(&self) {
-        self.window.on_start({
-            let window = self.window.as_weak();
-            move |width, height| {
-                println!("Start invoked");
-                let window = window.upgrade().unwrap();
-
-                let size = (width as i32, height as i32);
-                println!("{size:?}");
-
-                let device_state = device_query::DeviceState::new();
-                let pos = device_state.query_pointer().coords;
-                let (x, y) = mouse_to_window_pos(size, pos);
-                window.window().set_position(slint::WindowPosition::Logical(
-                    slint::LogicalPosition::new(x as f32, y as f32),
-                ));
-            }
-        });
-
         let global = self.window.global::<MainState>();
         global.set_enable_dbg(self.settings.debug);
         global.on_close({

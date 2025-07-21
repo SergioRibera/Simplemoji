@@ -28,8 +28,6 @@ export component MainWindow inherits Window {
     always-on-top: true;
     default-font-size: MainState.font-size;
 
-    init => { start(MainState.width, MainState.height) }
-
     forward-focus: focus-handler;
     focus-handler := FocusScope {
         key-pressed(event) => {
@@ -37,11 +35,9 @@ export component MainWindow inherits Window {
             if event.text == Key.Escape {
                 MainState.close();
             }
-
             if Navigation.tab(event) || Navigation.key(event) {
                 return accept;
             }
-
             reject
         }
     }
@@ -81,17 +77,20 @@ export component MainWindow inherits Window {
                             } else if (((r.y + content.viewport-y) + r.height) > content.height) {
                                 content.viewport-y = -(r.y + r.height - content.height + 20px);
                             }
-
                             content.viewport-y = max(-(content.viewport-height - content.height), content.viewport-y);
                             content.viewport-y = min(0, content.viewport-y);
                         }
-                        click => { EmojiHandle.click(emoji.character); }
-                        key-pressed(event) => { Navigation.tab(event) || Navigation.key(event) }
+                        click => {
+                            EmojiHandle.click(emoji.character);
+                        }
+                        key-pressed(event) => {
+                            Navigation.tab(event) || Navigation.key(event)
+                        }
                     }
                 }
             }
         }
     }
 
-    if MainState.enable-dbg: KeyDebug {}
+    if MainState.enable-dbg: KeyDebug { }
 }
