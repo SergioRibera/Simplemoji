@@ -15,10 +15,7 @@ mod app;
 mod color;
 mod navigation;
 mod settings;
-mod skin_tone;
 mod utils;
-
-slint::include_modules!();
 
 const TOLERANCE: i_slint_core::Coord = 0.001;
 pub const APP_WIDTH: i32 = 315;
@@ -40,6 +37,8 @@ fn main() -> Result<(), slint::PlatformError> {
 
             attr.with_active(true)
                 .with_decorations(false)
+                .with_resizable(false)
+                .with_visible(true)
                 .with_enabled_buttons(WindowButtons::empty())
                 .with_position(Position::Logical(LogicalPosition::new(x as f64, y as f64)))
         })

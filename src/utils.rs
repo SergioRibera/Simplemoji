@@ -1,10 +1,10 @@
 use std::rc::Rc;
 
 use display_info::DisplayInfo;
-use emojis::SkinTone;
 use slint::{ModelRc, SharedString, VecModel};
 
-use crate::{EmojiModel, APP_MOUSE_MARGIN, EMOJI_COLS};
+use crate::{APP_MOUSE_MARGIN, EMOJI_COLS};
+use ui::{emojis, EmojiModel};
 
 pub fn mouse_to_window_pos((app_width, app_height): (i32, i32), (x, y): (i32, i32)) -> (i32, i32) {
     let Ok(DisplayInfo {
@@ -84,7 +84,7 @@ pub fn emojis_from_group(g: emojis::Group) -> ModelRc<ModelRc<EmojiModel>> {
     ModelRc::from(emojis.as_slice())
 }
 
-pub fn get_default_tabs(tone: SkinTone) -> ModelRc<EmojiModel> {
+pub fn get_default_tabs(tone: emojis::SkinTone) -> ModelRc<EmojiModel> {
     let map = |group: emojis::Group| {
         group
             .emojis()

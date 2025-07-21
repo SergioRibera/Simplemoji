@@ -1,0 +1,12 @@
+[package]
+name = "ui"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+emojis = "0.7"
+clap.workspace = true
+slint.workspace = true
+
+[build-dependencies]
+slint-build = "1.12"

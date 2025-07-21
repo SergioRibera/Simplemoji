@@ -10,7 +10,8 @@ use i_slint_core::items::FocusReason;
 use i_slint_core::lengths::LogicalRect;
 use i_slint_core::Coord;
 
-use crate::{FocusDirection, TOLERANCE};
+use crate::TOLERANCE;
+use ui::FocusDirection;
 
 use self::ext::{Inner, ItemRcExt, VisitorResult};
 

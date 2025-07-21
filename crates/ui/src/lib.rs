@@ -1,6 +1,7 @@
+pub use emojis;
 use std::str::FromStr;
 
-use crate::SkinTone;
+slint::include_modules!();
 
 impl From<SkinTone> for emojis::SkinTone {
     fn from(value: SkinTone) -> Self {

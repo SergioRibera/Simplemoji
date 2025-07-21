@@ -15,9 +15,10 @@ use crate::settings::ArgOpts;
 use crate::utils::{
     emoji_from_model, emoji_to_model, emojis_from_group, get_default_tabs, group_from,
 };
-use crate::{
-    EmojiHandle, EmojiModel, MainState, MainWindow, MyColors, Navigation, SearchGlobal, SkinTone,
-    TabsHandle, EMOJI_COLS,
+use crate::EMOJI_COLS;
+use ui::{
+    emojis, EmojiHandle, EmojiModel, MainState, MainWindow, MyColors, Navigation, SearchGlobal,
+    SkinTone, TabsHandle,
 };
 
 pub struct MainApp {

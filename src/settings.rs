@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use crate::SkinTone;
+use ui::SkinTone;
 
 #[derive(Parser, Debug, Default)]
 #[command(author, version, about, long_about = None)]
