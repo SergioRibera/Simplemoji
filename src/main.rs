@@ -8,6 +8,7 @@ use clap::Parser;
 use settings::ArgOpts;
 use slint::winit_030::winit::dpi::{LogicalPosition, Position};
 use slint::winit_030::winit::window::WindowButtons;
+use slint::ComponentHandle;
 
 use self::utils::mouse_to_window_pos;
 
@@ -46,6 +47,14 @@ fn main() -> Result<(), slint::PlatformError> {
         .select()?;
 
     let app = MainApp::new(flags);
+
+    slint::invoke_from_event_loop({
+        let window = app.window();
+        move || {
+            window.unwrap().window().show().unwrap();
+        }
+    })
+    .unwrap();
 
     app.set_globals();
     app.set_events();

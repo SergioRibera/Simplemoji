@@ -60,6 +60,10 @@ impl MainApp {
         }
     }
 
+    pub fn window(&self) -> Weak<MainWindow> {
+        self.window.as_weak()
+    }
+
     pub fn set_globals(&self) {
         let global = self.window.global::<MainState>();
         global.set_show_preview(self.settings.show_preview);
