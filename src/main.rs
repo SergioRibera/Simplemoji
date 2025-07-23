@@ -43,7 +43,6 @@ fn main() -> Result<(), slint::PlatformError> {
                 .with_enabled_buttons(WindowButtons::empty())
                 .with_position(Position::Logical(LogicalPosition::new(x as f64, y as f64)))
         })
-        .renderer_name("skia-software".into())
         .select()?;
 
     let app = MainApp::new(flags);

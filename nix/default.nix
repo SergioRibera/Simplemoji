@@ -21,6 +21,7 @@
     wayland
 
     libjpeg
+    vulkan-loader
   ];
 
   libPath = with pkgs; lib.makeLibraryPath [
