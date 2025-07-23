@@ -2,6 +2,7 @@
   stdenv ? pkgs.stdenv,
   lib ? pkgs.lib,
   pkgs ? import <nixpkgs> { },
+  crossPkgs ? pkgs,
   ...
 }: let
   toolchain = (pkgs.rust-bin.fromRustupToolchainFile ./../rust-toolchain.toml);
@@ -33,7 +34,7 @@
     wayland
   ];
 
-  simplemojiPkg = (pkgs.rustPlatform.buildRustPackage.override { stdenv = pkgs.clangStdenv; }) (finalAttrs: {
+  simplemojiPkg = (crossPkgs.rustPlatform.buildRustPackage.override { stdenv = crossPkgs.clangStdenv; }) (finalAttrs: {
     pname = cargoManifest.package.name;
     version = cargoManifest.package.version;
     src = ./..;
@@ -46,8 +47,7 @@
         removeReferencesTo
 
         rustPlatform.bindgenHook
-      ]
-      ++ lib.optionals stdenv.buildPlatform.isDarwin [
+      ] ++ lib.optionals stdenv.buildPlatform.isDarwin [
         libiconv
         cctools.libtool
       ];
