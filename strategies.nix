@@ -27,7 +27,7 @@
     # { arch = "x86_64"; os = "macos"; target = "x86_64-apple-darwin"; formats = ["tar.xz"]; }
     # { arch = "aarch64"; os = "macos"; target = "aarch64-apple-darwin"; formats = ["tar.xz"]; }
     # Windows
-    { arch = "x86_64"; os = "windows"; target = "x86_64-pc-windows-gnu"; formats = ["zip" "msi"]; }
+    { arch = "x86_64"; os = "windows"; target = "x86_64-pc-windows-gnu"; formats = ["zip"]; }
     # { arch = "i686"; os = "windows"; target = "i686-pc-windows-gnu"; formats = ["zip"]; }
   ];
 }

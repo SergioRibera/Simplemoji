@@ -144,15 +144,8 @@
       fakeroot dpkg-deb --build "$out/debian-package" "$out/${target.pname}-${meta.version}.deb"
     '';
   };
-
-  msi = drv: let
-    meta = packageMeta // (target.packageMeta or {});
-  in pkgs.stdenv.mkDerivation {
-  };
 in
   if format == "deb" then
     deb drv
-  else if format == "msi" then
-    msi drv
   else
     compress format drv
