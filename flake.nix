@@ -104,7 +104,7 @@
             '');
           };
         };
-        packages = generatedPackages;
+        packages = (simplemojiBundle null).packages;
     }) // (flake-utils.lib.eachDefaultSystemPassThrough (system: {
         # Overlays
         overlays.default = final: prev: {

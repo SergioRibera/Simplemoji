@@ -7,6 +7,7 @@
 }: let
   toolchain = (pkgs.rust-bin.fromRustupToolchainFile ./../rust-toolchain.toml);
   cargoManifest = builtins.fromTOML (builtins.readFile ./../Cargo.toml);
+  rustPkgs = if crossPkgs == null then pkgs else crossPkgs;
 
   buildInputs = with pkgs; [
     libGL
@@ -35,7 +36,7 @@
     wayland
   ];
 
-  simplemojiPkg = (crossPkgs.rustPlatform.buildRustPackage.override { stdenv = crossPkgs.clangStdenv; }) (finalAttrs: {
+  simplemojiPkg = (rustPkgs.rustPlatform.buildRustPackage.override { stdenv = rustPkgs.clangStdenv; }) (finalAttrs: {
     pname = cargoManifest.package.name;
     version = cargoManifest.package.version;
     src = ./..;
@@ -100,7 +101,10 @@
   });
 in {
   # `nix run`
-  apps.default = simplemojiPkg;
+  apps.default = {
+    type = "app";
+    program = "${simplemojiPkg}/bin/simplemoji";
+  };
   # `nix build`
   packages.default = simplemojiPkg;
   # `nix develop`
