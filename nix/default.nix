@@ -100,7 +100,10 @@
   });
 in {
   # `nix run`
-  apps.default = simplemojiPkg;
+  apps.default = {
+    type = "app";
+    program = "${simplemojiPkg}/bin/simplemoji";
+  };
   # `nix build`
   packages.default = simplemojiPkg;
   # `nix develop`
