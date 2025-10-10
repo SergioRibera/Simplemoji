@@ -13,11 +13,16 @@
 
 ### ⚙️ Miscellaneous Tasks
 
+- Add changelog file
 - Update some deps and improvement gitignore
 - Integrate cargo dist to release workflow
 - Bump clap from 4.5.41 to 4.5.45
 - Bump display-info from 0.5.4 to 0.5.5
 - Bump emojis from 0.7.0 to 0.7.2
+
+### Build
+
+- Update cargo dist requirements
 
 ## New Version [1.1.0]
 
