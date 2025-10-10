@@ -6,7 +6,7 @@ use arboard::Clipboard;
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use slint::winit_030::winit::event::WindowEvent;
-use slint::winit_030::{WinitWindowAccessor, WinitWindowEventResult};
+use slint::winit_030::{EventResult, WinitWindowAccessor};
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel, Weak};
 
 use crate::color::ToRgba;
@@ -254,9 +254,9 @@ impl MainApp {
                 WindowEvent::CursorLeft { .. } => (!no_close)
                     .then(|| w.hide().ok())
                     .flatten()
-                    .map(|_| WinitWindowEventResult::PreventDefault)
-                    .unwrap_or(WinitWindowEventResult::Propagate),
-                _ => WinitWindowEventResult::Propagate,
+                    .map(|_| EventResult::PreventDefault)
+                    .unwrap_or(EventResult::Propagate),
+                _ => EventResult::Propagate,
             }
         });
 
