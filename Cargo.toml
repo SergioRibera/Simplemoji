@@ -22,6 +22,11 @@ panic = 'abort'
 opt-level = 3
 codegen-units = 1
 
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
 [workspace.dependencies]
 clap = { version = "4", features = [
     "derive",
@@ -52,3 +57,9 @@ ui = { path = "./crates/ui" }
 [package.metadata.aur]
 depends = ["noto-fonts-emoji", "noto-fonts"]
 source_download = "{{ repository }}/releases/download/v{{ version }}/{{ name }}-{{ arch }}-unknown-linux-gnu.tar.gz"
+
+[package.metadata.wix]
+upgrade-guid = "7506E356-10FC-408C-AD87-61C24FC7D539"
+path-guid = "CD49C02F-DD1A-4D75-821C-0AF3DD77DC28"
+license = false
+eula = false

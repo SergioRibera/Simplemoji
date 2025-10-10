@@ -61,7 +61,7 @@
     <Product
         Id='*'
         Name='simplemoji'
-        UpgradeCode='3C8B8FBC-BE0D-4E5C-A1B3-BA919B059C4E'
+        UpgradeCode='7506E356-10FC-408C-AD87-61C24FC7D539'
         Manufacturer='Sergio Ribera'
         Language='1033'
         Codepage='1252'
@@ -110,7 +110,7 @@
                     -->
 
                     <Directory Id='Bin' Name='bin'>
-                        <Component Id='Path' Guid='323F2DC3-A80F-4ED2-B1C6-8F9BDA0BB05B' KeyPath='yes'>
+                        <Component Id='Path' Guid='CD49C02F-DD1A-4D75-821C-0AF3DD77DC28' KeyPath='yes'>
                             <Environment
                                 Id='PATH'
                                 Name='PATH'
