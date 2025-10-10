@@ -1,6 +1,6 @@
 .env
 .direnv/
-***/dist/
-***/target/
+dist/
+target/
 result/
 result

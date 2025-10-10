@@ -1,5 +1,6 @@
 allow-branch = ["main", "dev", "!HEAD"]
 publish = false
+pre-release-hook = ["git", "cliff", "-o", "CHANGELOG.md", "--tag", "{{version}}" ]
 pre-release-commit-message = "chore: Release simplemoji version {{version}}"
 tag-message = "chore: Release simplemoji version {{version}}"
 tag-name = "v{{version}}"

@@ -38,7 +38,7 @@ slint = { version = "1.13.1", default-features = false, features = [
 ] }
 
 [dependencies]
-log = "0.4.21"
+log = "0.4"
 env_logger = "0.11"
 display-info = "0.5"
 device_query = "4"
