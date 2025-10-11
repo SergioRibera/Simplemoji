@@ -26,7 +26,9 @@
   ];
 
   libPath = with pkgs; lib.makeLibraryPath [
+    libGL
     libglvnd
+    fontconfig
     libxkbcommon
     xorg.libX11
     xorg.libXcursor
@@ -34,6 +36,7 @@
     xorg.libXrandr
     xorg.libXi
     wayland
+    vulkan-loader
   ];
 
   simplemojiPkg = (rustPkgs.rustPlatform.buildRustPackage.override { stdenv = rustPkgs.clangStdenv; }) (finalAttrs: {
@@ -46,9 +49,11 @@
       [
         pkg-config
         python3
+        makeWrapper
         removeReferencesTo
 
         rustPlatform.bindgenHook
+        autoPatchelfHook
       ] ++ lib.optionals stdenv.buildPlatform.isDarwin [
         libiconv
         cctools.libtool
@@ -60,16 +65,15 @@
         libxkbcommon
       ];
 
-    dontWrapQtApps = true;
     makeWrapperArgs = [
       "--prefix LD_LIBRARY_PATH : ${libPath}"
-      "--prefix PATH : ${lib.makeBinPath [ pkgs.wayland ]}"
     ];
     inherit buildInputs;
 
     postFixup = ''
-        remove-references-to -t "$SKIA_SOURCE_DIR" $out/bin/simplemoji
-      '';
+      remove-references-to -t "$SKIA_SOURCE_DIR" $out/bin/simplemoji
+      patchelf --set-rpath "${libPath}" $out/bin/${cargoManifest.package.name}
+    '';
     disallowedReferences = [ finalAttrs.SKIA_SOURCE_DIR ];
 
     SKIA_NINJA_COMMAND = "${pkgs.ninja}/bin/ninja";
@@ -77,27 +81,27 @@
     SKIA_ENABLE_TOOLS = "false";
     SKIA_LIBRARY_DIR = "${pkgs.skia}/lib";
     SKIA_SOURCE_DIR =
-        let
-          repo = pkgs.fetchFromGitHub {
-            owner = "rust-skia";
-            repo = "skia";
-            # see rust-skia:skia-bindings/Cargo.toml#package.metadata skia
-            tag = "m137-0.85.0";
-            hash = "sha256-myw3Wc9EpLx/xkTEGN66D+fAQWMPZVKaGb1yP1Z+6Us=";
-          };
-          # The externals for skia are taken from skia/DEPS
-          externals = pkgs.linkFarm "skia-externals" (
-            lib.mapAttrsToList (name: value: {
-              inherit name;
-              path = pkgs.fetchgit value;
-            }) (lib.importJSON ./skia-externals.json)
-          );
-        in
-        pkgs.runCommand "source" { } ''
-          cp -R ${repo} $out
-          chmod -R +w $out
-          ln -s ${externals} $out/third_party/externals
-        '';
+      let
+        repo = pkgs.fetchFromGitHub {
+          owner = "rust-skia";
+          repo = "skia";
+          # see rust-skia:skia-bindings/Cargo.toml#package.metadata skia
+          tag = "m138-0.86.2";
+          hash = "sha256-35dQPlvE5mvFv+bvdKG1r9tme8Ba5hnuepVbUp1J9S4=";
+        };
+        # The externals for skia are taken from skia/DEPS
+        externals = pkgs.linkFarm "skia-externals" (
+          lib.mapAttrsToList (name: value: {
+            inherit name;
+            path = pkgs.fetchgit value;
+          }) (lib.importJSON ./skia-externals.json)
+        );
+      in
+      pkgs.runCommand "source" { } ''
+        cp -R ${repo} $out
+        chmod -R +w $out
+        ln -s ${externals} $out/third_party/externals
+      '';
   });
 in {
   # `nix run`
