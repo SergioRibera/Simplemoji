@@ -24,6 +24,7 @@ An application where you can have all the emojis with easy and quick access
 - 🔣 Customizable Emoji Font
 - ©️ Copy to clipboard
 - 🎨 Custom UI Colors
+- 🔘 Customize corner radius
 - ⚡ Blazing Fast
 - 🐧 Linux (X11/Wayland)
 

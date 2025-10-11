@@ -68,6 +68,9 @@ impl MainApp {
         let global = self.window.global::<MainState>();
         global.set_show_preview(self.settings.show_preview);
         global.set_show_search(self.settings.show_search);
+        if let Some(corner_radius) = self.settings.corner_radius {
+            global.set_corner_radius(corner_radius as _);
+        }
         if let Some(font) = self.settings.font.as_deref() {
             global.set_font(SharedString::from(font));
         }

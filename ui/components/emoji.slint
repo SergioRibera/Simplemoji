@@ -31,6 +31,7 @@ export component Emoji inherits Rectangle {
 
     width: 35px;
     height: 35px;
+    border-radius: MainState.corner-radius;
     background: ((area.has-hover || enabled) && handle-hover) || (focus-handler.has-focus && handle-focus) ? MyColors.foreground.transparentize(0.7) : transparent;
     animate background { duration: 100ms; }
 

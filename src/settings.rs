@@ -14,6 +14,9 @@ pub struct ArgOpts {
     /// The font use for render emojis
     #[arg(long, short)]
     pub font: Option<String>,
+    /// The corner radius for the emoji when it is in focus
+    #[arg(long, short = 'r')]
+    pub corner_radius: Option<u8>,
     #[arg(long, short = 's')]
     pub show_search: bool,
     /// Use fuzzing search algorithms
