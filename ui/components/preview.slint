@@ -25,29 +25,29 @@ export component Preview inherits HorizontalLayout {
     VerticalLayout {
         alignment: center;
 
+        if !root.emoji.name.is-empty: Text {
+            wrap: no-wrap;
+            overflow: elide;
+            font-size: 18px;
+            text: root.emoji.name;
+            horizontal-alignment: left;
+            color: MyColors.foreground;
+            vertical-alignment: center;
+        }
+
         if root.emoji.codes.length > 0: HorizontalLayout {
             alignment: start;
-            spacing: 10px;
+            spacing: 5px;
 
             for code in root.emoji.codes: Text {
                 text: code;
                 wrap: no-wrap;
                 overflow: elide;
-                font-size: 18px;
+                font-size: 12px;
                 horizontal-alignment: left;
                 color: MyColors.foreground;
                 vertical-alignment: center;
             }
-        }
-
-        if !root.emoji.name.is-empty: Text {
-            wrap: no-wrap;
-            overflow: elide;
-            font-size: 12px;
-            text: root.emoji.name;
-            horizontal-alignment: left;
-            color: MyColors.foreground;
-            vertical-alignment: center;
         }
     }
 }
