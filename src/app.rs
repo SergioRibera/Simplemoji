@@ -1,5 +1,4 @@
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 use arboard::Clipboard;
 
@@ -24,20 +23,9 @@ use ui::{
 pub struct MainApp {
     window: MainWindow,
     settings: ArgOpts,
-    tone: Rc<RefCell<SkinTone>>,
+    tone: Arc<Mutex<SkinTone>>,
 
     content: ModelRc<ModelRc<EmojiModel>>,
-}
-
-impl Default for MainApp {
-    fn default() -> Self {
-        Self {
-            window: MainWindow::new().unwrap(),
-            settings: Default::default(),
-            tone: Default::default(),
-            content: emojis_from_group(emojis::Group::SmileysAndEmotion),
-        }
-    }
 }
 
 impl MainApp {
@@ -54,9 +42,10 @@ impl MainApp {
         let tone = settings.tone.unwrap_or_default();
 
         Self {
-            tone: Rc::new(RefCell::new(tone)),
+            tone: Arc::new(Mutex::new(tone)),
             settings,
-            ..Default::default()
+            window: MainWindow::new().unwrap(),
+            content: emojis_from_group(emojis::Group::SmileysAndEmotion),
         }
     }
 
@@ -104,15 +93,16 @@ impl MainApp {
 
     pub fn run(&self) -> Result<(), slint::PlatformError> {
         let tabs = self.window.global::<TabsHandle>();
+        let tone = { *self.tone.lock().unwrap() };
         tabs.set_tab(emojis::Group::SmileysAndEmotion as i32);
-        tabs.set_tabs(get_default_tabs((*self.tone.borrow()).into()));
+        tabs.set_tabs(get_default_tabs(tone.into()));
 
         tabs.on_change_tab({
             let content = self.content.clone();
             let tone = self.tone.clone();
             move |id| {
                 let group = group_from(id);
-                let tone = tone.borrow();
+                let tone = { tone.lock().unwrap() };
                 let tone: emojis::SkinTone = (*tone).into();
 
                 let emojis = group
@@ -139,7 +129,7 @@ impl MainApp {
         });
 
         let search = self.window.global::<SearchGlobal>();
-        search.set_tone(self.tone.clone().take());
+        search.set_tone(tone);
         search.on_search({
             let tone = self.tone.clone();
             let window = self.window.as_weak();
@@ -173,7 +163,7 @@ impl MainApp {
             };
             move |s| {
                 let s = s.trim().to_lowercase();
-                let tone = tone.borrow();
+                let tone = { tone.lock().unwrap() };
                 let content = content
                     .as_any()
                     .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
@@ -221,7 +211,9 @@ impl MainApp {
             let window = self.window.as_weak();
             move |t| {
                 let t = t.as_str().parse().unwrap();
-                tone.replace(t);
+                {
+                    *tone.lock().unwrap() = t;
+                }
                 let t = t.into();
                 window
                     .unwrap()
