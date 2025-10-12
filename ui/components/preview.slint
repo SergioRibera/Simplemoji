@@ -27,13 +27,13 @@ export component Preview inherits HorizontalLayout {
 
         if root.emoji.codes.length > 0: HorizontalLayout {
             alignment: start;
+            spacing: 10px;
 
             for code in root.emoji.codes: Text {
                 text: code;
                 wrap: no-wrap;
                 overflow: elide;
                 font-size: 18px;
-                padding-right: 10px;
                 horizontal-alignment: left;
                 color: MyColors.foreground;
                 vertical-alignment: center;
