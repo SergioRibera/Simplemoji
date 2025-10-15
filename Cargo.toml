@@ -56,7 +56,7 @@ ui = { path = "./crates/ui" }
 
 [package.metadata.aur]
 depends = ["noto-fonts-emoji", "noto-fonts"]
-source_download = "{{ repository }}/releases/download/v{{ version }}/{{ name }}-{{ arch }}-unknown-linux-gnu.tar.gz"
+source_download = "{{ repository }}/releases/download/v{{ version }}/{{ name }}-{{ arch }}-unknown-linux-gnu.tar.xz"
 
 [package.metadata.wix]
 upgrade-guid = "7506E356-10FC-408C-AD87-61C24FC7D539"
