@@ -245,9 +245,9 @@ impl MainApp {
 
         self.window.window().on_winit_window_event({
             let no_close = self.settings.no_close;
-            move |w, ev| match ev {
+            move |_w, ev| match ev {
                 WindowEvent::CursorLeft { .. } => (!no_close)
-                    .then(|| w.hide().ok())
+                    .then(|| slint::quit_event_loop().ok())
                     .flatten()
                     .map(|_| EventResult::PreventDefault)
                     .unwrap_or(EventResult::Propagate),
