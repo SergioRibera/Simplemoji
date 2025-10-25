@@ -102,8 +102,8 @@ pub fn get_default_tabs(tone: emojis::SkinTone) -> ModelRc<EmojiModel> {
         map(emojis::Group::AnimalsAndNature),
         map(emojis::Group::FoodAndDrink),
         map(emojis::Group::TravelAndPlaces),
-        map(emojis::Group::Objects),
         map(emojis::Group::Activities),
+        map(emojis::Group::Objects),
         map(emojis::Group::Symbols),
         map(emojis::Group::Flags),
     ])

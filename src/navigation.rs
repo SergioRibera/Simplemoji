@@ -1,3 +1,4 @@
+use i_slint_core::Coord;
 /// All this code was reused and adapted from library "slint-spatial-focus"
 /// thanks to "dngulin"
 ///
@@ -8,7 +9,6 @@ use i_slint_core::api::Window;
 use i_slint_core::item_tree::{ItemRc, ParentItemTraversalMode};
 use i_slint_core::items::FocusReason;
 use i_slint_core::lengths::LogicalRect;
-use i_slint_core::Coord;
 
 use crate::TOLERANCE;
 use ui::FocusDirection;
