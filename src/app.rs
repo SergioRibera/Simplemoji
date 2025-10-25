@@ -1,31 +1,34 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use arboard::Clipboard;
 
-use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
+use fuzzy_matcher::skim::SkimMatcherV2;
 use slint::winit_030::winit::event::WindowEvent;
 use slint::winit_030::{EventResult, WinitWindowAccessor};
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel, Weak};
 
+use crate::EMOJI_COLS;
 use crate::color::ToRgba;
 use crate::navigation::MoveFocus;
+use crate::recents::{RecentType, load_recent, mixed, most_used, pop_push, save_recent};
 use crate::settings::ArgOpts;
 use crate::utils::{
     emoji_from_model, emoji_to_model, emojis_from_group, get_default_tabs, group_from,
 };
-use crate::EMOJI_COLS;
 use ui::{
-    emojis, EmojiHandle, EmojiModel, MainState, MainWindow, MyColors, Navigation, SearchGlobal,
-    SkinTone, TabsHandle,
+    EmojiHandle, EmojiModel, MainState, MainWindow, MyColors, Navigation, SearchGlobal, SkinTone,
+    TabsHandle, emojis,
 };
 
 pub struct MainApp {
     window: MainWindow,
     settings: ArgOpts,
     tone: Arc<Mutex<SkinTone>>,
-
     content: ModelRc<ModelRc<EmojiModel>>,
+    recent: Rc<RefCell<Vec<Vec<EmojiModel>>>>,
 }
 
 impl MainApp {
@@ -41,11 +44,36 @@ impl MainApp {
     pub fn new(settings: ArgOpts) -> Self {
         let tone = settings.tone.unwrap_or_default();
 
+        let mut recents: Vec<Vec<EmojiModel>> = load_recent(tone)
+            .unwrap()
+            .chunks(EMOJI_COLS)
+            .map(<[ui::EmojiModel]>::to_vec)
+            .collect();
+
+        let recent_rows = settings.recent_rows;
+
+        let recents = if recents.is_empty() {
+            vec![Vec::<EmojiModel>::new(); recent_rows as usize]
+        } else if recents.len() < recent_rows as usize {
+            let extension: Vec<Vec<EmojiModel>> =
+                vec![vec![]; recent_rows as usize - recents.len()];
+            recents.extend_from_slice(&extension);
+            recents
+        } else {
+            recents
+        };
+
+        let content = emojis_from_group(emojis::Group::SmileysAndEmotion);
+
+        let mut model = recents.clone();
+        model.extend(content);
+
         Self {
             tone: Arc::new(Mutex::new(tone)),
             settings,
             window: MainWindow::new().unwrap(),
-            content: emojis_from_group(emojis::Group::SmileysAndEmotion),
+            recent: Rc::new(RefCell::from(recents)),
+            content: vec_to_model(&model),
         }
     }
 
@@ -57,9 +85,14 @@ impl MainApp {
         let global = self.window.global::<MainState>();
         global.set_show_preview(self.settings.show_preview);
         global.set_show_search(self.settings.show_search);
+        global.set_show_recent(self.settings.show_recent);
+
+        global.set_recent_rows(self.settings.recent_rows.into());
+
         if let Some(corner_radius) = self.settings.corner_radius {
-            global.set_corner_radius(corner_radius as _);
+            global.set_corner_radius(corner_radius.into());
         }
+
         if let Some(font) = self.settings.font.as_deref() {
             global.set_font(SharedString::from(font));
         }
@@ -90,21 +123,23 @@ impl MainApp {
             }
         });
     }
-
-    pub fn run(&self) -> Result<(), slint::PlatformError> {
+    #[allow(clippy::too_many_lines)]
+    pub fn run(&mut self) -> Result<(), slint::PlatformError> {
         let tabs = self.window.global::<TabsHandle>();
         let tone = { *self.tone.lock().unwrap() };
+
         tabs.set_tab(emojis::Group::SmileysAndEmotion as i32);
         tabs.set_tabs(get_default_tabs(tone.into()));
 
         tabs.on_change_tab({
             let content = self.content.clone();
             let tone = self.tone.clone();
+            let recents = self.recent.clone();
+
             move |id| {
                 let group = group_from(id);
                 let tone = { tone.lock().unwrap() };
                 let tone: emojis::SkinTone = (*tone).into();
-
                 let emojis = group
                     .emojis()
                     .collect::<Vec<_>>()
@@ -112,19 +147,26 @@ impl MainApp {
                     .map(|e| {
                         ModelRc::from(
                             e.iter()
-                                .cloned()
-                                .flat_map(|e| e.with_skin_tone(tone).or(Some(e)))
+                                .copied()
+                                .filter_map(|e| e.with_skin_tone(tone).or(Some(e)))
                                 .map(emoji_to_model)
                                 .collect::<Vec<_>>()
                                 .as_slice(),
                         )
                     })
                     .collect::<Vec<ModelRc<_>>>();
+
+                let recents: Vec<ModelRc<EmojiModel>> = recents
+                    .borrow()
+                    .iter()
+                    .map(|col| ModelRc::from(col.as_ref()))
+                    .collect();
+
                 content
                     .as_any()
                     .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
                     .unwrap()
-                    .set_vec(emojis);
+                    .set_vec([recents, emojis].concat());
             }
         });
 
@@ -179,8 +221,8 @@ impl MainApp {
                         .map(|e| {
                             ModelRc::from(
                                 e.iter()
-                                    .cloned()
-                                    .flat_map(|e| e.with_skin_tone((*tone).into()).or(Some(e)))
+                                    .copied()
+                                    .filter_map(|e| e.with_skin_tone((*tone).into()).or(Some(e)))
                                     .map(emoji_to_model)
                                     .collect::<Vec<_>>()
                                     .as_slice(),
@@ -192,7 +234,7 @@ impl MainApp {
                 }
                 let emojis = emojis::iter()
                     .enumerate()
-                    .flat_map(|(i, e)| {
+                    .filter_map(|(i, e)| {
                         (matches_search(i, s.clone(), e)).then_some(emoji_to_model(
                             e.with_skin_tone((*tone).into()).unwrap_or(e),
                         ))
@@ -232,7 +274,7 @@ impl MainApp {
                             let e = e
                                 .iter()
                                 .map(|e| {
-                                    let e = emoji_from_model(e);
+                                    let e = emoji_from_model(&e);
                                     emoji_to_model(e.with_skin_tone(t).unwrap_or(e))
                                 })
                                 .collect::<Vec<_>>();
@@ -245,12 +287,16 @@ impl MainApp {
 
         self.window.window().on_winit_window_event({
             let no_close = self.settings.no_close;
+            let recent = self.recent.clone();
+
             move |_w, ev| match ev {
-                WindowEvent::CursorLeft { .. } => (!no_close)
-                    .then(|| slint::quit_event_loop().ok())
-                    .flatten()
-                    .map(|_| EventResult::PreventDefault)
-                    .unwrap_or(EventResult::Propagate),
+                WindowEvent::CursorLeft { .. } => {
+                    save_recent(&recent.borrow().to_vec()).unwrap();
+                    (!no_close)
+                        .then(|| slint::quit_event_loop().ok())
+                        .flatten()
+                        .map_or(EventResult::Propagate, |()| EventResult::PreventDefault)
+                }
                 _ => EventResult::Propagate,
             }
         });
@@ -258,6 +304,11 @@ impl MainApp {
         self.window.global::<EmojiHandle>().on_click({
             let window = self.window.as_weak();
             let close = self.settings.close_on_copy;
+            let content = self.content.clone();
+            let recent = self.recent.clone();
+            let recent_type = self.settings.recent_type.clone();
+            let recent_rows = self.settings.recent_rows;
+            let static_recents = self.settings.static_recents;
             let cmd = self.settings.copy_command.clone();
             let mut clipboard = cmd.is_none().then(|| Clipboard::new().unwrap());
 
@@ -276,6 +327,35 @@ impl MainApp {
                 } else if let Some(clipboard) = clipboard.as_mut() {
                     clipboard.set_text(emoji.as_str()).unwrap();
                 }
+
+                match recent_type {
+                    RecentType::MostUsed => most_used(
+                        recent.borrow_mut(),
+                        emoji_to_model(emojis::get(&emoji).unwrap()),
+                        recent_rows,
+                    ),
+                    RecentType::Mixed => mixed(
+                        recent.borrow_mut(),
+                        emoji_to_model(emojis::get(&emoji).unwrap()),
+                        recent_rows,
+                        static_recents,
+                    ),
+                    RecentType::PopPush => pop_push(
+                        recent.borrow_mut(),
+                        emoji_to_model(emojis::get(&emoji).unwrap()),
+                        recent_rows,
+                    ),
+                }
+
+                let content = content
+                    .as_any()
+                    .downcast_ref::<VecModel<ModelRc<EmojiModel>>>()
+                    .unwrap();
+
+                for (i, row) in recent.borrow().iter().enumerate() {
+                    content.set_row_data(i, ModelRc::from(row.as_ref()));
+                }
+
                 if close {
                     window
                         .upgrade()
@@ -288,4 +368,10 @@ impl MainApp {
 
         self.window.run()
     }
+}
+
+fn vec_to_model(vec: &[Vec<EmojiModel>]) -> ModelRc<ModelRc<EmojiModel>> {
+    let vec: Vec<ModelRc<EmojiModel>> = vec.iter().map(|v| ModelRc::from(v.as_ref())).collect();
+
+    ModelRc::from(vec.as_ref())
 }

@@ -1,4 +1,10 @@
-import { ListView } from "std-widgets.slint";
+import {
+    ListView,
+    VerticalBox,
+    ScrollView,
+    GroupBox,
+    HorizontalBox,
+} from "std-widgets.slint";
 
 import { MyColors } from "./globals.slint";
 import { MyColors, MainState } from "./globals.slint";
@@ -11,11 +17,12 @@ import { KeyDebug } from "./components/keydebug.slint";
 import { Tabs } from "./components/tab.slint";
 import { Preview } from "./components/preview.slint";
 import { Search, SearchGlobal, SkinTone } from "./components/search.slint";
+import { EmojiRow } from "components/emoji-row.slint";
 
 export { MainState, MyColors, EmojiModel, EmojiHandle, FocusDirection, Navigation, SearchGlobal, SkinTone, TabsHandle }
 
 export component MainWindow inherits Window {
-    in property<[[EmojiModel]]> emojis: [];
+    in property <[[EmojiModel]]> emojis: [];
 
     callback start(length, length);
 
@@ -64,14 +71,43 @@ export component MainWindow inherits Window {
                 horizontal-scrollbar-policy: always-off;
                 vertical-scrollbar-policy: always-off;
 
-                for row in emojis: r := HorizontalLayout {
-                    for emoji in row: Emoji {
-                        emoji: emoji;
-                        hover => {
-                            TabsHandle.emoji-preview.has = true;
-                            TabsHandle.emoji-preview.content = emoji;
+                for row[index] in emojis: r := VerticalLayout {
+                    // if index < (MainState.recent-rows - 1) && MainState.show-recent && row.length > 0: EmojiRow {
+                    //     emojis: row;
+                    //     on-focus => {
+                    //         if ((r.y + content.viewport-y) < 0) {
+                    //             content.viewport-y = -r.y + 20px;
+                    //         } else if (((r.y + content.viewport-y) + r.height) > content.height) {
+                    //             content.viewport-y = -(r.y + r.height - content.height + 20px);
+                    //         }
+                    //         content.viewport-y = max(-(content.viewport-height - content.height), content.viewport-y);
+                    //         content.viewport-y = min(0, content.viewport-y);
+                    //     }
+                    // }
+                    if index <= (MainState.recent-rows - 1) && MainState.show-recent: VerticalLayout {
+                        if row.length > 0: EmojiRow {
+                            emojis: row;
+                            on-focus() => {
+                                if ((r.y + content.viewport-y) < 0) {
+                                    content.viewport-y = -r.y + 20px;
+                                } else if (((r.y + content.viewport-y) + r.height) > content.height) {
+                                    content.viewport-y = -(r.y + r.height - content.height + 20px);
+                                }
+                                content.viewport-y = max(-(content.viewport-height - content.height), content.viewport-y);
+                                content.viewport-y = min(0, content.viewport-y);
+                            }
                         }
-                        on-focus() => {
+
+                        if (index == (MainState.recent-rows - 1) && row.length > 0) || (index <= (MainState.recent-rows - 1) && emojis[index + 1].length == 0 && row.length > 0): Rectangle {
+                            width: 85%;
+                            height: 1.5px;
+                            background: MyColors.foreground.transparentize(0.8);
+                        }
+                    }
+
+                    if index >= MainState.recent-rows: EmojiRow {
+                        emojis: row;
+                        on-focus => {
                             if ((r.y + content.viewport-y) < 0) {
                                 content.viewport-y = -r.y + 20px;
                             } else if (((r.y + content.viewport-y) + r.height) > content.height) {
@@ -79,12 +115,6 @@ export component MainWindow inherits Window {
                             }
                             content.viewport-y = max(-(content.viewport-height - content.height), content.viewport-y);
                             content.viewport-y = min(0, content.viewport-y);
-                        }
-                        click => {
-                            EmojiHandle.click(emoji.character);
-                        }
-                        key-pressed(event) => {
-                            Navigation.tab(event) || Navigation.key(event)
                         }
                     }
                 }

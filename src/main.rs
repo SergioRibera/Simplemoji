@@ -6,18 +6,21 @@
 use app::MainApp;
 use clap::Parser;
 use settings::ArgOpts;
+use slint::ComponentHandle;
 use slint::winit_030::winit::dpi::{LogicalPosition, Position};
 use slint::winit_030::winit::window::WindowButtons;
-use slint::ComponentHandle;
 
 use self::utils::mouse_to_window_pos;
 
 mod app;
+mod app_data;
 mod color;
 mod navigation;
+mod recents;
 mod settings;
 mod utils;
 
+const APP_NAME: &str = env!("CARGO_PKG_NAME");
 const TOLERANCE: i_slint_core::Coord = 0.001;
 pub const APP_WIDTH: i32 = 315;
 pub const APP_MOUSE_MARGIN: i32 = 25;
@@ -45,7 +48,7 @@ fn main() -> Result<(), slint::PlatformError> {
         })
         .select()?;
 
-    let app = MainApp::new(flags);
+    let mut app = MainApp::new(flags);
 
     slint::invoke_from_event_loop({
         let window = app.window();

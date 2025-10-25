@@ -19,11 +19,11 @@ export global EmojiHandle {
 }
 
 export component Emoji inherits Rectangle {
-    in property<bool> enabled: false;
-    in property<bool> handle-hover: true;
-    in property<bool> handle-focus: true;
-    in property<length> font-size: MainState.font-size;
-    in property<EmojiModel> emoji;
+    in property <bool> enabled: false;
+    in property <bool> handle-hover: true;
+    in property <bool> handle-focus: true;
+    in property <length> font-size: MainState.font-size;
+    in property <EmojiModel> emoji;
     callback click();
     callback hover();
     callback on-focus();
@@ -32,10 +32,12 @@ export component Emoji inherits Rectangle {
     width: 35px;
     height: 35px;
     border-radius: MainState.corner-radius;
-    background: ((area.has-hover || enabled) && handle-hover) || (focus-handler.has-focus && handle-focus) ? MyColors.foreground.transparentize(0.7) : transparent;
+    background: area.pressed ? MyColors.foreground.transparentize(0.6) : ((area.has-hover || enabled) && handle-hover) || (focus-handler.has-focus && handle-focus) ? MyColors.foreground.transparentize(0.8) : transparent;
     animate background { duration: 100ms; }
 
-    changed enabled => { focus-handler.focus(); }
+    changed enabled => {
+        focus-handler.focus();
+    }
 
     forward-focus: focus-handler;
     focus-handler := FocusScope {
@@ -52,16 +54,13 @@ export component Emoji inherits Rectangle {
             if (event.text == Key.Escape) {
                 MainState.close();
             }
-
             if event.text == Key.Return || event.text == Key.Space {
                 root.click();
                 return accept;
             }
-
             if root.key-pressed(event) {
                 return accept;
             }
-
             reject
         }
     }
@@ -81,7 +80,11 @@ export component Emoji inherits Rectangle {
 
         mouse-cursor: pointer;
 
-        changed has-hover => { root.hover(); }
-        clicked => { root.click(); }
+        changed has-hover => {
+            root.hover();
+        }
+        clicked => {
+            root.click();
+        }
     }
 }

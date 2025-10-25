@@ -1,24 +1,28 @@
 export global MyColors {
-    in-out property<color> background: #fff;
-    in-out property<color> foreground: #000;
+    in-out property <color> background: #fff;
+    in-out property <color> foreground: #000;
 }
 
 export global MainState {
-    in property<bool> show-preview: false;
-    in property<bool> show-search: false;
-    out property<length> height: show-preview ? 390px : 330px;
-    out property<length> width: 315px;
-    out property<length> font-size: 20px;
-    in property<length> corner-radius: 0px;
-    in property<string> font: "Noto Color Emoji";
+    in property <bool> show-preview: false;
+    in property <bool> show-search: false;
+    in property <bool> show-recent: false;
+    in property <int> recent-rows: 1;
+    out property <length> height: show-preview ? 390px : 330px;
+    out property <length> width: 315px;
+    out property <length> font-size: 20px;
+    in property <length> corner-radius: 0px;
+    in property <string> font: "Noto Color Emoji";
 
-    in property<bool> enable-dbg;
-    in-out property<string> dbg-text;
+    in property <bool> enable-dbg;
+    in-out property <string> dbg-text;
 
     callback close();
 
     public function dbg-key(event: KeyEvent) {
-        if !MainState.enable-dbg { return; }
+        if !MainState.enable-dbg {
+            return;
+        }
         if (event.text == Key.UpArrow) {
             MainState.dbg-text = "";
             return;
