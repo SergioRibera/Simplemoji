@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::Command};
+use std::{env, path::PathBuf, process::Command};
 
 use crate::APP_NAME;
 
@@ -43,8 +43,6 @@ fn internal_app_data_dir() -> PathBuf {
 
     #[cfg(any(target_os = "macos", target_os = "linux",))]
     {
-        use std::{env, path::PathBuf};
-
         let home = env::var_os("HOME")
             .and_then(|h| h.into_string().ok())
             .or_else(|| {
