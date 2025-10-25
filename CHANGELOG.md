@@ -1,4 +1,33 @@
 
+## New Version [1.2.0]
+
+### 🚀 Features
+
+- Last fixes and update doc for new recents feature
+- Customize corner radius on emojis
+
+### 🐛 Bug Fixes
+
+- Windows build
+- Aur publish
+- Solve the hide window failed
+- Tone from args was not applied in the tabs content
+- Move name by codes position
+- Remove padding right on preview
+
+### Feat
+
+- Added recents settings and UI
+
+### Fix
+
+- Fixed clippy error
+- Activities and objects tab were switched
+
+### Build
+
+- Update nix build required
+
 ## New Version [1.1.1]
 
 ### 🐛 Bug Fixes
@@ -13,6 +42,7 @@
 
 ### ⚙️ Miscellaneous Tasks
 
+- Release simplemoji version {{version}}
 - Add changelog file
 - Update some deps and improvement gitignore
 - Integrate cargo dist to release workflow
