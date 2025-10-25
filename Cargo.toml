@@ -6,7 +6,7 @@ homepage = "https://github.com/SergioRibera/Simplemoji"
 repository = "https://github.com/SergioRibera/Simplemoji"
 authors = ["Sergio Ribera <contact@sergioribera.rs>"]
 license = "MIT OR Apache-2.0"
-edition = "2021"
+edition = "2024"
 
 [workspace]
 members = ["crates/ui"]
@@ -53,6 +53,7 @@ arboard = { version = "3", features = ["wayland-data-control"] }
 i-slint-core = { version = "1.13.1", default-features = false }
 fuzzy-matcher = "0.3.7"
 ui = { path = "./crates/ui" }
+bincode = "2.0.1"
 
 [package.metadata.aur]
 depends = ["noto-fonts-emoji", "noto-fonts"]

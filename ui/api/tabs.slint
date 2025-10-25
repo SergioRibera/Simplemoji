@@ -1,9 +1,9 @@
 import { EmojiModel, EmojiHandle } from "../components/emoji.slint";
 
 export global TabsHandle {
-    in-out property<int> tab;
-    in property<[EmojiModel]> tabs;
-    in-out property<{ has: bool, content: EmojiModel }> emoji-preview: TabsHandle.get-emoji();
+    in-out property <int> tab;
+    in property <[EmojiModel]> tabs;
+    in-out property <{ has: bool, content: EmojiModel}> emoji-preview: TabsHandle.get-emoji();
 
     callback change_tab(/* new_tab */ int);
 
@@ -19,9 +19,7 @@ export global TabsHandle {
         emoji-preview = get-emoji();
     }
 
-    public pure function get-emoji() -> { has: bool, content: EmojiModel } {
-        tabs.length > 0
-            ? { has: true, content: tabs[TabsHandle.tab] }
-            : { has: false, content: EmojiHandle.from-string("😀") }
+    public pure function get-emoji() -> { has: bool, content: EmojiModel} {
+        tabs.length > 0 ? { has: true, content: tabs[TabsHandle.tab] } : { has: false, content: EmojiHandle.from-string("😀") }
     }
 }

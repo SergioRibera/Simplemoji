@@ -2,9 +2,12 @@ use clap::Parser;
 
 use ui::SkinTone;
 
+use crate::recents::RecentType;
+
 #[derive(Parser, Debug, Default)]
 #[command(author, version, about, long_about = None)]
 #[command(next_line_help = true)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct ArgOpts {
     #[arg(long, short)]
     pub tone: Option<SkinTone>,
@@ -19,6 +22,14 @@ pub struct ArgOpts {
     pub corner_radius: Option<u8>,
     #[arg(long, short = 's')]
     pub show_search: bool,
+    #[arg(long)]
+    pub show_recent: bool,
+    #[arg(long, default_value_t = 1)]
+    pub recent_rows: u8,
+    #[arg(long)]
+    pub recent_type: RecentType,
+    #[arg(long, default_value_t = 4)]
+    pub static_recents: usize,
     /// Use fuzzing search algorithms
     #[arg(long, short = 'z')]
     pub fuzzing_search: bool,

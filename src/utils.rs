@@ -4,7 +4,7 @@ use display_info::DisplayInfo;
 use slint::{ModelRc, SharedString, VecModel};
 
 use crate::{APP_MOUSE_MARGIN, EMOJI_COLS};
-use ui::{emojis, EmojiModel};
+use ui::{EmojiModel, emojis};
 
 pub fn mouse_to_window_pos((app_width, app_height): (i32, i32), (x, y): (i32, i32)) -> (i32, i32) {
     let Ok(DisplayInfo {
@@ -50,14 +50,19 @@ pub fn group_from(i: i32) -> emojis::Group {
     }
 }
 
-pub fn emoji_from_model(e: EmojiModel) -> &'static emojis::Emoji {
+pub fn emoji_from_model(e: &EmojiModel) -> &'static emojis::Emoji {
     emojis::get(&e.character).unwrap()
 }
 
 pub fn emoji_to_model(e: &'static emojis::Emoji) -> EmojiModel {
     EmojiModel {
         character: e.as_str().into(),
-        codes: Rc::new(VecModel::from_iter(e.shortcodes().map(SharedString::from))).into(),
+        codes: Rc::new(
+            e.shortcodes()
+                .map(SharedString::from)
+                .collect::<VecModel<_>>(),
+        )
+        .into(),
         name: e.name().into(),
     }
 }
@@ -70,18 +75,13 @@ pub fn emojis_to_modelrc(
     ModelRc::from(emojis.as_slice())
 }
 
-pub fn emojis_from_group(g: emojis::Group) -> ModelRc<ModelRc<EmojiModel>> {
-    let emojis = g
-        .emojis()
+pub fn emojis_from_group(g: emojis::Group) -> Vec<Vec<EmojiModel>> {
+    g.emojis()
+        .map(emoji_to_model)
         .collect::<Vec<_>>()
         .chunks(EMOJI_COLS)
-        .map(|e| {
-            let e = e.iter().copied();
-            emojis_to_modelrc(e)
-        })
-        .collect::<Vec<_>>();
-
-    ModelRc::from(emojis.as_slice())
+        .map(<[ui::EmojiModel]>::to_vec)
+        .collect::<Vec<_>>()
 }
 
 pub fn get_default_tabs(tone: emojis::SkinTone) -> ModelRc<EmojiModel> {

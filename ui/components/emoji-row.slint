@@ -1,0 +1,35 @@
+import { MyColors, MainState } from "../globals.slint";
+
+import { ComboBox } from "./combobox.slint";
+import { Input } from "./input.slint";
+import { Emoji, EmojiModel } from "./emoji.slint";
+import { TabsHandle } from "../api/tabs.slint";
+import { EmojiHandle } from "emoji.slint";
+import { Navigation } from "../navigation.slint";
+
+
+export global EmojiRows { }
+
+export component EmojiRow inherits Rectangle {
+    in property <[EmojiModel]> emojis: [];
+    callback on-focus();
+
+    HorizontalLayout {
+        for emoji in emojis: Emoji {
+            emoji: emoji;
+            hover => {
+                TabsHandle.emoji-preview.has = true;
+                TabsHandle.emoji-preview.content = emoji;
+            }
+            on-focus() => {
+                root.on-focus();
+            }
+            click => {
+                EmojiHandle.click(emoji.character);
+            }
+            key-pressed(event) => {
+                Navigation.tab(event) || Navigation.key(event)
+            }
+        }
+    }
+}

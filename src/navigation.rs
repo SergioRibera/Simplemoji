@@ -1,8 +1,8 @@
 /// All this code was reused and adapted from library "slint-spatial-focus"
 /// thanks to "dngulin"
 ///
-/// Repository: https://github.com/dngulin/slint-spatial-focus
-/// Commit: https://github.com/dngulin/slint-spatial-focus/tree/6fd54a60715711a1ef3b5e7b35cc558fcbf7a26d
+/// Repository: <https://github.com/dngulin/slint-spatial-focus>
+/// Commit: <https://github.com/dngulin/slint-spatial-focus/tree/6fd54a60715711a1ef3b5e7b35cc558fcbf7a26d>
 ///
 use i_slint_core::api::Window;
 use i_slint_core::item_tree::{ItemRc, ParentItemTraversalMode};
@@ -108,21 +108,21 @@ fn find_next_focusable_item(
     let first = candidates.first()?;
 
     let mut curr_i = first.0.clone();
-    let mut curr_d = distance(&first.1, ctx);
-    let mut curr_od = ort_distance(&first.1, ctx);
+    let mut curr_dist = distance(&first.1, ctx);
+    let mut curr_ortdist = ort_distance(&first.1, ctx);
 
     for (i, r) in &candidates[1..] {
         let d = distance(r, ctx);
         let od = ort_distance(r, ctx);
 
-        if (d - curr_d).abs() <= TOLERANCE {
-            if od < curr_od {
-                curr_od = od;
+        if (d - curr_dist).abs() <= TOLERANCE {
+            if od < curr_ortdist {
+                curr_ortdist = od;
                 curr_i = i.clone();
             }
-        } else if d < curr_d {
-            curr_d = d;
-            curr_od = od;
+        } else if d < curr_dist {
+            curr_dist = d;
+            curr_ortdist = od;
             curr_i = i.clone();
         }
     }
@@ -183,7 +183,7 @@ fn ort_distance(r: &LogicalRect, ctx: &FocusMoveCtx) -> Coord {
         }
     };
 
-    if are_intersected(&a, &b) {
+    if are_intersected(a, b) {
         return 0.0;
     }
 
@@ -193,7 +193,7 @@ fn ort_distance(r: &LogicalRect, ctx: &FocusMoveCtx) -> Coord {
     (ca - cb).abs()
 }
 
-fn are_intersected(a: &(Coord, Coord), b: &(Coord, Coord)) -> bool {
+fn are_intersected(a: (Coord, Coord), b: (Coord, Coord)) -> bool {
     let p1 = a.0 - b.1; // min(a.0, a.1) - max(b.0, b.1)
     let p2 = a.1 - b.0; // max(a.0, a.1) - min(b.0, b.1)
     p1 < 0.0 && p2 > 0.0 // Origin is inside the Minkowski difference, so segments are intersected

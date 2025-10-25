@@ -10,7 +10,8 @@ pub trait Inner {
 
 impl Inner for Window {
     fn inner(&self) -> &WindowInner {
-        unsafe { std::mem::transmute(self) }
+        unsafe { &*std::ptr::from_ref::<Window>(self).cast::<WindowInner>() }
+        //unsafe { std::mem::transmute(self) }
     }
 }
 
