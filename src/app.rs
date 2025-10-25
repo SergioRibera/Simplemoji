@@ -288,16 +288,15 @@ impl MainApp {
         self.window.window().on_winit_window_event({
             let no_close = self.settings.no_close;
             let recent = self.recent.clone();
-          
+
             move |_w, ev| match ev {
                 WindowEvent::CursorLeft { .. } => {
                     save_recent(&recent.borrow().to_vec()).unwrap();
                     (!no_close)
-                      .then(|| slint::quit_event_loop().ok())
-                      .flatten()
-                      .map(|_| EventResult::PreventDefault)
-                      .unwrap_or(EventResult::Propagate)
-              }
+                        .then(|| slint::quit_event_loop().ok())
+                        .flatten()
+                        .map_or(EventResult::Propagate, |()| EventResult::PreventDefault)
+                }
                 _ => EventResult::Propagate,
             }
         });
