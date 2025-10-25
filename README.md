@@ -26,6 +26,7 @@ An application where you can have all the emojis with easy and quick access
 - 🎨 Custom UI Colors
 - 🔘 Customize corner radius
 - ⚡ Blazing Fast
+- 🕟 Recents
 - 🐧 Linux (X11/Wayland)
 
 # 🎨 Custom UI Colors
@@ -64,30 +65,39 @@ Usage: simplemoji [OPTIONS]
 
 Options:
   -t, --tone <TONE>
-          [possible values: default, light, medium-light, medium, medium-dark, dark]
+          The skin tone to apply to emojis [possible values: default, light, medium-light, medium, medium-dark, dark]
   -d, --debug
-          Show debug keys
+          Show debug keys and additional internal information
   -f, --font <FONT>
-          The font use for render emojis
+          The font used to render emojis
+  -r, --corner-radius <CORNER_RADIUS>
+          The corner radius (in pixels) for emojis when they are in focus
   -s, --show-search
-
+          Display the search bar in the UI
+      --show-recent
+          Show the "recent emojis" section
+      --recent-rows <RECENT_ROWS>
+          The number of rows dedicated to recent emojis [default: 1]
+      --recent-type <RECENT_TYPE>
+          The strategy used to manage the recent emojis list [possible values: most-used, pop-push, mixed]
+      --static-recents <STATIC_RECENTS>
+          The number of static recents that always appear in the list [default: 4]
   -z, --fuzzing-search
-          Use fuzzing search algorithms
+          Enable fuzzy search algorithms
   -p, --show-preview
-
+          Show an emoji preview when selecting
   -o, --close-on-copy
-
+          Automatically close the picker after copying an emoji
   -x, --no-close
-          By default the application closes automatically when it is out of focus, this option disables
-          that behavior
+          Prevent the application from closing when it loses focus
   -b, --background-color <BACKGROUND_COLOR>
-          Background color in hex (RGB, RGBA, RRGGBB, RRGGBBAA)
+          The background color of the UI, in hexadecimal format
   -m, --primary-color <PRIMARY_COLOR>
-          Primary color in hex (RGB, RGBA, RRGGBB, RRGGBBAA)
+          The primary accent color of the UI, in hexadecimal format
   -c, --copy-command <COPY_COMMAND>
-          This is the command that will be executed to copy the emoji
+          The command that will be executed to copy an emoji
   -h, --help
-          Print help
+          Print help (see more with '--help')
   -V, --version
           Print version
 ```

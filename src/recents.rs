@@ -12,10 +12,23 @@ use std::{
 
 #[derive(clap::ValueEnum, Clone, Debug, Default)]
 pub enum RecentType {
+    /// Ordered by most used.
+    ///
+    /// This mode prioritizes emojis based on how often they are used.
+    /// The most frequently used emojis appear first.
     #[default]
     MostUsed,
-    Mixed,
+
+    /// Remove first recent and add new to the end.
+    ///
+    /// When a new emoji is added, the oldest one is removed if the list is full.
     PopPush,
+
+    /// A hybrid mode.
+    ///
+    /// The first *N* recents behave like `MostUsed`,
+    /// while the rest behave like `PopPush`.
+    Mixed,
 }
 
 pub fn load_recent(tone: SkinTone) -> Result<Vec<EmojiModel>, Error> {

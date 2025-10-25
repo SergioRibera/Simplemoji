@@ -51,9 +51,9 @@ clap.workspace = true
 slint.workspace = true
 arboard = { version = "3", features = ["wayland-data-control"] }
 i-slint-core = { version = "1.13.1", default-features = false }
-fuzzy-matcher = "0.3.7"
+fuzzy-matcher = "0.3"
 ui = { path = "./crates/ui" }
-bincode = "2.0.1"
+bincode = "2"
 
 [package.metadata.aur]
 depends = ["noto-fonts-emoji", "noto-fonts"]

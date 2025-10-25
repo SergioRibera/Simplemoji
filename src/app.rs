@@ -32,7 +32,8 @@ pub struct MainApp {
 }
 
 impl MainApp {
-    fn close(_window: Weak<MainWindow>) {
+    fn close(_window: Weak<MainWindow>, recent: Rc<RefCell<Vec<Vec<EmojiModel>>>>) {
+        save_recent(&recent.borrow().to_vec()).unwrap();
         #[cfg(debug_assertions)]
         println!("Close");
         #[cfg(not(debug_assertions))]
@@ -112,8 +113,9 @@ impl MainApp {
         global.set_enable_dbg(self.settings.debug);
         global.on_close({
             let window = self.window.as_weak();
+            let recent = self.recent.clone();
             move || {
-                Self::close(window.clone());
+                Self::close(window.clone(), recent.clone());
             }
         });
         self.window.global::<Navigation>().on_move({
@@ -306,7 +308,7 @@ impl MainApp {
             let close = self.settings.close_on_copy;
             let content = self.content.clone();
             let recent = self.recent.clone();
-            let recent_type = self.settings.recent_type.clone();
+            let recent_type = self.settings.recent_type.clone().unwrap_or_default();
             let recent_rows = self.settings.recent_rows;
             let static_recents = self.settings.static_recents;
             let cmd = self.settings.copy_command.clone();
@@ -357,6 +359,7 @@ impl MainApp {
                 }
 
                 if close {
+                    save_recent(&recent.borrow().to_vec()).unwrap();
                     window
                         .upgrade()
                         .unwrap()

@@ -67,14 +67,6 @@ pub fn emoji_to_model(e: &'static emojis::Emoji) -> EmojiModel {
     }
 }
 
-pub fn emojis_to_modelrc(
-    e: impl IntoIterator<Item = &'static emojis::Emoji>,
-) -> ModelRc<EmojiModel> {
-    let emojis = e.into_iter().map(emoji_to_model).collect::<Vec<_>>();
-
-    ModelRc::from(emojis.as_slice())
-}
-
 pub fn emojis_from_group(g: emojis::Group) -> Vec<Vec<EmojiModel>> {
     g.emojis()
         .map(emoji_to_model)
