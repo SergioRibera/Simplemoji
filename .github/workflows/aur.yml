@@ -18,13 +18,13 @@ env:
 jobs:
   publish_aur_package:
     name: Publish AUR package
+    container: archlinux:multilib-devel
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Determine version
         id: version
         run: |
@@ -49,9 +49,9 @@ jobs:
         run: |
           echo "Downloading version: ${{ steps.version.outputs.version }}"
 
-          DOWNLOAD_URL="https://github.com/SergioRibera/Simplemoji/releases/download/v${{ steps.version.outputs.version }}/simplemoji-x86_64-unknown-linux-gnu.tar.gz"
+          DOWNLOAD_URL="https://github.com/SergioRibera/Simplemoji/releases/download/v${{ steps.version.outputs.version }}/simplemoji-x86_64-unknown-linux-gnu.tar.xz"
 
-          if ! curl -v -fL -o "simplemoji-x86_64-unknown-linux-gnu.tar.gz" "$DOWNLOAD_URL"; then
+          if ! curl -v -fL -o "simplemoji-x86_64-unknown-linux-gnu.tar.xz" "$DOWNLOAD_URL"; then
             echo "::error::Failed to download release artifact from $DOWNLOAD_URL"
 
             echo "Checking if release exists..."
@@ -67,33 +67,59 @@ jobs:
           fi
 
           echo "Download verification:"
-          ls -lh "simplemoji-x86_64-unknown-linux-gnu.tar.gz"
-          file "simplemoji-x86_64-unknown-linux-gnu.tar.gz"
+          ls -lh "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
+          file "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
 
           echo "SHA256 checksum:"
-          sha256sum "simplemoji-x86_64-unknown-linux-gnu.tar.gz"
+          sha256sum "simplemoji-x86_64-unknown-linux-gnu.tar.xz"
 
-          if ! tar -tf "simplemoji-x86_64-unknown-linux-gnu.tar.gz" > /dev/null 2>&1; then
-            echo "::error::Downloaded file is not a valid tar.gz archive"
+          if ! tar -tf "simplemoji-x86_64-unknown-linux-gnu.tar.xz" > /dev/null 2>&1; then
+            echo "::error::Downloaded file is not a valid tar.xz archive"
             exit 1
           fi
 
       - name: Generate PKGBUILD
-        run: cargo-aur -o ./aur generate simplemoji-x86_64-unknown-linux-gnu.tar.gz
+        run: mkdir aur && cargo-aur -o ./aur generate simplemoji-x86_64-unknown-linux-gnu.tar.xz
 
       - name: Check PKGBUILD
         run: |
           ls -l
           cat ./aur/PKGBUILD
-          sha256sum simplemoji-x86_64-unknown-linux-gnu.tar.gz || true
+          sha256sum simplemoji-x86_64-unknown-linux-gnu.tar.xz || true
 
       - name: Publish to the AUR
-        uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
-        with:
-          test: true
-          pkgname: ${{ env.APP_NAME }}
-          pkgbuild: ./aur/PKGBUILD
-          commit_username: ${{ secrets.AUR_USERNAME }}
-          commit_email: ${{ secrets.AUR_EMAIL }}
-          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          commit_message: Release ${{ steps.version.outputs.version }}
+        run: |
+          set -e
+
+          pacman -Syu --noconfirm git base-devel openssh pacman-contrib
+
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+          mkdir -p /home/builder/.ssh
+          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > /home/builder/.ssh/id_rsa
+          chmod 600 /home/builder/.ssh/id_rsa
+          ssh-keyscan aur.archlinux.org >> /home/builder/.ssh/known_hosts
+          chown -R builder:builder /home/builder/.ssh
+
+          chown -R builder:builder "$PWD"
+          chmod -R 755 "$PWD"
+          REPO_DIR="$PWD"
+
+          su --preserve-environment builder -c "
+            git clone ssh://aur@aur.archlinux.org/${{ env.APP_NAME }}.git aur-repo
+            cd aur-repo
+
+            cp "$REPO_DIR/aur/PKGBUILD" .
+            cp "$REPO_DIR/simplemoji-x86_64-unknown-linux-gnu.tar.xz" . || true
+
+            updpkgsums
+            makepkg --printsrcinfo > .SRCINFO
+            makepkg --check --syncdeps --noconfirm
+
+            git config user.name \"${{ secrets.AUR_USERNAME }}\"
+            git config user.email \"${{ secrets.AUR_EMAIL }}\"
+            git add PKGBUILD .SRCINFO
+            git commit -m \"Release ${{ steps.version.outputs.version }}\" || echo No changes to commit
+            git push origin master
+          "
