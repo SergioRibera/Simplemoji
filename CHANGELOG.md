@@ -1,4 +1,15 @@
 
+## New Version [1.2.1]
+
+### ⚙️ Miscellaneous Tasks
+
+- Disable recents by default
+- Fix aur publish
+
+### Build
+
+- Update slint
+
 ## New Version [1.2.0]
 
 ### 🚀 Features
@@ -14,6 +25,10 @@
 - Tone from args was not applied in the tabs content
 - Move name by codes position
 - Remove padding right on preview
+
+### ⚙️ Miscellaneous Tasks
+
+- Release simplemoji version {{version}}
 
 ### Feat
 
