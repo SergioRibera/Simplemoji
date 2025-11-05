@@ -25,7 +25,7 @@ pub struct ArgOpts {
     #[arg(long, short = 's')]
     pub show_search: bool,
     /// Show the "recent emojis" section.
-    #[arg(long, default_value_t = true)]
+    #[arg(long, default_value_t = false)]
     pub show_recent: bool,
     /// The number of rows dedicated to recent emojis.
     #[arg(long, default_value_t = 1)]
