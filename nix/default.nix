@@ -14,6 +14,7 @@
     fontconfig
     pkgs.stdenv.cc.cc.lib
     rustPlatform.bindgenHook
+    libxcb
     xorg.libX11
     xorg.libxcb
     freetype
@@ -86,8 +87,8 @@
           owner = "rust-skia";
           repo = "skia";
           # see rust-skia:skia-bindings/Cargo.toml#package.metadata skia
-          tag = "m138-0.86.2";
-          hash = "sha256-35dQPlvE5mvFv+bvdKG1r9tme8Ba5hnuepVbUp1J9S4=";
+          tag = "m141-0.88.0";
+          hash = "sha256-CB7zRtAQ2KNak6YZB+5kAN/nkmou+mJM/pK/skN9Fqk=";
         };
         # The externals for skia are taken from skia/DEPS
         externals = pkgs.linkFarm "skia-externals" (

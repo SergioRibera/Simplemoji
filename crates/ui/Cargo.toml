@@ -9,4 +9,4 @@ clap.workspace = true
 slint.workspace = true
 
 [build-dependencies]
-slint-build = "1.13.1"
+slint-build = "1.14"
