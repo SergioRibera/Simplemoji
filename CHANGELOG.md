@@ -1,8 +1,20 @@
 
+## New Version [1.2.2]
+
+### 🐛 Bug Fixes
+
+- Window size extra large
+- Prevent show recent line on search
+
+### 🚜 Refactor
+
+- Remove unnecesary commented code
+
 ## New Version [1.2.1]
 
 ### ⚙️ Miscellaneous Tasks
 
+- Release simplemoji version {{version}}
 - Disable recents by default
 - Fix aur publish
 
