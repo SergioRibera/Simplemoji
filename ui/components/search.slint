@@ -16,6 +16,7 @@ export enum SkinTone {
 
 export global SearchGlobal {
     in-out property<SkinTone> tone: SkinTone.Default;
+    in-out property<string> search-text;
 
     callback search(/* search */ string);
     callback change_tone(/* tone */ string);
@@ -66,6 +67,7 @@ export component Search inherits Rectangle {
                 background: MyColors.background;
 
                 changed text => {
+                    SearchGlobal.search-text = self.text;
                     SearchGlobal.search(self.text);
                 }
             }

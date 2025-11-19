@@ -98,7 +98,7 @@ export component MainWindow inherits Window {
                             }
                         }
 
-                        if (index == (MainState.recent-rows - 1) && row.length > 0) || (index <= (MainState.recent-rows - 1) && emojis[index + 1].length == 0 && row.length > 0): Rectangle {
+                        if ((index == (MainState.recent-rows - 1) && row.length > 0) || (index <= (MainState.recent-rows - 1) && emojis[index + 1].length == 0 && row.length > 0)) && SearchGlobal.search-text.is-empty: Rectangle {
                             width: 85%;
                             height: 1.5px;
                             background: MyColors.foreground.transparentize(0.8);
