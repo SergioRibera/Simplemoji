@@ -7,7 +7,7 @@ use app::MainApp;
 use clap::Parser;
 use settings::ArgOpts;
 use slint::ComponentHandle;
-use slint::winit_030::winit::dpi::{LogicalPosition, Position};
+use slint::winit_030::winit::dpi::{LogicalPosition, LogicalSize, Position, Size};
 use slint::winit_030::winit::window::WindowButtons;
 
 use self::utils::mouse_to_window_pos;
@@ -45,6 +45,10 @@ fn main() -> Result<(), slint::PlatformError> {
                 .with_visible(true)
                 .with_enabled_buttons(WindowButtons::empty())
                 .with_position(Position::Logical(LogicalPosition::new(x as f64, y as f64)))
+                .with_inner_size(Size::Logical(LogicalSize::new(
+                    APP_WIDTH as f64,
+                    height as f64,
+                )))
         })
         .select()?;
 
