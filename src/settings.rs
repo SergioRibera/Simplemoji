@@ -1,10 +1,13 @@
+use std::sync::Arc;
+
 use clap::Parser;
 
+use imekit::InputMethod;
 use ui::SkinTone;
 
 use crate::recents::RecentType;
 
-#[derive(Parser, Debug, Default)]
+#[derive(Parser, Default)]
 #[command(author, version, about, long_about = None)]
 #[command(next_line_help = true)]
 #[allow(clippy::struct_excessive_bools)]
@@ -59,4 +62,8 @@ pub struct ArgOpts {
     /// For example: `--copy-command "xclip -selection clipboard"`.
     #[arg(long, short)]
     pub copy_command: Option<String>,
+
+    /// No args
+    #[arg(skip)]
+    pub ime: Option<Arc<InputMethod>>,
 }

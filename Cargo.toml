@@ -54,6 +54,7 @@ i-slint-core = { version = "1.14", default-features = false }
 fuzzy-matcher = "0.3"
 ui = { path = "./crates/ui" }
 bincode = "2"
+imekit = { version = "0.1", features = ["ibus", "log"] }
 
 [package.metadata.aur]
 depends = ["noto-fonts-emoji", "noto-fonts"]

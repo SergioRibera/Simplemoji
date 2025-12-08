@@ -28,6 +28,10 @@ An application where you can have all the emojis with easy and quick access
 - ⚡ Blazing Fast
 - 🕟 Recents
 - 🐧 Linux (X11/Wayland)
+- ㊗️ Use IME to auto insert emoji into input texts (all platform supported)
+
+> [!NOTE]
+> For more details about IME, see [imekit](https://github.com/SergioRibera/imekit#platform-support) crate.
 
 # 🎨 Custom UI Colors
 <p align="center">

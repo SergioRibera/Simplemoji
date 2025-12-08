@@ -26,6 +26,7 @@ use ui::{
 pub struct MainApp {
     window: MainWindow,
     settings: ArgOpts,
+    last_ime: u32,
     tone: Arc<Mutex<SkinTone>>,
     content: ModelRc<ModelRc<EmojiModel>>,
     recent: Rc<RefCell<Vec<Vec<EmojiModel>>>>,
@@ -69,8 +70,15 @@ impl MainApp {
         let mut model = recents.clone();
         model.extend(content);
 
+        let last_ime = settings
+            .ime
+            .as_ref()
+            .map(|ime| ime.state().serial)
+            .unwrap_or_default();
+
         Self {
             tone: Arc::new(Mutex::new(tone)),
+            last_ime,
             settings,
             window: MainWindow::new().unwrap(),
             recent: Rc::new(RefCell::from(recents)),
@@ -302,6 +310,7 @@ impl MainApp {
             let recent_rows = self.settings.recent_rows;
             let static_recents = self.settings.static_recents;
             let cmd = self.settings.copy_command.clone();
+            let ime = self.settings.ime.clone().map(|ime| (self.last_ime, ime));
             let mut clipboard = cmd.is_none().then(|| Clipboard::new().unwrap());
 
             move |emoji| {
@@ -318,6 +327,15 @@ impl MainApp {
                         .unwrap();
                 } else if let Some(clipboard) = clipboard.as_mut() {
                     clipboard.set_text(emoji.as_str()).unwrap();
+                }
+
+                if let Some((last_ime, ime)) = ime.as_ref() {
+                    _ = ime
+                        .commit_string(&emoji)
+                        .inspect_err(|e| log::error!("Fail to set emoji with IME: {e}"));
+                    _ = ime
+                        .commit(*last_ime)
+                        .inspect_err(|e| log::error!("Fail to commit with IME: {e}"));
                 }
 
                 match recent_type {

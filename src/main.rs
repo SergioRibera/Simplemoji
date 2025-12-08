@@ -3,10 +3,13 @@
     windows_subsystem = "windows"
 )]
 
+use std::sync::Arc;
+
 use app::MainApp;
 use clap::Parser;
 use settings::ArgOpts;
 use slint::ComponentHandle;
+use slint::winit_030::WinitWindowAccessor;
 use slint::winit_030::winit::dpi::{LogicalPosition, LogicalSize, Position, Size};
 use slint::winit_030::winit::window::WindowButtons;
 
@@ -29,7 +32,11 @@ pub const EMOJI_COLS: usize = 9;
 fn main() -> Result<(), slint::PlatformError> {
     env_logger::Builder::from_env("SIMPLEMOJI").init();
 
-    let flags = ArgOpts::parse();
+    let mut flags = ArgOpts::parse();
+    flags.ime = imekit::InputMethod::new()
+        .inspect_err(|e| log::error!("Fail to create InputMethod: {e}"))
+        .ok()
+        .map(Arc::new);
 
     let show_preview = flags.show_preview;
     slint::BackendSelector::new()
@@ -57,6 +64,19 @@ fn main() -> Result<(), slint::PlatformError> {
     slint::invoke_from_event_loop({
         let window = app.window();
         move || {
+            slint::spawn_local({
+                let window = window.clone();
+                async move {
+                    window
+                        .unwrap()
+                        .window()
+                        .winit_window()
+                        .await
+                        .unwrap()
+                        .set_ime_allowed(false);
+                }
+            })
+            .unwrap();
             window.unwrap().window().show().unwrap();
         }
     })
