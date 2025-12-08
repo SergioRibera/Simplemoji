@@ -30,12 +30,13 @@ jobs:
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
             CLEAN_VERSION=$(echo "${{ github.event.inputs.version }}" | sed 's/^v//')
-            echo "Using manually specified version: ${{ github.event.inputs.version }} (clean: ${CLEAN_VERSION})"
             echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
           else
-            AUTO_VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
-            echo "Using auto-detected version: $(git describe --tags --abbrev=0) (clean: ${AUTO_VERSION})"
-            echo "version=${AUTO_VERSION}" >> $GITHUB_OUTPUT
+            git fetch --tags
+            LATEST_TAG=$(git tag --sort=-version:refname | head -n1)
+            CLEAN_VERSION=$(echo "$LATEST_TAG" | sed 's/^v//')
+            echo "Using latest tag: $LATEST_TAG (clean: ${CLEAN_VERSION})"
+            echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
           fi
 
       - uses: dtolnay/rust-toolchain@stable
