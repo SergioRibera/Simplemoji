@@ -1,4 +1,18 @@
 
+## New Version [1.2.3]
+
+### 🚀 Features
+
+- Add auto insert into input using IME
+
+### 🐛 Bug Fixes
+
+- Some results not show on search
+
+### ⚙️ Miscellaneous Tasks
+
+- Fix get version from github aur workflow
+
 ## New Version [1.2.2]
 
 ### 🐛 Bug Fixes
@@ -9,6 +23,10 @@
 ### 🚜 Refactor
 
 - Remove unnecesary commented code
+
+### ⚙️ Miscellaneous Tasks
+
+- Release simplemoji version {{version}}
 
 ## New Version [1.2.1]
 
