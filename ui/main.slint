@@ -72,7 +72,7 @@ export component MainWindow inherits Window {
                 vertical-scrollbar-policy: always-off;
 
                 for row[index] in emojis: r := VerticalLayout {
-                    if index <= (MainState.recent-rows - 1) && MainState.show-recent: VerticalLayout {
+                    if index <= (MainState.recent-rows - 1): VerticalLayout {
                         if row.length > 0: EmojiRow {
                             emojis: row;
                             on-focus() => {
