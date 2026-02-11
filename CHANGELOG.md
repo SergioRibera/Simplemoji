@@ -1,4 +1,10 @@
 
+## New Version [1.2.4]
+
+### ⚙️ Miscellaneous Tasks
+
+- Update deps
+
 ## New Version [1.2.3]
 
 ### 🚀 Features
@@ -11,6 +17,7 @@
 
 ### ⚙️ Miscellaneous Tasks
 
+- Release simplemoji version {{version}}
 - Fix get version from github aur workflow
 
 ### Build

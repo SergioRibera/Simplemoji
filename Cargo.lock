@@ -4175,7 +4175,7 @@ dependencies = [
 
 [[package]]
 name = "simplemoji"
-version = "1.2.3"
+version = "1.2.4"
 dependencies = [
  "arboard",
  "bincode",
