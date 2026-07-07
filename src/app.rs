@@ -405,13 +405,17 @@ impl MainApp {
         }
 
         let committed = self.settings.ime.as_mut().map_or(false, |ime| {
+            #[cfg(target_os = "linux")]
             log::debug!(
                 "commit_pending: backend is_x11={} is_wayland={} is_active={}",
                 ime.is_x11(),
                 ime.is_wayland(),
                 ime.is_active(),
             );
+            #[cfg(not(target_os = "linux"))]
+            log::debug!("commit_pending: backend is_active={}", ime.is_active());
 
+            #[cfg(target_os = "linux")]
             if ime.is_x11() {
                 // X11/XTest injects fake key events to the focused window directly;
                 // no activation protocol needed.
