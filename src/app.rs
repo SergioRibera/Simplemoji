@@ -314,11 +314,13 @@ impl MainApp {
             // Commit happens after the window closes so the previous input has focus.
             let use_ime = cmd.is_none() && self.settings.ime.is_some();
             let pending_emoji = self.pending_emoji.clone();
-            let mut clipboard = (!use_ime && cmd.is_none()).then(|| {
-                Clipboard::new()
-                    .inspect_err(|e| log::error!("Fail to create clipboard: {e}"))
-                    .ok()
-            }).flatten();
+            let mut clipboard = (!use_ime && cmd.is_none())
+                .then(|| {
+                    Clipboard::new()
+                        .inspect_err(|e| log::error!("Fail to create clipboard: {e}"))
+                        .ok()
+                })
+                .flatten();
 
             move |emoji| {
                 if use_ime {
@@ -429,7 +431,10 @@ impl MainApp {
                 log::trace!("commit_pending: stale[{drained}] {ev:?}");
                 drained += 1;
             }
-            log::debug!("commit_pending: drained {drained} stale events, is_active={}", ime.is_active());
+            log::debug!(
+                "commit_pending: drained {drained} stale events, is_active={}",
+                ime.is_active()
+            );
 
             if ime.is_active() {
                 // Terminal re-activated during window close — use the current serial.
@@ -438,7 +443,10 @@ impl MainApp {
                 return ime
                     .commit_string(&emoji)
                     .inspect_err(|e| log::error!("IME commit_string: {e}"))
-                    .and_then(|_| ime.commit(serial).inspect_err(|e| log::error!("IME commit: {e}")))
+                    .and_then(|_| {
+                        ime.commit(serial)
+                            .inspect_err(|e| log::error!("IME commit: {e}"))
+                    })
                     .is_ok();
             }
 
