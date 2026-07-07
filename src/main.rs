@@ -3,8 +3,6 @@
     windows_subsystem = "windows"
 )]
 
-use std::sync::Arc;
-
 use app::MainApp;
 use clap::Parser;
 use settings::ArgOpts;
@@ -35,8 +33,7 @@ fn main() -> Result<(), slint::PlatformError> {
     let mut flags = ArgOpts::parse();
     flags.ime = imekit::InputMethod::new()
         .inspect_err(|e| log::error!("Fail to create InputMethod: {e}"))
-        .ok()
-        .map(Arc::new);
+        .ok();
 
     let show_preview = flags.show_preview;
     slint::BackendSelector::new()
@@ -84,5 +81,7 @@ fn main() -> Result<(), slint::PlatformError> {
 
     app.set_globals();
     app.set_events();
-    app.run()
+    app.run()?;
+    app.commit_pending();
+    Ok(())
 }

@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use clap::Parser;
 
 use imekit::InputMethod;
@@ -57,13 +55,17 @@ pub struct ArgOpts {
     /// The primary accent color of the UI, in hexadecimal format.
     #[arg(long, short = 'm')]
     pub primary_color: Option<String>,
-    /// The command that will be executed to copy an emoji.
+    /// The command that will be executed to copy an emoji instead of using IME injection.
     ///
-    /// For example: `--copy-command "xclip -selection clipboard"`.
+    /// When set, simplemoji always copies via this command and skips IME entirely.
+    /// Without this flag, simplemoji injects the emoji into the previously focused
+    /// input via IME, falling back to the system clipboard only when IME is unavailable.
+    ///
+    /// Example: `--copy-command "xclip -selection clipboard"`.
     #[arg(long, short)]
     pub copy_command: Option<String>,
 
     /// No args
     #[arg(skip)]
-    pub ime: Option<Arc<InputMethod>>,
+    pub ime: Option<InputMethod>,
 }

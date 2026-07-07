@@ -1,8 +1,10 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 use arboard::Clipboard;
+use imekit::InputMethodEvent;
 
 use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
@@ -24,15 +26,19 @@ use ui::{
 };
 
 pub struct MainApp {
-    window: MainWindow,
+    window: Option<MainWindow>,
     settings: ArgOpts,
-    last_ime: u32,
     tone: Arc<Mutex<SkinTone>>,
     content: ModelRc<ModelRc<EmojiModel>>,
     recent: Rc<RefCell<Vec<Vec<EmojiModel>>>>,
+    pending_emoji: Rc<RefCell<Option<String>>>,
 }
 
 impl MainApp {
+    fn win(&self) -> &MainWindow {
+        self.window.as_ref().expect("window used after drop")
+    }
+
     fn close(_window: Weak<MainWindow>, recent: Rc<RefCell<Vec<Vec<EmojiModel>>>>) {
         save_recent(&recent.borrow().to_vec()).unwrap();
         #[cfg(debug_assertions)]
@@ -70,28 +76,22 @@ impl MainApp {
         let mut model = recents.clone();
         model.extend(content);
 
-        let last_ime = settings
-            .ime
-            .as_ref()
-            .map(|ime| ime.state().serial)
-            .unwrap_or_default();
-
         Self {
             tone: Arc::new(Mutex::new(tone)),
-            last_ime,
             settings,
-            window: MainWindow::new().unwrap(),
+            window: Some(MainWindow::new().unwrap()),
             recent: Rc::new(RefCell::from(recents)),
             content: vec_to_model(&model),
+            pending_emoji: Rc::new(RefCell::new(None)),
         }
     }
 
     pub fn window(&self) -> Weak<MainWindow> {
-        self.window.as_weak()
+        self.win().as_weak()
     }
 
     pub fn set_globals(&self) {
-        let global = self.window.global::<MainState>();
+        let global = self.win().global::<MainState>();
         global.set_show_preview(self.settings.show_preview);
         global.set_show_search(self.settings.show_search);
         global.set_show_recent(self.settings.show_recent);
@@ -106,28 +106,28 @@ impl MainApp {
             global.set_font(SharedString::from(font));
         }
 
-        let colors = self.window.global::<MyColors>();
+        let colors = self.win().global::<MyColors>();
         if let Some(color) = self.settings.background_color.as_ref() {
             colors.set_background(color.to_rgba().unwrap());
         }
         if let Some(color) = self.settings.primary_color.as_ref() {
             colors.set_foreground(color.to_rgba().unwrap());
         }
-        self.window.set_emojis(self.content.clone());
+        self.win().set_emojis(self.content.clone());
     }
 
     pub fn set_events(&self) {
-        let global = self.window.global::<MainState>();
+        let global = self.win().global::<MainState>();
         global.set_enable_dbg(self.settings.debug);
         global.on_close({
-            let window = self.window.as_weak();
+            let window = self.win().as_weak();
             let recent = self.recent.clone();
             move || {
                 Self::close(window.clone(), recent.clone());
             }
         });
-        self.window.global::<Navigation>().on_move({
-            let window = self.window.as_weak();
+        self.win().global::<Navigation>().on_move({
+            let window = self.win().as_weak();
             move |e| {
                 window.upgrade().unwrap().window().move_focus(e);
             }
@@ -135,7 +135,7 @@ impl MainApp {
     }
     #[allow(clippy::too_many_lines)]
     pub fn run(&mut self) -> Result<(), slint::PlatformError> {
-        let tabs = self.window.global::<TabsHandle>();
+        let tabs = self.win().global::<TabsHandle>();
         let tone = { *self.tone.lock().unwrap() };
 
         tabs.set_tab(emojis::Group::SmileysAndEmotion as i32);
@@ -180,11 +180,11 @@ impl MainApp {
             }
         });
 
-        let search = self.window.global::<SearchGlobal>();
+        let search = self.win().global::<SearchGlobal>();
         search.set_tone(tone);
         search.on_search({
             let tone = self.tone.clone();
-            let window = self.window.as_weak();
+            let window = self.win().as_weak();
             let content = self.content.clone();
 
             let use_fuzze = self.settings.fuzzing_search;
@@ -250,7 +250,7 @@ impl MainApp {
         search.on_change_tone({
             let tone = self.tone.clone();
             let content = self.content.clone();
-            let window = self.window.as_weak();
+            let window = self.win().as_weak();
             move |t| {
                 let t = t.as_str().parse().unwrap();
                 {
@@ -285,7 +285,7 @@ impl MainApp {
             }
         });
 
-        self.window.window().on_winit_window_event({
+        self.win().window().on_winit_window_event({
             let no_close = self.settings.no_close;
             let recent = self.recent.clone();
 
@@ -301,8 +301,8 @@ impl MainApp {
             }
         });
 
-        self.window.global::<EmojiHandle>().on_click({
-            let window = self.window.as_weak();
+        self.win().global::<EmojiHandle>().on_click({
+            let window = self.win().as_weak();
             let close = self.settings.close_on_copy;
             let content = self.content.clone();
             let recent = self.recent.clone();
@@ -310,14 +310,23 @@ impl MainApp {
             let recent_rows = self.settings.recent_rows;
             let static_recents = self.settings.static_recents;
             let cmd = self.settings.copy_command.clone();
-            let ime = self.settings.ime.clone().map(|ime| (self.last_ime, ime));
-            let mut clipboard = cmd.is_none().then(|| Clipboard::new().unwrap());
+            // Use IME only when no copy-command is set and IME is available.
+            // Commit happens after the window closes so the previous input has focus.
+            let use_ime = cmd.is_none() && self.settings.ime.is_some();
+            let pending_emoji = self.pending_emoji.clone();
+            let mut clipboard = (!use_ime && cmd.is_none()).then(|| {
+                Clipboard::new()
+                    .inspect_err(|e| log::error!("Fail to create clipboard: {e}"))
+                    .ok()
+            }).flatten();
 
             move |emoji| {
-                if let Some(cmd) = cmd.as_deref() {
-                    let mut cmd = cmd.split(' ');
-                    let bin = cmd.next().unwrap();
-                    let mut args = cmd.collect::<Vec<&str>>();
+                if use_ime {
+                    *pending_emoji.borrow_mut() = Some(emoji.to_string());
+                } else if let Some(cmd) = cmd.as_deref() {
+                    let mut parts = cmd.split(' ');
+                    let bin = parts.next().unwrap();
+                    let mut args = parts.collect::<Vec<&str>>();
                     args.push(&emoji);
                     _ = std::process::Command::new(bin)
                         .args(args)
@@ -326,16 +335,10 @@ impl MainApp {
                         .wait()
                         .unwrap();
                 } else if let Some(clipboard) = clipboard.as_mut() {
-                    clipboard.set_text(emoji.as_str()).unwrap();
-                }
-
-                if let Some((last_ime, ime)) = ime.as_ref() {
-                    _ = ime
-                        .commit_string(&emoji)
-                        .inspect_err(|e| log::error!("Fail to set emoji with IME: {e}"));
-                    _ = ime
-                        .commit(*last_ime)
-                        .inspect_err(|e| log::error!("Fail to commit with IME: {e}"));
+                    clipboard
+                        .set_text(emoji.as_str())
+                        .inspect_err(|e| log::error!("Fail to copy emoji to clipboard: {e}"))
+                        .ok();
                 }
 
                 match recent_type {
@@ -366,7 +369,7 @@ impl MainApp {
                     content.set_row_data(i, ModelRc::from(row.as_ref()));
                 }
 
-                if close {
+                if use_ime || close {
                     save_recent(&recent.borrow().to_vec()).unwrap();
                     window
                         .upgrade()
@@ -377,7 +380,124 @@ impl MainApp {
             }
         });
 
-        self.window.run()
+        // Take the window out so it's dropped when run() returns, destroying the
+        // Wayland surface before commit_pending waits for the compositor's Activate.
+        self.window.take().unwrap().run()
+    }
+
+    pub fn commit_pending(&mut self) {
+        let emoji = match self.pending_emoji.borrow_mut().take() {
+            Some(e) => e,
+            None => {
+                log::debug!("commit_pending: no pending emoji, skipping");
+                return;
+            }
+        };
+
+        log::info!("commit_pending: emoji={emoji}");
+
+        if self.settings.ime.is_none() {
+            log::info!("commit_pending: no IME available, using clipboard fallback");
+            self.clipboard_fallback(&emoji);
+            return;
+        }
+
+        let committed = self.settings.ime.as_mut().map_or(false, |ime| {
+            log::debug!(
+                "commit_pending: backend is_x11={} is_wayland={} is_active={}",
+                ime.is_x11(),
+                ime.is_wayland(),
+                ime.is_active(),
+            );
+
+            if ime.is_x11() {
+                // X11/XTest injects fake key events to the focused window directly;
+                // no activation protocol needed.
+                log::info!("commit_pending: X11/XTest path, committing directly");
+                return ime
+                    .commit_string(&emoji)
+                    .inspect_err(|e| log::error!("X11 XTest commit_string: {e}"))
+                    .is_ok();
+            }
+
+            // Drain stale events that accumulated while the window was open.
+            // The terminal may have re-gained focus (and triggered Activate) during
+            // the window-close transition — in that case is_active() will be true
+            // after drain and we can commit immediately without sleeping.
+            let mut drained = 0usize;
+            while let Some(ev) = ime.next_event() {
+                log::trace!("commit_pending: stale[{drained}] {ev:?}");
+                drained += 1;
+            }
+            log::debug!("commit_pending: drained {drained} stale events, is_active={}", ime.is_active());
+
+            if ime.is_active() {
+                // Terminal re-activated during window close — use the current serial.
+                let serial = ime.state().serial;
+                log::info!("commit_pending: IME already active (serial={serial}), committing");
+                return ime
+                    .commit_string(&emoji)
+                    .inspect_err(|e| log::error!("IME commit_string: {e}"))
+                    .and_then(|_| ime.commit(serial).inspect_err(|e| log::error!("IME commit: {e}")))
+                    .is_ok();
+            }
+
+            // IME not yet active; sleep so the compositor finishes processing the
+            // window destruction and re-activates the previously focused text input.
+            log::debug!("commit_pending: sleeping 150ms for focus restore");
+            std::thread::sleep(Duration::from_millis(150));
+
+            log::info!("commit_pending: waiting for Activate event (Wayland/IBus)");
+            let deadline = Instant::now() + Duration::from_secs(2);
+            loop {
+                if Instant::now() >= deadline {
+                    log::warn!("commit_pending: Activate timeout after 2s");
+                    return false;
+                }
+                match ime.next_event() {
+                    Some(InputMethodEvent::Activate { serial }) => {
+                        log::info!("commit_pending: got Activate serial={serial}, committing");
+                        return ime
+                            .commit_string(&emoji)
+                            .inspect_err(|e| log::error!("IME commit_string: {e}"))
+                            .and_then(|_| {
+                                ime.commit(serial)
+                                    .inspect_err(|e| log::error!("IME commit: {e}"))
+                            })
+                            .is_ok();
+                    }
+                    Some(ev) => {
+                        log::debug!("commit_pending: ignoring event {ev:?}");
+                    }
+                    None => std::thread::sleep(Duration::from_millis(5)),
+                }
+            }
+        });
+
+        if !committed {
+            log::info!("commit_pending: IME commit failed, falling back to clipboard");
+            self.clipboard_fallback(&emoji);
+        } else {
+            log::info!("commit_pending: done");
+        }
+    }
+
+    fn clipboard_fallback(&self, emoji: &str) {
+        if let Some(cmd) = self.settings.copy_command.as_deref() {
+            let mut parts = cmd.split(' ');
+            let bin = parts.next().unwrap();
+            let args: Vec<&str> = parts.collect();
+            _ = std::process::Command::new(bin)
+                .args(args)
+                .arg(emoji)
+                .spawn()
+                .and_then(|mut c| c.wait());
+        } else if let Ok(mut clipboard) = Clipboard::new() {
+            clipboard
+                .set_text(emoji)
+                .inspect_err(|e| log::error!("Fail to copy emoji to clipboard: {e}"))
+                .ok();
+        }
     }
 }
 
