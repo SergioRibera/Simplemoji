@@ -6,7 +6,7 @@
   ...
 }: let
   toolchain = (pkgs.rust-bin.fromRustupToolchainFile ./../rust-toolchain.toml);
-  cargoManifest = builtins.fromTOML (builtins.readFile ./../Cargo.toml);
+  cargoManifest = fromTOML (builtins.readFile ./../Cargo.toml);
   rustPkgs = if crossPkgs == null then pkgs else crossPkgs;
 
   buildInputs = with pkgs; [
@@ -15,8 +15,8 @@
     pkgs.stdenv.cc.cc.lib
     rustPlatform.bindgenHook
     libxcb
-    xorg.libX11
-    xorg.libxcb
+    libx11
+    libxcb
     freetype
     libxkbcommon
 
@@ -31,11 +31,11 @@
     libglvnd
     fontconfig
     libxkbcommon
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXext
-    xorg.libXrandr
-    xorg.libXi
+    libx11
+    libxcursor
+    libxext
+    libxrandr
+    libxi
     wayland
     vulkan-loader
   ];
@@ -87,8 +87,8 @@
           owner = "rust-skia";
           repo = "skia";
           # see rust-skia:skia-bindings/Cargo.toml#package.metadata skia
-          tag = "m142-0.89.1";
-          hash = "sha256-J7mBQ124/dODxX6MsuMW1NHizCMATAqdSzwxpP2afgk=";
+          tag = "m150-0.98.1";
+          hash = "sha256-h/TFrGlqDur7bvIc9CBqDBwSJOQBk0N52/jwle3ay7c=";
         };
         # The externals for skia are taken from skia/DEPS
         externals = pkgs.linkFarm "skia-externals" (
