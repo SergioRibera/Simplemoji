@@ -1,8 +1,30 @@
 
+## New Version [1.2.5]
+
+### 🚀 Features
+
+- Update dependencies
+- Inject emoji via IME into previously focused input
+
+### 🐛 Bug Fixes
+
+- Update imekit to 0.2.2 fixing windows-core missing dep on Windows build
+- Install libxkbcommon and wayland deps in release CI for Linux targets
+- Guard is_x11/is_wayland calls with cfg(target_os = "linux")
+
+### ⚙️ Miscellaneous Tasks
+
+- Add consolidate-commits = false to release config
+
+### Build
+
+- Update dependencies
+
 ## New Version [1.2.4]
 
 ### ⚙️ Miscellaneous Tasks
 
+- Release simplemoji version {{version}}
 - Update deps
 
 ## New Version [1.2.3]
